@@ -1,0 +1,105 @@
+% file: cscomm-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+
+\begin{tla}
+------------------------------- MODULE CSComm -------------------------------
+CONSTANTS Client, Server, Msg
+Replica == Client \cup {Server}
+-----------------------------------------------------------------------------
+VARIABLES
+    cincoming,  \* $cincoming[c]$: incoming FIFO channel at client $c \in Client$
+    sincoming   \* incoming FIFO channel at the $Server$
+-----------------------------------------------------------------------------
+CSend(msg) == \* A client sends a message $msg$ to the $Server$.
+    /\ sincoming' = Append(sincoming, msg)
+    /\ UNCHANGED cincoming
+
+CRev(c) == \* Client $c$ receives and consumes a message from the $Server$.                  
+    /\ cincoming[c] # <<>>
+    /\ cincoming' = [cincoming EXCEPT ![c] = Tail(@)]
+    /\ UNCHANGED sincoming
+-----------------------------------------------------------------------------
+SRev == \* The $Server$ receives and consumes a message.      
+    /\ sincoming # <<>>
+    /\ sincoming' = Tail(sincoming)
+
+SSend(c, cmsg) == \* The $Server$ sents a message $cmsg[cl]$ to client $cl$ (other than $c$).
+    /\ cincoming' = [cl \in Client |-> IF cl = c 
+                                       THEN cincoming[cl] 
+                                       ELSE Append(cincoming[cl], cmsg[cl])]
+
+SSendSame(c, msg) == \* The $Server$ broadcasts the message $msg$ to all clients other than $c$.
+    /\ SSend(c, [cl \in Client |-> msg])
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} CSComm}\moduleRightDash\@xx{}%
+\@x{ {\CONSTANTS} Client ,\, Server ,\, Msg}%
+\@x{ Replica \.{\defeq} Client \.{\cup} \{ Server \}}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES}}%
+\@x{\@s{16.4} cincoming ,\,\@s{4.1}}%
+\@y{%
+  $cincoming[c]$: incoming FIFO channel at client $c \in Client$
+}%
+\@xx{}%
+\@x{\@s{16.4} sincoming\@s{10.72}}%
+\@y{%
+  incoming FIFO channel at the $Server$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ CSend ( msg ) \.{\defeq}}%
+\@y{%
+  A client sends a message $msg$ to the $Server$.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} sincoming \.{'} \.{=} Append ( sincoming ,\, msg )}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} cincoming}%
+\@pvspace{8.0pt}%
+\@x{ CRev ( c ) \.{\defeq}}%
+\@y{%
+ Client $c$ receives and consumes a message from the $Server$.              
+}%
+\@xx{}%
+\@x{\@s{24.21} \.{\land} cincoming [ c ] \.{\neq} {\langle} {\rangle}}%
+ \@x{\@s{24.21} \.{\land} cincoming \.{'} \.{=} [ cincoming {\EXCEPT} {\bang}
+ [ c ] \.{=} Tail ( @ ) ]}%
+\@x{\@s{24.21} \.{\land} {\UNCHANGED} sincoming}%
+\@x{}\midbar\@xx{}%
+\@x{ SRev \.{\defeq}}%
+\@y{%
+  The $Server$ receives and consumes a message.      
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} sincoming \.{\neq} {\langle} {\rangle}}%
+\@x{\@s{16.4} \.{\land} sincoming \.{'} \.{=} Tail ( sincoming )}%
+\@pvspace{8.0pt}%
+\@x{ SSend ( c ,\, cmsg ) \.{\defeq}}%
+\@y{%
+  The $Server$ sents a message $cmsg[cl]$ to client $cl$ (other than $c$).
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\land} cincoming \.{'} \.{=} [ cl \.{\in} Client \.{\mapsto}
+ {\IF} cl \.{=} c}%
+\@x{\@s{155.61} \.{\THEN} cincoming [ cl ]}%
+\@x{\@s{155.61} \.{\ELSE} Append ( cincoming [ cl ] ,\, cmsg [ cl ] ) ]}%
+\@pvspace{8.0pt}%
+\@x{ SSendSame ( c ,\, msg ) \.{\defeq}}%
+\@y{%
+  The $Server$ broadcasts the message $msg$ to all clients other than $c$.
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\land} SSend ( c ,\, [ cl \.{\in} Client \.{\mapsto} msg ]
+ )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

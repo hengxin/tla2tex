@@ -1,0 +1,27 @@
+% file: cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE CJupiter ------------------------------
+VARIABLES css  \* $css[r]$: the $n$-ary ordered state space at replica $r$
+-----------------------------------------------------------------------------
+NextEdge(r, u, ss) ==     \* Return the \emph{first} outgoing edge from $u$ 
+    CHOOSE e \in ss.edge: \* in $n$-ary ordered space $ss$ at replica $r$.
+        /\e.from = u 
+        /\\A ue \in ss.edge \ {e}: 
+           (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+    
+Perform(r, cop) == 
+    LET xform == xForm(NextEdge, r, cop, css[r])  \* $xform$: $[xcop, xss, lss]$
+    IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xss]
+        /\ SetNewAop(r, xform.xcop.op)
+=============================================================================
+\end{tla}
+\end{document}

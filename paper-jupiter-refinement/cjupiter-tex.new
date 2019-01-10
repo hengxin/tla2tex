@@ -1,0 +1,63 @@
+% file: cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE CJupiter ------------------------------
+VARIABLES css  \* $css[r]$: the $n$-ary ordered state space at replica $r$
+-----------------------------------------------------------------------------
+NextEdge(r, u, ss) ==     \* Return the \emph{first} outgoing edge from $u$ 
+    CHOOSE e \in ss.edge: \* in $n$-ary ordered space $ss$ at replica $r$.
+        /\e.from = u 
+        /\\A ue \in ss.edge \ {e}: 
+           (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+    
+Perform(r, cop) == 
+    LET xform == xForm(NextEdge, r, cop, css[r])  \* $xform$: $[xcop, xss, lss]$
+    IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xss]
+        /\ SetNewAop(r, xform.xcop.op)
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} CJupiter}\moduleRightDash\@xx{}%
+\@x{ {\VARIABLES} css\@s{4.1}}%
+\@y{%
+  $css[r]$: the $n$-ary ordered state space at replica $r$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ NextEdge ( r ,\, u ,\, ss ) \.{\defeq}\@s{16.4}}%
+\@y{%
+  Return the \emph{first} outgoing edge from $u$ 
+}%
+\@xx{}%
+\@x{\@s{16.4} {\CHOOSE} e \.{\in} ss . edge \.{:}\@s{4.51}}%
+\@y{%
+  in $n$-ary ordered space $ss$ at replica $r$.
+}%
+\@xx{}%
+\@x{\@s{32.8} \.{\land} e . from \.{=} u}%
+ \@x{\@s{32.8} \.{\land} \A\, ue \.{\in} ss . edge \.{\,\backslash\,} \{ e \}
+ \.{:}}%
+ \@x{\@s{48.01} ( ue . from \.{=} u ) \.{\implies} tb ( e . cop . oid ,\, ue .
+ cop . oid ,\, serial [ r ] )}%
+\@pvspace{8.0pt}%
+\@x{ Perform ( r ,\, cop ) \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xForm ( NextEdge ,\, r ,\, cop ,\,
+ css [ r ] )\@s{4.1}}%
+\@y{%
+  $xform$: $[xcop, xss, lss]$
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\IN} \.{\land} css \.{'} \.{=} [ css {\EXCEPT} {\bang} [ r ]
+ \.{=} @ \.{\oplus} xform . xss ]}%
+\@x{\@s{36.79} \.{\land} SetNewAop ( r ,\, xform . xcop . op )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

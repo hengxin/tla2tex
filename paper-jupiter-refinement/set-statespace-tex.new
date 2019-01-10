@@ -1,0 +1,77 @@
+% file: set-statespace-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+--------------------------- MODULE SetStateSpace ---------------------------
+(*
+The set representation of state space, used by $AbsJupiter$.
+*)
+-----------------------------------------------------------------------------
+RECURSIVE xForm(_, _, _, _) \* Transform $cop$ in state space $ss$ at replica $r$.
+xForm(NextCop(_, _, _, _), r, cop, ss) == 
+    LET ctxDiff == ds[r] \ cop.ctx \* \textsc{theorem}: $cop.ctx \subseteq ds[r]$
+        RECURSIVE xFormHelper(_, _, _)
+        xFormHelper(coph, ctxDiffh, xss) == \* Return transformed $xcop$
+            IF ctxDiffh = {} THEN [xcop |-> coph, xss |-> xss] \* and new state space $xss$
+            ELSE LET fcoph == NextCop(r, coph, ss, ctxDiffh)
+                     xcoph == COT(coph, fcoph)
+                    xfcoph == COT(fcoph, coph)
+                 IN  xFormHelper(xcoph, ctxDiffh \ {fcoph.oid}, 
+                                        xss \cup {xcoph, xfcoph})
+    IN  xFormHelper(cop, ctxDiff, ss \cup {cop}) 
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} SetStateSpace}\moduleRightDash\@xx{}%
+\begin{lcom}{0}%
+\begin{cpar}{0}{F}{F}{0}{0}{}%
+  
+ The set representation of state space, used by $AbsJupiter$.
+ 
+\end{cpar}%
+\end{lcom}%
+\@x{}\midbar\@xx{}%
+\@x{ {\RECURSIVE} xForm ( \_ ,\, \_ ,\, \_ ,\, \_ )}%
+\@y{%
+  Transform $cop$ in state space $ss$ at replica $r$.
+}%
+\@xx{}%
+ \@x{ xForm ( NextCop ( \_ ,\, \_ ,\, \_ ,\, \_ ) ,\, r ,\, cop ,\, ss )
+ \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET} ctxDiff \.{\defeq} ds [ r ] \.{\,\backslash\,} cop .
+ ctx}%
+\@y{%
+  \textsc{theorem}: $cop.ctx \subseteq ds[r]$
+}%
+\@xx{}%
+\@x{\@s{36.79} {\RECURSIVE} xFormHelper ( \_ ,\, \_ ,\, \_ )}%
+\@x{\@s{40.89} xFormHelper ( coph ,\, ctxDiffh ,\, xss ) \.{\defeq}}%
+\@y{%
+  Return transformed $xcop$
+}%
+\@xx{}%
+ \@x{\@s{57.29} {\IF} ctxDiffh \.{=} \{ \} \.{\THEN} [ xcop \.{\mapsto} coph
+ ,\, xss \.{\mapsto} xss ]}%
+\@y{%
+  and new state space $xss$
+}%
+\@xx{}%
+ \@x{\@s{57.29} \.{\ELSE} \.{\LET} fcoph\@s{1.57} \.{\defeq} NextCop ( r ,\,
+ coph ,\, ss ,\, ctxDiffh )}%
+\@x{\@s{109.01} xcoph \.{\defeq} COT ( coph ,\, fcoph )}%
+\@x{\@s{100.91} xfcoph\@s{5.03} \.{\defeq} COT ( fcoph ,\, coph )}%
+ \@x{\@s{88.61} \.{\IN}\@s{4.1} xFormHelper ( xcoph ,\, ctxDiffh
+ \.{\,\backslash\,} \{ fcoph . oid \} ,\,}%
+\@x{\@s{204.92} xss \.{\cup} \{ xcoph ,\, xfcoph \} )}%
+ \@x{\@s{16.4} \.{\IN}\@s{4.09} xFormHelper ( cop ,\, ctxDiff ,\, ss \.{\cup}
+ \{ cop \} )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

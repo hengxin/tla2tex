@@ -1,0 +1,96 @@
+% file: absjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE AbsJupiter -----------------------------
+VARIABLES
+    copss   \* $copss[r]$: the set of context-based operations maintained at replia $r$
+----------------------------------------------------------------------------
+NextCop(r, cop, ss, ctx) == \* The next $fcop$ against which $cop$ is to be transformed.
+    LET foid == CHOOSE oid \in ctx: \* the first $oid$ in $ctx$ according to $serial[r]$
+                    \A id \in ctx \ {oid}: tb(oid, id, serial[r])
+    IN  CHOOSE fcop \in ss: \* \textsc{theorem}: Existence of $fcop$
+            fcop.oid = foid /\ fcop.ctx = cop.ctx 
+
+Perform(r, cop) ==
+    LET xform == xForm(NextCop, r, cop, copss[r])  \* $[xcop, xss]$
+    IN  /\ copss' = [copss EXCEPT ![r] = xform.xss]
+        /\ SetNewAop(r, xform.xcop.op)
+        
+ClientPerform(c, cop) == Perform(c, cop)
+        
+ServerPerform(cop) == 
+    /\ Perform(Server, cop)
+    /\ Comm!SSendSame(ClientOf(cop), cop) \* broadcast the original $cop$
+
+DoOp(c, op) ==
+    LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+    IN  /\ ClientPerform(c, cop)
+        /\ Comm!CSend(cop) 
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} AbsJupiter}\moduleRightDash\@xx{}%
+\@x{ {\VARIABLES}}%
+\@x{\@s{16.4} copss\@s{8.2}}%
+\@y{%
+  $copss[r]$: the set of context-based operations maintained at replia $r$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ NextCop ( r ,\, cop ,\, ss ,\, ctx ) \.{\defeq}}%
+\@y{%
+  The next $fcop$ against which $cop$ is to be transformed.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\LET} foid \.{\defeq} {\CHOOSE} oid \.{\in} ctx \.{:}}%
+\@y{%
+  the first $oid$ in $ctx$ according to $serial[r]$
+}%
+\@xx{}%
+ \@x{\@s{89.47} \A\, id \.{\in} ctx \.{\,\backslash\,} \{ oid \} \.{:} tb (
+ oid ,\, id ,\, serial [ r ] )}%
+\@x{\@s{16.4} \.{\IN} {\CHOOSE} fcop \.{\in} ss \.{:}}%
+\@y{%
+  \textsc{theorem}: Existence of $fcop$
+}%
+\@xx{}%
+\@x{\@s{53.19} fcop . oid \.{=} foid \.{\land} fcop . ctx \.{=} cop . ctx}%
+\@pvspace{8.0pt}%
+\@x{ Perform ( r ,\, cop ) \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xForm ( NextCop ,\, r ,\, cop ,\,
+ copss [ r ] )\@s{4.1}}%
+\@y{%
+  $[xcop, xss]$
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\IN} \.{\land} copss \.{'} \.{=} [ copss {\EXCEPT} {\bang} [
+ r ] \.{=} xform . xss ]}%
+\@x{\@s{36.79} \.{\land} SetNewAop ( r ,\, xform . xcop . op )}%
+\@pvspace{8.0pt}%
+\@x{ ClientPerform ( c ,\, cop ) \.{\defeq} Perform ( c ,\, cop )}%
+\@pvspace{8.0pt}%
+\@x{ ServerPerform ( cop ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} Perform ( Server ,\, cop )}%
+\@x{\@s{16.4} \.{\land} Comm {\bang} SSendSame ( ClientOf ( cop ) ,\, cop )}%
+\@y{%
+  broadcast the original $cop$
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ DoOp ( c ,\, op )\@s{5.43} \.{\defeq}}%
+ \@x{\@s{26.06} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op ,\, oid
+ \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx
+ \.{\mapsto} ds [ c ] ]}%
+\@x{\@s{26.06} \.{\IN} \.{\land} ClientPerform ( c ,\, cop )}%
+\@x{\@s{46.46} \.{\land} Comm {\bang} CSend ( cop )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

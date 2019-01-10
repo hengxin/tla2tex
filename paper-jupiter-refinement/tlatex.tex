@@ -1,0 +1,71 @@
+\batchmode
+% file: absjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\makeatletter
+\chardef\%=`\%
+\fl{}\moduleLeftDash\cl{ {\MODULE} AbsJupiter}\moduleRightDash\cl{}
+\fl{ {\VARIABLES}}
+\fl{ copss%
+\@y{%
+  $copss[r]$: the set of context-based operations maintained at replia $r$
+}%
+}
+\fl{}\midbar\cl{}
+\fl{ NextCop ( r ,\, cop ,\, ss ,\, ctx ) \.{\defeq}%
+\@y{%
+  The next $fcop$ against which $cop$ is to be transformed.
+}%
+}
+ \fl{ \.{\LET}}\al{5}{1}{ foid \.{\defeq}}\al{5}{3}{ {\CHOOSE} oid \.{\in} ctx
+ \.{:}%
+\@y{%
+  the first $oid$ in $ctx$ according to $serial[r]$
+}%
+}
+ \fl{ \A\, id \.{\in} ctx \.{\,\backslash\,} \{ oid \} \.{:} tb ( oid ,\, id
+ ,\, serial [ r ] )}
+\fl{ \.{\IN}}\al{7}{1}{ {\CHOOSE} fcop \.{\in} ss \.{:}%
+\@y{%
+  \textsc{theorem}: Existence of $fcop$
+}%
+}
+\fl{ fcop . oid \.{=} foid \.{\land} fcop . ctx \.{=} cop . ctx}
+\fl{}
+\fl{ Perform ( r ,\, cop ) \.{\defeq}}
+ \fl{ \.{\LET}}\al{11}{1}{ xform \.{\defeq} xForm ( NextCop ,\, r ,\, cop ,\,
+ copss [ r ] )%
+\@y{%
+  $[xcop, xss]$
+}%
+}
+ \fl{ \.{\IN}}\al{12}{1}{ \.{\land}}\al{12}{2}{ copss \.{'} \.{=} [ copss
+ {\EXCEPT} {\bang} [ r ] \.{=} xform . xss ]}
+\fl{ \.{\land}}\al{13}{1}{ SetNewAop ( r ,\, xform . xcop . op )}
+\fl{}
+\fl{ ClientPerform ( c ,\, cop ) \.{\defeq} Perform ( c ,\, cop )}
+\fl{}
+\fl{ ServerPerform ( cop ) \.{\defeq}}
+\fl{ \.{\land}}\al{18}{1}{ Perform ( Server ,\, cop )}
+ \fl{ \.{\land}}\al{19}{1}{ Comm {\bang} SSendSame ( ClientOf ( cop ) ,\, cop
+ )%
+\@y{%
+  broadcast the original $cop$
+}%
+}
+\fl{}
+\fl{ DoOp}\al{21}{1}{ ( c ,\, op )}\al{21}{6}{ \.{\defeq}}
+ \fl{ \.{\LET}}\al{22}{1}{ cop}\al{22}{2}{ \.{\defeq} [ op \.{\mapsto} op ,\,
+ oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx
+ \.{\mapsto} ds [ c ] ]}
+\fl{ \.{\IN}}\al{23}{1}{ \.{\land}}\al{23}{2}{ ClientPerform ( c ,\, cop )}
+\fl{ \.{\land}}\al{24}{1}{ Comm {\bang} CSend ( cop )}
+\fl{}\bottombar\cl{}
+\end{document}

@@ -1,0 +1,36 @@
+% file: xjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE XJupiter ------------------------------
+VARIABLES
+    c2ss,   \* $c2ss[c]$: the $2D$ state space ($2ss$, for short) at client $c$
+    s2ss    \* $s2ss[c]$: the $2D$ state space maintained by the $Server$ for client $c$
+-----------------------------------------------------------------------------
+NextEdge(r, u, ss) == \* Return the unique outgoing edge from $u$ in $2D$ state space $ss$ 
+    CHOOSE e \in ss.edge: e.from = u \* before a transformation at $u$ ($r$ is not used). 
+
+ClientPerform(c, cop) == 
+    LET xform == xForm(NextEdge, c, cop, c2ss[c]) \* $xform$: $[xcop, xss, lss]$
+    IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xss]
+        /\ SetNewAop(c, xform.xcop.op)
+
+ServerPerform(cop) == 
+    LET c == ClientOf(cop)
+    xform == xForm(NextEdge, Server, cop, s2ss[c]) \* $xform$: $[xcop, xss, lss]$
+     xcop == xform.xcop
+    IN  /\ s2ss' = [cl \in Client |-> IF cl = c 
+                                      THEN s2ss[cl] (+) xform.xss 
+                                      ELSE s2ss[cl] (+) xform.lss]
+        /\ SetNewAop(Server, xcop.op)
+        /\ Comm!SSendSame(c, xcop)  \* broadcast the transformed $xcop$ 
+=============================================================================
+\end{tla}
+\end{document}

@@ -1,0 +1,130 @@
+% file: jupiter-serial-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+--------------------------- MODULE JupiterSerial ---------------------------
+(*
+Specification of serial views used by \absjupiter{} and \cjupiter{}.
+*)
+-----------------------------------------------------------------------------
+VARIABLES
+    serial, \* $serial[r]$: the serial view of replica $r$
+    cincomingSerial, sincomingSerial
+
+commSerial == INSTANCE CSComm WITH Msg <- Seq(Oid), 
+                cincoming <- cincomingSerial, sincoming <- sincomingSerial
+-----------------------------------------------------------------------------
+tb(oid1, oid2, sv) == \* Is $oid1$ totally ordered before $oid2$ according to $sv$?
+    LET  pos1== FirstIndexOfElementSafe(sv, oid1) \* 0 if $oid1$ is not in $sv$
+        pos2 == FirstIndexOfElementSafe(sv, oid2) \* 0 if $oid2$ is not in $sv$
+    IN  IF pos1 # 0 /\ pos2 # 0 \* both have been at the $Server$
+        THEN pos1 < pos2        \* using the order they reach the $Server$
+        ELSE IF pos1 = 0 /\ pos2 = 0  \* none have been at the $Server$
+             THEN oid1.seq < oid2.seq \* using the order they are generated
+             ELSE pos1 # 0 \* the one has been at the $Server$ is ahead
+-----------------------------------------------------------------------------
+DoSerial(c) ==
+    UNCHANGED serialVars
+
+RevSerial(c) ==
+    /\ commSerial!CRev(c)
+    /\ serial' = [serial EXCEPT ![c] = Head(cincomingSerial[c])]
+
+SRevSerial ==
+    /\ LET cop == Head(sincoming)
+       IN  /\ serial' = [serial EXCEPT ![Server] = Append(@, cop.oid)]
+           /\ commSerial!SSendSame(ClientOf(cop), serial'[Server])
+    /\ UNCHANGED sincomingSerial
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} JupiterSerial}\moduleRightDash\@xx{}%
+\begin{lcom}{0}%
+\begin{cpar}{0}{F}{F}{0}{0}{}%
+  
+ Specification of serial views used by \absjupiter{} and \cjupiter{}.
+ 
+\end{cpar}%
+\end{lcom}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES}}%
+\@x{\@s{16.4} serial ,\,}%
+\@y{%
+  $serial[r]$: the serial view of replica $r$
+}%
+\@xx{}%
+\@x{\@s{16.4} cincomingSerial ,\, sincomingSerial}%
+\@pvspace{8.0pt}%
+ \@x{ commSerial \.{\defeq} {\INSTANCE} CSComm {\WITH} Msg \.{\leftarrow} Seq
+ ( Oid ) ,\,}%
+ \@x{\@s{78.84} cincoming \.{\leftarrow} cincomingSerial ,\, sincoming
+ \.{\leftarrow} sincomingSerial}%
+\@x{}\midbar\@xx{}%
+\@x{ tb ( oid1 ,\, oid2 ,\, sv ) \.{\defeq}}%
+\@y{%
+  Is $oid1$ totally ordered before $oid2$ according to $sv$?
+}%
+\@xx{}%
+ \@x{\@s{16.54} \.{\LET}\@s{4.1} pos1 \.{\defeq} FirstIndexOfElementSafe ( sv
+ ,\, oid1 )}%
+\@y{%
+  0 if $oid1$ is not in $sv$
+}%
+\@xx{}%
+\@x{\@s{41.04} pos2 \.{\defeq} FirstIndexOfElementSafe ( sv ,\, oid2 )}%
+\@y{%
+  0 if $oid2$ is not in $sv$
+}%
+\@xx{}%
+ \@x{\@s{16.54} \.{\IN}\@s{4.09} {\IF} pos1 \.{\neq} 0 \.{\land} pos2 \.{\neq}
+ 0}%
+\@y{%
+  both have been at the $Server$
+}%
+\@xx{}%
+\@x{\@s{41.04} \.{\THEN} pos1 \.{<} pos2\@s{15.28}}%
+\@y{%
+  using the order they reach the $Server$
+}%
+\@xx{}%
+\@x{\@s{41.04} \.{\ELSE} {\IF} pos1 \.{=} 0 \.{\land} pos2 \.{=} 0\@s{16.99}}%
+\@y{%
+  none have been at the $Server$
+}%
+\@xx{}%
+\@x{\@s{72.35} \.{\THEN} oid1 . seq \.{<} oid2 . seq}%
+\@y{%
+  using the order they are generated
+}%
+\@xx{}%
+\@x{\@s{72.35} \.{\ELSE} pos1 \.{\neq} 0}%
+\@y{%
+  the one has been at the $Server$ is ahead
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ DoSerial ( c ) \.{\defeq}}%
+\@x{\@s{16.4} {\UNCHANGED} serialVars}%
+\@pvspace{8.0pt}%
+\@x{ RevSerial ( c ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} commSerial {\bang} CRev ( c )}%
+ \@x{\@s{16.4} \.{\land} serial \.{'} \.{=} [ serial {\EXCEPT} {\bang} [ c ]
+ \.{=} Head ( cincomingSerial [ c ] ) ]}%
+\@pvspace{8.0pt}%
+\@x{ SRevSerial \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} \.{\LET} cop \.{\defeq} Head ( sincoming )}%
+ \@x{\@s{27.51} \.{\IN} \.{\land} serial \.{'} \.{=} [ serial {\EXCEPT}
+ {\bang} [ Server ] \.{=} Append ( @ ,\, cop . oid ) ]}%
+ \@x{\@s{47.91} \.{\land} commSerial {\bang} SSendSame ( ClientOf ( cop ) ,\,
+ serial \.{'} [ Server ] )}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} sincomingSerial}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

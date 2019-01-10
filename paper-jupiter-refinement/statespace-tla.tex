@@ -1,0 +1,48 @@
+% file: statespace-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE StateSpace -----------------------------
+IsSS(G) == \* A state space is a digraph with labeled edges.
+    /\ IsGraph(G) \* It is a digraph (represented by a record).
+    /\ G.node \subseteq (SUBSET Oid) \* Each node represents a document state.
+    /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* Labeled with a $Cop$.
+
+EmptySS == EmptyGraph
+-----------------------------------------------------------------------------
+Locate(cop, ss) == \* Locate the node in $ss$ that matches the context of $cop$.     
+    CHOOSE n \in ss.node : n = cop.ctx \* \textsc{theorem}: Existence of $n$.
+
+xForm(NextEdge(_, _, _), r, cop, ss) == \* Transform $cop$ with an operation sequence 
+    LET u == Locate(cop, ss)            \* in state space $ss$ at replica $r$.
+        v == u \cup {cop.oid}
+        RECURSIVE xFormHelper(_, _, _, _)
+        xFormHelper(uh, vh, coph, xss) == 
+            IF uh = ds[r] THEN [xcop |-> coph, \* transformed $cop$
+                                xss |-> xss,   \* eXtra $ss$ created during transformation
+                                lss |-> [node |-> {vh}, \* the last piece of $xss$
+                                         edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]]
+            ELSE LET e == NextEdge(r, uh, ss)
+                     copprime == e.cop
+                     uprime == e.to
+                     vprime == vh \cup {copprime.oid}
+                      coph2copprime == COT(coph, copprime)
+                     copprime2coph == COT(copprime, coph)
+                 IN  xFormHelper(uprime, vprime, coph2copprime,
+                        xss (+) [node |-> {vprime},
+                                 edge |-> {[from |-> vh, to |-> vprime, 
+                                             cop |-> copprime2coph], 
+                                           [from |-> uprime, to |-> vprime, 
+                                             cop |-> coph2copprime]}])
+    IN  xFormHelper(u, v, cop, [node |-> {v}, 
+                                edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
+=============================================================================
+\end{tla}
+\end{document}
