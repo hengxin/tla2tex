@@ -1,0 +1,40 @@
+% file: ajupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE AJupiter ------------------------------
+VARIABLES cbuf, crec, sbuf, srec
+AJMsg == [c: Client, ack: Nat, op: Op \cup {Nop}] \cup \* from client $c$ to $Server$ 
+         [ack: Nat, op: Op \cup {Nop}] \* from $Server$ to clients
+-----------------------------------------------------------------------------
+DoOp(c, op) == 
+    /\ SetNewAop(c, op)
+    /\ cbuf' = [cbuf EXCEPT ![c] = Append(@, op)]
+    /\ crec' = [crec EXCEPT ![c] = 0]
+    /\ Comm!CSend([c |-> c, ack |-> crec[c], op |-> op])
+
+ClientPerform(c, m) == 
+    LET xform == xFormShift(OT, m.op, cbuf[c], m.ack) \* $[xop, xops]$
+    IN  /\ cbuf' = [cbuf EXCEPT ![c] = xform.xops]
+        /\ crec' = [crec EXCEPT ![c] = @ + 1]
+        /\ SetNewAop(c, xform.xop)
+
+ServerPerform(m) == 
+    LET     c == m.c             
+        xform == xFormShift(OT, m.op, sbuf[c], m.ack) \* $[xop, xops]$
+          xop == xform.xop
+    IN  /\ srec' = [cl \in Client |-> IF cl = c THEN srec[cl] + 1 ELSE 0] 
+        /\ sbuf' = [cl \in Client |-> IF cl = c THEN xform.xops 
+                                                ELSE Append(sbuf[cl], xop)] 
+        /\ SetNewAop(Server, xop)
+        /\ Comm!SSend(c, [cl \in Client |-> [ack |-> srec[cl], op |-> xop]])
+=============================================================================
+\end{tla}
+\end{document}

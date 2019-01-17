@@ -10,8 +10,7 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE AbsJupiter -----------------------------
-VARIABLES
-    copss   \* $copss[r]$: the set of context-based operations maintained at replia $r$
+VARIABLES copss \* $copss[r]$: the set of context-based operations maintained at replia $r$
 ----------------------------------------------------------------------------
 NextCop(r, cop, ss, ctx) == \* The next $fcop$ against which $cop$ is to be transformed.
     LET foid == CHOOSE oid \in ctx: \* the first $oid$ in $ctx$ according to $serial[r]$
@@ -20,7 +19,7 @@ NextCop(r, cop, ss, ctx) == \* The next $fcop$ against which $cop$ is to be tran
             fcop.oid = foid /\ fcop.ctx = cop.ctx 
 
 Perform(r, cop) ==
-    LET xform == xForm(NextCop, r, cop, copss[r])  \* $[xcop, xss]$
+    LET xform == xForm(NextCop, r, cop, copss[r])
     IN  /\ copss' = [copss EXCEPT ![r] = xform.xss]
         /\ SetNewAop(r, xform.xcop.op)
         
@@ -28,7 +27,7 @@ ClientPerform(c, cop) == Perform(c, cop)
         
 ServerPerform(cop) == 
     /\ Perform(Server, cop)
-    /\ Comm!SSendSame(ClientOf(cop), cop) \* broadcast the original $cop$
+    /\ Comm!SSendSame(ClientOf(cop), cop) \* broadcast $cop$ it receives
 
 DoOp(c, op) ==
     LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
@@ -38,8 +37,7 @@ DoOp(c, op) ==
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} AbsJupiter}\moduleRightDash\@xx{}%
-\@x{ {\VARIABLES}}%
-\@x{\@s{16.4} copss\@s{8.2}}%
+\@x{ {\VARIABLES} copss}%
 \@y{%
   $copss[r]$: the set of context-based operations maintained at replia $r$
 }%
@@ -66,11 +64,7 @@ DoOp(c, op) ==
 \@pvspace{8.0pt}%
 \@x{ Perform ( r ,\, cop ) \.{\defeq}}%
  \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xForm ( NextCop ,\, r ,\, cop ,\,
- copss [ r ] )\@s{4.1}}%
-\@y{%
-  $[xcop, xss]$
-}%
-\@xx{}%
+ copss [ r ] )}%
  \@x{\@s{16.4} \.{\IN} \.{\land} copss \.{'} \.{=} [ copss {\EXCEPT} {\bang} [
  r ] \.{=} xform . xss ]}%
 \@x{\@s{36.79} \.{\land} SetNewAop ( r ,\, xform . xcop . op )}%
@@ -81,7 +75,7 @@ DoOp(c, op) ==
 \@x{\@s{16.4} \.{\land} Perform ( Server ,\, cop )}%
 \@x{\@s{16.4} \.{\land} Comm {\bang} SSendSame ( ClientOf ( cop ) ,\, cop )}%
 \@y{%
-  broadcast the original $cop$
+  broadcast $cop$ it receives
 }%
 \@xx{}%
 \@pvspace{8.0pt}%

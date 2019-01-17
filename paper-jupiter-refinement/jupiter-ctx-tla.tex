@@ -18,7 +18,7 @@ VARIABLES
     cseq,  \* $cseq[c]$: local sequence number at client $c$
     ds     \* $ds[r]$: document state (i.e., a set of $Oids$) of replica $r$
 -----------------------------------------------------------------------------
-Oid == [c: Client, seq: Nat] \* operation identifier
+Oid == [c: Client, seq: Nat] \* operation identifier; $seq$: sequence number
 Cop == [op: Op \cup {Nop}, oid: Oid, ctx: SUBSET Oid] \* contexted-based operation
 
 COT(lcop, rcop) == \* extended OT of $lcop \in Cop$ against $rcop \in Cop$
@@ -31,11 +31,9 @@ DoCtx(c) ==
     /\ cseq' = [cseq EXCEPT ![c] = @ + 1]
     /\ UpdateDS(c, [c |-> c, seq |-> cseq[c]]) \* $oid$ for newly generated operation
 
-RevCtx(c) == 
-    /\ UpdateDS(c, Head(cincoming[c]).oid)
+RevCtx(c) == UpdateDS(c, Head(cincoming[c]).oid)
     
-SRevCtx == 
-    /\ UpdateDS(Server, Head(sincoming).oid)
+SRevCtx == UpdateDS(Server, Head(sincoming).oid)
 =============================================================================
 \end{tla}
 \end{document}

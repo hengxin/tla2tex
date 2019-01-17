@@ -1,0 +1,25 @@
+% file: ot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE Op ----------------------------
+MaxLen == Cardinality(Char) + Len(InitState) \* the max length of lists
+Priority == CHOOSE f \in [Client -> 1 .. Cardinality(Client)] : Injective(f)
+
+Del == [type: {"Del"}, pos: 1 .. MaxLen] \* The positions ($pos$) are indexed from 1.
+Ins == [type: {"Ins"}, pos: 1 .. (MaxLen + 1), ch: Char, pr: Range(Priority)]
+
+Op == Ins \cup Del
+Nop == CHOOSE op : op \notin Op
+
+Apply(op, l) == \* Apply operation $op$ on list $l$.
+=============================================================================
+\end{tla}
+\end{document}

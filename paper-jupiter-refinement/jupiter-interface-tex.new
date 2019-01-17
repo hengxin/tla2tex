@@ -12,8 +12,8 @@
 \begin{tla}
 -------------------------- MODULE JupiterInterface --------------------------
 VARIABLES 
-    aop     \* $aop[r]$: the actual operation applied at replica $r \in Replica$
-    state,  \* $state[r]$: state (the list content) of replica $r \in Replica$
+    aop     \* $aop[r]$: the actual operation applied at replica $r$
+    state,  \* $state[r]$: state (the list content) of replica $r$
 ----------------------------------------------------------------------
 SetNewAop(r, aopr) == aop' = [aop EXCEPT ![r] = aopr]
 
@@ -25,10 +25,12 @@ DoInt(DoOp(_, _), c) == \* Client $c$ generates an operation.
     /\ ApplyNewAop(c)
     
 RevInt(ClientPerform(_, _), c) == \* Client $c$ receives and processes a message.
+    /\ Comm!CRev(c)
     /\ ClientPerform(c, Head(cincoming[c])) \* $ClientPerform(c \in Client, m \in Msg)$
     /\ ApplyNewAop(c)
 
 SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
+    /\ Comm!SRev
     /\ ServerPerform(Head(sincoming)) \* $ServerPerform(m \in Msg)$
     /\ ApplyNewAop(Server)
 =============================================================================
@@ -38,12 +40,12 @@ SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
 \@x{ {\VARIABLES}}%
 \@x{\@s{16.4} aop\@s{16.4}}%
 \@y{%
-  $aop[r]$: the actual operation applied at replica $r \in Replica$
+  $aop[r]$: the actual operation applied at replica $r$
 }%
 \@xx{}%
 \@x{\@s{16.4} state ,\,\@s{5.05}}%
 \@y{%
-  $state[r]$: state (the list content) of replica $r \in Replica$
+  $state[r]$: state (the list content) of replica $r$
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
@@ -71,6 +73,7 @@ SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
   Client $c$ receives and processes a message.
 }%
 \@xx{}%
+\@x{\@s{16.4} \.{\land} Comm {\bang} CRev ( c )}%
 \@x{\@s{16.4} \.{\land} ClientPerform ( c ,\, Head ( cincoming [ c ] ) )}%
 \@y{%
   $ClientPerform(c \in Client, m \in Msg)$
@@ -83,6 +86,7 @@ SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
   The $Server$ receives and processes a message.
 }%
 \@xx{}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} Comm {\bang} SRev}%
 \@x{\@s{16.4} \.{\land}\@s{7.84} ServerPerform ( Head ( sincoming ) )}%
 \@y{%
   $ServerPerform(m \in Msg)$

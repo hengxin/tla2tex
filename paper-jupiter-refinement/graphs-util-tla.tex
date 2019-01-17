@@ -10,13 +10,7 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE GraphsUtil -----------------------------
-IsGraph(G) == \* Represented by a record with $node$ field and $edge$ field. 
-    /\ G = [node |-> G.node, edge |-> G.edge] 
-
-EmptyGraph == [node |-> {{}}, edge |-> {}]
-
-g (+) h == \* A union (in terms of set) of two graphs $g$ and $h$.
-    [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge]
+g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge]
 =============================================================================
 \end{tla}
 \end{document}

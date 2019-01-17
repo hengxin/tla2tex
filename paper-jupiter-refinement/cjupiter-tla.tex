@@ -19,7 +19,7 @@ NextEdge(r, u, ss) ==     \* Return the \emph{first} outgoing edge from $u$
            (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
     
 Perform(r, cop) == 
-    LET xform == xForm(NextEdge, r, cop, css[r])  \* $xform$: $[xcop, xss, lss]$
+    LET xform == xForm(NextEdge, r, cop, css[r])
     IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xss]
         /\ SetNewAop(r, xform.xcop.op)
 =============================================================================

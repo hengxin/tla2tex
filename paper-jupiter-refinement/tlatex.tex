@@ -1,5 +1,5 @@
 \batchmode
-% file: absjupiter-tla.tex
+% file: buffer-statespace-tla.tex
 
 \documentclass{article}
 \usepackage{graphicx}
@@ -11,61 +11,50 @@
 \begin{document}
 \makeatletter
 \chardef\%=`\%
-\fl{}\moduleLeftDash\cl{ {\MODULE} AbsJupiter}\moduleRightDash\cl{}
-\fl{ {\VARIABLES}}
-\fl{ copss%
+\fl{}\moduleLeftDash\cl{ {\MODULE} BufferStateSpace}\moduleRightDash\cl{}
+\fl{ {\RECURSIVE} xFormOpOps ( \_ ,\, \_ ,\, \_ )%
 \@y{%
-  $copss[r]$: the set of context-based operations maintained at replia $r$
+  Transform $op$ against an operation sequence $ops$. 
 }%
 }
-\fl{}\midbar\cl{}
-\fl{ NextCop ( r ,\, cop ,\, ss ,\, ctx ) \.{\defeq}%
+\fl{ xFormOpOps ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ) \.{\defeq}%
 \@y{%
-  The next $fcop$ against which $cop$ is to be transformed.
+  $xform$: $OT$ on $Op$ or $COT$ on $Cop$
 }%
 }
- \fl{ \.{\LET}}\al{5}{1}{ foid \.{\defeq}}\al{5}{3}{ {\CHOOSE} oid \.{\in} ctx
- \.{:}%
+\fl{ {\IF} ops \.{=} {\langle} {\rangle} \.{\THEN} {\langle} op {\rangle}%
 \@y{%
-  the first $oid$ in $ctx$ according to $serial[r]$
+  Maintain and return intermediate transformed operations.
 }%
 }
- \fl{ \A\, id \.{\in} ctx \.{\,\backslash\,} \{ oid \} \.{:} tb ( oid ,\, id
- ,\, serial [ r ] )}
-\fl{ \.{\IN}}\al{7}{1}{ {\CHOOSE} fcop \.{\in} ss \.{:}%
-\@y{%
-  \textsc{theorem}: Existence of $fcop$
-}%
-}
-\fl{ fcop . oid \.{=} foid \.{\land} fcop . ctx \.{=} cop . ctx}
+ \fl{ \.{\ELSE} {\langle} op {\rangle} \.{\circ} xFormOpOps ( xform ,\, xform
+ ( op ,\, Head ( ops ) ) ,\, Tail ( ops ) )}
 \fl{}
-\fl{ Perform ( r ,\, cop ) \.{\defeq}}
- \fl{ \.{\LET}}\al{11}{1}{ xform \.{\defeq} xForm ( NextCop ,\, r ,\, cop ,\,
- copss [ r ] )%
+\fl{ xFormOpsOp ( xform ( \_ ,\, \_ ) ,\, ops ,\, op ) \.{\defeq}%
 \@y{%
-  $[xcop, xss]$
+  Transform $ops$ against $op$.
 }%
 }
- \fl{ \.{\IN}}\al{12}{1}{ \.{\land}}\al{12}{2}{ copss \.{'} \.{=} [ copss
- {\EXCEPT} {\bang} [ r ] \.{=} xform . xss ]}
-\fl{ \.{\land}}\al{13}{1}{ SetNewAop ( r ,\, xform . xcop . op )}
+\fl{ \.{\LET}}\al{7}{1}{ opX \.{\defeq} xFormOpOps ( xform ,\, op ,\, ops )}
+ \fl{ \.{\IN}}\al{8}{1}{ [ i \.{\in} 1 \.{\dotdot} Len ( ops ) \.{\mapsto}
+ xform ( ops [ i ] ,\, opX [ i ] ) ]}
 \fl{}
-\fl{ ClientPerform ( c ,\, cop ) \.{\defeq} Perform ( c ,\, cop )}
-\fl{}
-\fl{ ServerPerform ( cop ) \.{\defeq}}
-\fl{ \.{\land}}\al{18}{1}{ Perform ( Server ,\, cop )}
- \fl{ \.{\land}}\al{19}{1}{ Comm {\bang} SSendSame ( ClientOf ( cop ) ,\, cop
- )%
+\fl{ xFormFull ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ) \.{\defeq}%
 \@y{%
-  broadcast the original $cop$
+  Combine $xFormOpOps$ and $xFormOpsOp$
 }%
 }
+ \fl{ [ xop}\al{11}{2}{ \.{\mapsto}}\al{11}{3}{ Last ( xFormOpOps ( xform ,\,
+ op ,\, ops ) ) ,\,}
+ \fl{ xops}\al{12}{1}{ \.{\mapsto}}\al{12}{2}{ xFormOpsOp ( xform ,\, ops ,\,
+ op ) ]}
 \fl{}
-\fl{ DoOp}\al{21}{1}{ ( c ,\, op )}\al{21}{6}{ \.{\defeq}}
- \fl{ \.{\LET}}\al{22}{1}{ cop}\al{22}{2}{ \.{\defeq} [ op \.{\mapsto} op ,\,
- oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx
- \.{\mapsto} ds [ c ] ]}
-\fl{ \.{\IN}}\al{23}{1}{ \.{\land}}\al{23}{2}{ ClientPerform ( c ,\, cop )}
-\fl{ \.{\land}}\al{24}{1}{ Comm {\bang} CSend ( cop )}
+\fl{ xFormShift ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ,\, shift ) \.{\defeq}%
+\@y{%
+  shift of $ops$
+}%
+}
+ \fl{ xFormFull ( xform ,\, op ,\, SubSeq ( ops ,\, shift \.{+} 1 ,\, Len (
+ ops ) ) )}
 \fl{}\bottombar\cl{}
 \end{document}

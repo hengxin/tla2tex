@@ -1,0 +1,30 @@
+% file: buffer-statespace-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+-------------------------- MODULE BufferStateSpace --------------------------
+RECURSIVE xFormOpOps(_, _,_) \* Transform $op$ against an operation sequence $ops$. 
+xFormOpOps(xform(_, _), op, ops) == \* $xform$: $OT$ on $Op$ or $COT$ on $Cop$
+    IF ops = <<>> THEN <<op>> \* Maintain and return intermediate transformed operations.
+    ELSE <<op>> \o xFormOpOps(xform, xform(op, Head(ops)), Tail(ops))
+
+xFormOpsOp(xform(_, _), ops, op) == \* Transform $ops$ against $op$.
+    LET opX == xFormOpOps(xform, op, ops)
+    IN  [i \in 1 .. Len(ops) |-> xform(ops[i], opX[i])]
+
+xFormFull(xform(_, _), op, ops) == \* Combine $xFormOpOps$ and $xFormOpsOp$
+    [xop |-> Last(xFormOpOps(xform, op, ops)),
+    xops |-> xFormOpsOp(xform, ops, op)]
+
+xFormShift(xform(_, _), op, ops, shift) == \* shift of $ops$
+    xFormFull(xform, op, SubSeq(ops, shift + 1, Len(ops)))
+=============================================================================
+\end{tla}
+\end{document}

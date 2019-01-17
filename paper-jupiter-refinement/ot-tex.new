@@ -1,0 +1,49 @@
+% file: ot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+--------------------------------- MODULE OT ---------------------------------
+OTII(lins, rins) == \* $lins$ is transformed against $rins$; $II$ is for $Ins$ \emph{vs.} $Ins$.
+    IF lins.pos < rins.pos THEN lins
+    ELSE IF lins.pos > rins.pos
+         THEN [lins EXCEPT !.pos = @ + 1]
+         ELSE IF lins.ch = rins.ch THEN Nop
+              ELSE IF lins.pr > rins.pr THEN lins \* using ``priority''
+                   ELSE [lins EXCEPT !.pos = @ + 1]
+
+OT(lop, rop) == \* $lop$ is transformed against $rop$
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} OT}\moduleRightDash\@xx{}%
+\@x{ OTII ( lins ,\, rins ) \.{\defeq}}%
+\@y{%
+  $lins$ is transformed against $rins$; $II$ is for $Ins$ \emph{vs.} $Ins$.
+}%
+\@xx{}%
+\@x{\@s{24.11} {\IF} lins . pos \.{<} rins . pos \.{\THEN} lins}%
+\@x{\@s{24.11} \.{\ELSE} {\IF} lins . pos \.{>} rins . pos}%
+\@x{\@s{55.42} \.{\THEN} [ lins {\EXCEPT} {\bang} . pos \.{=} @ \.{+} 1 ]}%
+\@x{\@s{55.42} \.{\ELSE} {\IF} lins . ch \.{=} rins . ch \.{\THEN} Nop}%
+\@x{\@s{86.73} \.{\ELSE} {\IF} lins . pr \.{>} rins . pr \.{\THEN} lins}%
+\@y{%
+  using ``priority''
+}%
+\@xx{}%
+\@x{\@s{118.04} \.{\ELSE} [ lins {\EXCEPT} {\bang} . pos \.{=} @ \.{+} 1 ]}%
+\@pvspace{8.0pt}%
+\@x{ OT ( lop ,\, rop ) \.{\defeq}}%
+\@y{%
+  $lop$ is transformed against $rop$
+}%
+\@xx{}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

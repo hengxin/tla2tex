@@ -12,8 +12,8 @@
 \begin{tla}
 -------------------------- MODULE JupiterInterface --------------------------
 VARIABLES 
-    aop     \* $aop[r]$: the actual operation applied at replica $r \in Replica$
-    state,  \* $state[r]$: state (the list content) of replica $r \in Replica$
+    aop     \* $aop[r]$: the actual operation applied at replica $r$
+    state,  \* $state[r]$: state (the list content) of replica $r$
 ----------------------------------------------------------------------
 SetNewAop(r, aopr) == aop' = [aop EXCEPT ![r] = aopr]
 
@@ -25,10 +25,12 @@ DoInt(DoOp(_, _), c) == \* Client $c$ generates an operation.
     /\ ApplyNewAop(c)
     
 RevInt(ClientPerform(_, _), c) == \* Client $c$ receives and processes a message.
+    /\ Comm!CRev(c)
     /\ ClientPerform(c, Head(cincoming[c])) \* $ClientPerform(c \in Client, m \in Msg)$
     /\ ApplyNewAop(c)
 
 SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
+    /\ Comm!SRev
     /\ ServerPerform(Head(sincoming)) \* $ServerPerform(m \in Msg)$
     /\ ApplyNewAop(Server)
 =============================================================================

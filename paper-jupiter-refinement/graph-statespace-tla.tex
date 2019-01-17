@@ -1,4 +1,4 @@
-% file: statespace-tla.tex
+% file: graph-statespace-tla.tex
 
 \documentclass{article}
 \usepackage{graphicx}
@@ -9,13 +9,13 @@
 
 \begin{document}
 \begin{tla}
------------------------------ MODULE StateSpace -----------------------------
+----------------------------- MODULE GraphStateSpace -----------------------------
 IsSS(G) == \* A state space is a digraph with labeled edges.
-    /\ IsGraph(G) \* It is a digraph (represented by a record).
+    /\ G = [node |-> G.node, edge |-> G.edge] \* Digraph with $node$ field and $edge$ field.
     /\ G.node \subseteq (SUBSET Oid) \* Each node represents a document state.
     /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* Labeled with a $Cop$.
 
-EmptySS == EmptyGraph
+g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge]
 -----------------------------------------------------------------------------
 Locate(cop, ss) == \* Locate the node in $ss$ that matches the context of $cop$.     
     CHOOSE n \in ss.node : n = cop.ctx \* \textsc{theorem}: Existence of $n$.
@@ -25,10 +25,11 @@ xForm(NextEdge(_, _, _), r, cop, ss) == \* Transform $cop$ with an operation seq
         v == u \cup {cop.oid}
         RECURSIVE xFormHelper(_, _, _, _)
         xFormHelper(uh, vh, coph, xss) == 
-            IF uh = ds[r] THEN [xcop |-> coph, \* transformed $cop$
-                                xss |-> xss,   \* eXtra $ss$ created during transformation
-                                lss |-> [node |-> {vh}, \* the last piece of $xss$
-                                         edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]]
+            IF uh = ds[r] 
+            THEN [xcop |-> coph, \* transformed $cop$
+                  xss |-> xss,   \* extra $ss$ created during transformation
+                  lss |-> [node |-> {vh}, \* the last piece of $xss$
+                           edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]]
             ELSE LET e == NextEdge(r, uh, ss)
                      copprime == e.cop
                      uprime == e.to

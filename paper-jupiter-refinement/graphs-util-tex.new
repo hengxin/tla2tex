@@ -10,28 +10,12 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE GraphsUtil -----------------------------
-IsGraph(G) == \* Represented by a record with $node$ field and $edge$ field. 
-    /\ G = [node |-> G.node, edge |-> G.edge] 
-
-EmptyGraph == [node |-> {{}}, edge |-> {}]
-
 g (+) h == \* A union (in terms of set) of two graphs $g$ and $h$.
     [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge]
 =============================================================================
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} GraphsUtil}\moduleRightDash\@xx{}%
-\@x{ IsGraph ( G ) \.{\defeq}}%
-\@y{%
-  Represented by a record with $node$ field and $edge$ field. 
-}%
-\@xx{}%
- \@x{\@s{16.4} \.{\land}\@s{7.97} G \.{=} [ node \.{\mapsto} G . node ,\, edge
- \.{\mapsto} G . edge ]}%
-\@pvspace{8.0pt}%
- \@x{ EmptyGraph \.{\defeq} [ node \.{\mapsto} \{ \{ \} \} ,\, edge
- \.{\mapsto} \{ \} ]}%
-\@pvspace{8.0pt}%
 \@x{ g \.{\oplus} h \.{\defeq}}%
 \@y{%
   A union (in terms of set) of two graphs $g$ and $h$.

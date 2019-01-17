@@ -1,0 +1,24 @@
+% file: ot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+--------------------------------- MODULE OT ---------------------------------
+OTII(lins, rins) == \* $lins$ is transformed against $rins$; $II$ is for $Ins$ \emph{vs.} $Ins$.
+    IF lins.pos < rins.pos THEN lins
+    ELSE IF lins.pos > rins.pos
+         THEN [lins EXCEPT !.pos = @ + 1]
+         ELSE IF lins.ch = rins.ch THEN Nop
+              ELSE IF lins.pr > rins.pr THEN lins \* using ``priority''
+                   ELSE [lins EXCEPT !.pos = @ + 1]
+
+OT(lop, rop) == \* $lop$ is transformed against $rop$
+=============================================================================
+\end{tla}
+\end{document}
