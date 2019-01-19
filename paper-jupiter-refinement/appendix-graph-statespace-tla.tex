@@ -1,0 +1,42 @@
+% file: appendix-graph-statespace.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE GraphStateSpace -----------------------------
+xFormCopCops(cop, cops) == \* Transform $cop$ against $cops$ on state space.
+    LET RECURSIVE xFormCopCopsSSHelper(_, _, _) 
+        xFormCopCopsSSHelper(coph, copsh, xss) == 
+            LET u == coph.ctx
+                v == u \cup {coph.oid}
+             uvSS == [node |-> {u, v}, 
+                      edge |-> {[from |-> u, to |-> v, cop |-> coph]}]
+             IN IF copsh = <<>> THEN [xcop |-> coph, 
+                                       xss |-> xss (+) uvSS, lss |-> uvSS]
+                ELSE LET copprimeh == Head(copsh)
+                            uprime == u \cup {copprimeh.oid}
+                            vprime == u \cup {coph.oid, copprimeh.oid}
+                         coph2copprimeh == COT(coph, copprimeh)
+                         copprimeh2coph == COT(copprimeh, coph)
+                      IN xFormCopCopsSSHelper(coph2copprimeh, 
+                            Tail(copsh),
+                            xss (+) [node |-> {u, v}, 
+                                     edge |-> {[from |-> u, to |-> v, cop |-> coph],
+                                               [from |-> u, to |-> uprime, 
+                                                 cop |-> copprimeh],
+                                               [from |-> v, to |-> vprime, 
+                                                 cop |-> copprimeh2coph]}])
+    IN  xFormCopCopsSSHelper(cop, cops, EmptySS)
+
+xFormCopCopsShift(cop, cops, shift) == 
+                    \* shifting the first $shift$ elements out of $cops$
+    xFormCopCops(cop, SubSeq(cops, shift + 1, Len(cops)))
+=============================================================================
+\end{tla}
+\end{document}

@@ -11,12 +11,10 @@
 
 \begin{tla}
 -------------------------- MODULE JupiterInterface --------------------------
-VARIABLES 
-    aop     \* $aop[r]$: the actual operation applied at replica $r$
-    state,  \* $state[r]$: state (the list content) of replica $r$
+VARIABLES aop,  \* $aop[r]$: the actual operation applied at replica $r$
+          state \* $state[r]$: state (the list content) of replica $r$
 ----------------------------------------------------------------------
 SetNewAop(r, aopr) == aop' = [aop EXCEPT ![r] = aopr]
-
 ApplyNewAop(r) == state' = [state EXCEPT ![r] = Apply(aop'[r], @)]
 -----------------------------------------------------------------------------
 DoInt(DoOp(_, _), c) == \* Client $c$ generates an operation.
@@ -37,13 +35,12 @@ SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} JupiterInterface}\moduleRightDash\@xx{}%
-\@x{ {\VARIABLES}}%
-\@x{\@s{16.4} aop\@s{16.4}}%
+\@x{ {\VARIABLES} aop ,\,\@s{4.1}}%
 \@y{%
   $aop[r]$: the actual operation applied at replica $r$
 }%
 \@xx{}%
-\@x{\@s{16.4} state ,\,\@s{5.05}}%
+\@x{\@s{51.42} state\@s{4.97}}%
 \@y{%
   $state[r]$: state (the list content) of replica $r$
 }%
@@ -51,7 +48,6 @@ SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
 \@x{}\midbar\@xx{}%
  \@x{ SetNewAop ( r ,\, aopr ) \.{\defeq} aop \.{'} \.{=} [ aop {\EXCEPT}
  {\bang} [ r ] \.{=} aopr ]}%
-\@pvspace{8.0pt}%
  \@x{ ApplyNewAop ( r ) \.{\defeq} state \.{'} \.{=} [ state {\EXCEPT} {\bang}
  [ r ]\@s{4.75} \.{=} Apply ( aop \.{'} [ r ] ,\, @ ) ]}%
 \@x{}\midbar\@xx{}%

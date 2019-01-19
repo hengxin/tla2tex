@@ -16,8 +16,7 @@ Priority == CHOOSE f \in [Client -> 1 .. Cardinality(Client)] : Injective(f)
 Del == [type: {"Del"}, pos: 1 .. MaxLen] \* The positions ($pos$) are indexed from 1.
 Ins == [type: {"Ins"}, pos: 1 .. (MaxLen + 1), ch: Char, pr: Range(Priority)]
 
-Op == Ins \cup Del
-Nop == CHOOSE op : op \notin Op
+Op == Ins \cup Del        Nop == CHOOSE op : op \notin Op
 
 Apply(op, l) == \* Apply operation $op$ on list $l$.
 =============================================================================
@@ -42,8 +41,8 @@ Apply(op, l) == \* Apply operation $op$ on list $l$.
  \.{:} 1 \.{\dotdot} ( MaxLen \.{+} 1 ) ,\, ch \.{:} Char ,\, pr \.{:} Range
  ( Priority ) ]}%
 \@pvspace{8.0pt}%
-\@x{ Op \.{\defeq} Ins \.{\cup} Del}%
-\@x{ Nop \.{\defeq} {\CHOOSE} op \.{:} op \.{\notin} Op}%
+ \@x{ Op \.{\defeq} Ins \.{\cup} Del\@s{28.7} Nop \.{\defeq} {\CHOOSE} op
+ \.{:} op \.{\notin} Op}%
 \@pvspace{8.0pt}%
 \@x{ Apply ( op ,\, l ) \.{\defeq}}%
 \@y{%

@@ -1,0 +1,37 @@
+% file: appendix-cscomm-tla.tex
+
+\begin{document}
+\begin{tla}
+------------------------------- MODULE CSComm -------------------------------
+CONSTANTS Client, Server, Msg
+-----------------------------------------------------------------------------
+VARIABLES cincoming, sincoming
+-----------------------------------------------------------------------------
+Init == 
+    /\ cincoming = [c \in Client |-> <<>>]
+    /\ sincoming = <<>>
+
+EmptyChannel == Init
+-----------------------------------------------------------------------------
+CSend(m) == \* A client sends message $m$ to the $Server$.
+    /\ sincoming' = Append(sincoming, m)
+    /\ UNCHANGED cincoming
+
+CRev(c) == \* Client $c$ receives and consumes a message from the $Server$.                  
+    /\ cincoming[c] # <<>>
+    /\ cincoming' = [cincoming EXCEPT ![c] = Tail(@)]
+    /\ UNCHANGED sincoming
+-----------------------------------------------------------------------------
+SRev == \* The $Server$ receives and consumes a message.      
+    /\ sincoming # <<>>
+    /\ sincoming' = Tail(sincoming)
+
+SSend(c, cm) == \* The $Server$ sents $cm[cl]$ to client $cl$ (other than $c$).
+    cincoming' = [cl \in Client |-> IF cl = c THEN cincoming[cl] 
+                                    ELSE Append(cincoming[cl], cm[cl])]
+
+SSendSame(c, m) == \* The $Server$ broadcasts $m$ to all clients other than $c$.
+    SSend(c, [cl \in Client |-> m])
+=============================================================================
+\end{tla}
+\end{document}

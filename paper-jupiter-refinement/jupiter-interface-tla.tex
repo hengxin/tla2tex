@@ -11,12 +11,10 @@
 
 \begin{tla}
 -------------------------- MODULE JupiterInterface --------------------------
-VARIABLES 
-    aop     \* $aop[r]$: the actual operation applied at replica $r$
-    state,  \* $state[r]$: state (the list content) of replica $r$
+VARIABLES aop,  \* $aop[r]$: the actual operation applied at replica $r$
+          state \* $state[r]$: state (the list content) of replica $r$
 ----------------------------------------------------------------------
 SetNewAop(r, aopr) == aop' = [aop EXCEPT ![r] = aopr]
-
 ApplyNewAop(r) == state' = [state EXCEPT ![r] = Apply(aop'[r], @)]
 -----------------------------------------------------------------------------
 DoInt(DoOp(_, _), c) == \* Client $c$ generates an operation.

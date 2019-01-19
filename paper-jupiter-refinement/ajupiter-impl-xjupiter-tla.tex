@@ -1,0 +1,38 @@
+% file: ajupiter-impl-xjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------ MODULE AJupiterImplXJupiter ------------------------
+EXTENDS AJupiterExtended \* $AJupiter$ extended with $JupiterCtx$.
+-----------------------------------------------------------------------------
+VARIABLES c2ss, s2ss
+-----------------------------------------------------------------------------
+DoOpImpl(c, op) == 
+    LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]] 
+    IN  c2ss' = [c2ss EXCEPT ![c] = 
+                     @ (+) [node |-> {ds'[c]},
+                            edge |-> {[from |-> ds[c], to |-> ds'[c], cop |-> cop]}]]
+
+ClientPerformImpl(c, m) ==
+    LET xform == xFormCopCopsShift(m.cop, cbuf[c], m.ack) \* $[xcop, xss, lss]$
+    IN  c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xss]
+
+ServerPerformImpl(m) ==
+    LET c == ClientOf(m.cop)
+        xform == xFormCopCopsShift(m.cop, sbuf[c], m.ack) \* $[xcop, xss, lss]$
+    IN  s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xss 
+                                             ELSE s2ss[cl] (+) xform.lss]
+-----------------------------------------------------------------------------
+XJ == INSTANCE XJupiter WITH \* substitutions for communication; omitted here
+         c2ss <- c2ss, s2ss <- s2ss
+THEOREM SpecImpl => XJ!Spec
+=============================================================================
+\end{tla}
+\end{document}

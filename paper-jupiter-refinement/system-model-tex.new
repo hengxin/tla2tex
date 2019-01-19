@@ -15,7 +15,7 @@ Replica == Client \cup {Server}
 ----------------------------------------------------------------------
 VARIABLES cincoming,  \* $cincoming[c]$: incoming channel at client $c$ 
           sincoming   \* incoming channel at the $Server$
-Comm == INSTANCE CSComm
+Comm == INSTANCE CSComm \* instantiate $CSComm$ for communication
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -34,6 +34,10 @@ Comm == INSTANCE CSComm
 }%
 \@xx{}%
 \@x{ Comm \.{\defeq} {\INSTANCE} CSComm}%
+\@y{%
+  instantiate $CSComm$ for communication
+}%
+\@xx{}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}

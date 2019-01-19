@@ -14,15 +14,14 @@
 For context-based \jupiter{} protocols, including \absjupiter{}, \cjupiter{}, and \xjupiter{}.
 *)
 -----------------------------------------------------------------------------
-VARIABLES 
-    cseq,  \* $cseq[c]$: local sequence number at client $c$
-    ds     \* $ds[r]$: document state (i.e., a set of $Oids$) of replica $r$
+VARIABLES cseq, \* $cseq[c]$: local sequence number at client $c$
+          ds    \* $ds[r]$: document state (i.e., a set of $Oids$) of replica $r$
 -----------------------------------------------------------------------------
 Oid == [c: Client, seq: Nat] \* operation identifier; $seq$: sequence number
-Cop == [op: Op \cup {Nop}, oid: Oid, ctx: SUBSET Oid] \* contexted-based operation
+Cop == [op: Op \cup {Nop}, oid: Oid, ctx: SUBSET Oid] \* context-based operation
 
-COT(lcop, rcop) == \* extended OT of $lcop \in Cop$ against $rcop \in Cop$
-    [lcop EXCEPT !.op = Xform(lcop.op, rcop.op), !.ctx = @ \cup {rcop.oid}]
+COT(lcop, rcop) == \* extended $OT$ of $lcop \in Cop$ against $rcop \in Cop$
+    [lcop EXCEPT !.op = OT(lcop.op, rcop.op), !.ctx = @ \cup {rcop.oid}]
 
 UpdateDS(r, oid) == \* update $ds[r]$ to include new $oid \in Oid$
     ds' = [ds EXCEPT ![r] = @ \cup {oid}]
@@ -47,13 +46,12 @@ SRevCtx == UpdateDS(Server, Head(sincoming).oid)
 \end{cpar}%
 \end{lcom}%
 \@x{}\midbar\@xx{}%
-\@x{ {\VARIABLES}}%
-\@x{\@s{16.4} cseq ,\,\@s{4.1}}%
+\@x{ {\VARIABLES} cseq ,\,}%
 \@y{%
   $cseq[c]$: local sequence number at client $c$
 }%
 \@xx{}%
-\@x{\@s{16.4} ds\@s{18.45}}%
+\@x{\@s{51.42} ds\@s{14.35}}%
 \@y{%
   $ds[r]$: document state (i.e., a set of $Oids$) of replica $r$
 }%
@@ -67,17 +65,17 @@ SRevCtx == UpdateDS(Server, Head(sincoming).oid)
  \@x{ Cop \.{\defeq} [ op \.{:} Op \.{\cup} \{ Nop \} ,\, oid \.{:} Oid ,\,
  ctx \.{:} {\SUBSET} Oid ]}%
 \@y{%
-  contexted-based operation
+  context-based operation
 }%
 \@xx{}%
 \@pvspace{8.0pt}%
 \@x{ COT ( lcop ,\, rcop ) \.{\defeq}}%
 \@y{%
-  extended OT of $lcop \in Cop$ against $rcop \in Cop$
+  extended $OT$ of $lcop \in Cop$ against $rcop \in Cop$
 }%
 \@xx{}%
- \@x{\@s{27.19} [ lcop {\EXCEPT} {\bang} . op \.{=} Xform ( lcop . op ,\, rcop
- . op ) ,\, {\bang} . ctx \.{=} @ \.{\cup} \{ rcop . oid \} ]}%
+ \@x{\@s{27.19} [ lcop {\EXCEPT} {\bang} . op \.{=} OT ( lcop . op ,\, rcop .
+ op ) ,\, {\bang} . ctx \.{=} @ \.{\cup} \{ rcop . oid \} ]}%
 \@pvspace{8.0pt}%
 \@x{ UpdateDS ( r ,\, oid ) \.{\defeq}}%
 \@y{%
