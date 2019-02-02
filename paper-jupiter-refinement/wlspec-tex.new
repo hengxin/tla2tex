@@ -1,0 +1,118 @@
+% file: wlspec-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE AbsJupiterH ----------------------------
+EXTENDS AbsJupiter 
+-------------------------------------------------------------
+VARIABLE list
+varsH == <<vars, list>>
+-------------------------------------------------------------
+InitH == Init /\ list = {InitState}
+
+DoH(c) == Do(c) /\ list' = list \cup {state'[c]}
+
+RevH(c) == Rev(c) /\ list' = list \cup {state'[c]}
+
+SRevH == SRev /\ list' = list \cup {state'[Server]}
+-------------------------------------------------------------
+NextH == \/ \E c \in Client: DoH(c) \/ RevH(c)
+         \/ SRevH
+
+SpecH == InitH /\ [][NextH]_varsH
+-------------------------------------------------------------
+Compatible(l1, l2) ==
+    \/ seq1 = seq2 \* Obviously true
+    \/ LET commonElements == Range(l1) \cap Range(l2)
+       IN \A e1, e2 \in commonElements:
+            \/ e1 = e2
+            \/ FirstIndexOfElement(l1, e1) < FirstIndexOfElement(l1, e2) 
+               <=> FirstIndexOfElement(l2, e1) < FirstIndexOfElement(l2, e2)
+
+WLSpec == \* The weak list specification
+    Comm!EmptyChannel \* no need to check $Compatible$ at every state
+        => \A l1, l2 \in list: \* (only at quiescence)
+            /\ Injective(l1) \* no duplicate elements
+            /\ Injective(l2) \* (true due to our distinctness assumption)
+            /\ Compatible(l1, l2)
+
+THEOREM SpecH => []WLSpec
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} AbsJupiterH}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} AbsJupiter}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLE} list}%
+\@x{ varsH \.{\defeq} {\langle} vars ,\, list {\rangle}}%
+\@x{}\midbar\@xx{}%
+\@x{ InitH \.{\defeq} Init \.{\land} list \.{=} \{ InitState \}}%
+\@pvspace{8.0pt}%
+ \@x{ DoH ( c ) \.{\defeq} Do ( c ) \.{\land} list \.{'} \.{=} list \.{\cup}
+ \{ state \.{'} [ c ] \}}%
+\@pvspace{8.0pt}%
+ \@x{ RevH ( c ) \.{\defeq} Rev ( c ) \.{\land} list \.{'} \.{=} list \.{\cup}
+ \{ state \.{'} [ c ] \}}%
+\@pvspace{8.0pt}%
+ \@x{ SRevH \.{\defeq} SRev \.{\land} list \.{'} \.{=} list \.{\cup} \{ state
+ \.{'} [ Server ] \}}%
+\@x{}\midbar\@xx{}%
+ \@x{ NextH \.{\defeq} \.{\lor} \E\, c \.{\in} Client \.{:} DoH ( c ) \.{\lor}
+ RevH ( c )}%
+\@x{\@s{47.95} \.{\lor} SRevH}%
+\@pvspace{8.0pt}%
+\@x{ SpecH\@s{1.08} \.{\defeq} InitH \.{\land} {\Box} [ NextH ]_{ varsH}}%
+\@x{}\midbar\@xx{}%
+\@x{ Compatible ( l1 ,\, l2 ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\lor} seq1 \.{=} seq2}%
+\@y{%
+  Obviously true
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\lor} \.{\LET} commonElements \.{\defeq} Range ( l1 )
+ \.{\cap} Range ( l2 )}%
+\@x{\@s{27.51} \.{\IN} \A\, e1 ,\, e2 \.{\in} commonElements \.{:}}%
+\@x{\@s{56.11} \.{\lor} e1 \.{=} e2}%
+ \@x{\@s{56.11} \.{\lor} FirstIndexOfElement ( l1 ,\, e1 ) \.{<}
+ FirstIndexOfElement ( l1 ,\, e2 )}%
+ \@x{\@s{67.22} \.{\equiv} FirstIndexOfElement ( l2 ,\, e1 ) \.{<}
+ FirstIndexOfElement ( l2 ,\, e2 )}%
+\@pvspace{8.0pt}%
+\@x{ WLSpec \.{\defeq}}%
+\@y{%
+  The weak list specification
+}%
+\@xx{}%
+\@x{\@s{16.4} Comm {\bang} EmptyChannel}%
+\@y{%
+  no need to check $Compatible$ at every state
+}%
+\@xx{}%
+\@x{\@s{45.78} \.{\implies} \A\, l1 ,\, l2 \.{\in} list \.{:}}%
+\@y{%
+  (only at quiescence)
+}%
+\@xx{}%
+\@x{\@s{65.44} \.{\land} Injective ( l1 )}%
+\@y{%
+  no duplicate elements
+}%
+\@xx{}%
+\@x{\@s{65.44} \.{\land} Injective ( l2 )}%
+\@y{%
+  (true due to our distinctness assumption)
+}%
+\@xx{}%
+\@x{\@s{65.44} \.{\land} Compatible ( l1 ,\, l2 )}%
+\@pvspace{8.0pt}%
+\@x{ {\THEOREM} SpecH \.{\implies} {\Box} WLSpec}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

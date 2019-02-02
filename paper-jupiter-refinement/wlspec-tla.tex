@@ -1,0 +1,49 @@
+% file: wlspec-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE AbsJupiterH ----------------------------
+EXTENDS AbsJupiter 
+-------------------------------------------------------------
+VARIABLE list
+varsH == <<vars, list>>
+-------------------------------------------------------------
+InitH == Init /\ list = {InitState}
+
+DoH(c) == Do(c) /\ list' = list \cup {state'[c]}
+
+RevH(c) == Rev(c) /\ list' = list \cup {state'[c]}
+
+SRevH == SRev /\ list' = list \cup {state'[Server]}
+-------------------------------------------------------------
+NextH == \/ \E c \in Client: DoH(c) \/ RevH(c)
+         \/ SRevH
+
+SpecH == InitH /\ [][NextH]_varsH
+-------------------------------------------------------------
+Compatible(l1, l2) ==
+    \/ seq1 = seq2 \* Obviously true
+    \/ LET commonElements == Range(l1) \cap Range(l2)
+       IN \A e1, e2 \in commonElements:
+            \/ e1 = e2
+            \/ FirstIndexOfElement(l1, e1) < FirstIndexOfElement(l1, e2) 
+               <=> FirstIndexOfElement(l2, e1) < FirstIndexOfElement(l2, e2)
+
+WLSpec == \* The weak list specification
+    Comm!EmptyChannel \* no need to check $Compatible$ at every state
+        => \A l1, l2 \in list: \* (only at quiescence)
+            /\ Injective(l1) \* no duplicate elements
+            /\ Injective(l2) \* (true due to our distinctness assumption)
+            /\ Compatible(l1, l2)
+
+THEOREM SpecH => []WLSpec
+=============================================================================
+\end{tla}
+\end{document}

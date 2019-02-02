@@ -1,5 +1,5 @@
 \batchmode
-% file: ot-tla.tex
+% file: buffer-statespace-tla.tex
 
 \documentclass{article}
 \usepackage{graphicx}
@@ -11,32 +11,50 @@
 \begin{document}
 \makeatletter
 \chardef\%=`\%
-\fl{}\moduleLeftDash\cl{ {\MODULE} Op}\moduleRightDash\cl{}
-\fl{ MaxLen \.{\defeq} Cardinality ( Char ) \.{+} Len ( InitState )%
+\fl{}\moduleLeftDash\cl{ {\MODULE} BufferStateSpace}\moduleRightDash\cl{}
+\fl{ {\RECURSIVE} xFormOpOps ( \_ ,\, \_ ,\, \_ )%
 \@y{%
-  the max length of lists
+  Transform $op$ against $ops$. 
 }%
 }
- \fl{ Priority \.{\defeq} {\CHOOSE} f \.{\in} [ Client \.{\rightarrow} 1
- \.{\dotdot} Cardinality ( Client ) ] \.{:} Injective ( f )}
-\fl{}
- \fl{ Del}\al{4}{1}{ \.{\defeq}}\al{4}{2}{ [ type}\al{4}{4}{ \.{:}}\al{4}{5}{
- \{\@w{Del} \} ,\, pos}\al{4}{10}{ \.{:}}\al{4}{11}{ 1 \.{\dotdot} MaxLen ]%
+\fl{ xFormOpOps ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ) \.{\defeq}%
 \@y{%
-  The positions ($pos$) are indexed from 1.
+  $xform$: $OT$ on $Op$ or $COT$ on $Cop$
 }%
 }
- \fl{ Ins}\al{5}{1}{ \.{\defeq}}\al{5}{2}{ [ type}\al{5}{4}{ \.{:}}\al{5}{5}{
- \{\@w{Ins} \} ,\, pos}\al{5}{10}{ \.{:}}\al{5}{11}{ 1 \.{\dotdot} ( MaxLen
- \.{+} 1 ) ,\, ch \.{:} Char ,\, pr \.{:} Range ( Priority ) ]}
-\fl{}
- \fl{ Op \.{\defeq} Ins \.{\cup} Del Nop \.{\defeq} {\CHOOSE} op \.{:} op
- \.{\notin} Op}
-\fl{}
-\fl{ Apply ( op ,\, l ) \.{\defeq}%
+\fl{ {\IF} ops \.{=} {\langle} {\rangle} \.{\THEN} {\langle} op {\rangle}%
 \@y{%
-  Apply operation $op$ on list $l$.
+  Maintain and return intermediate transformed operations.
 }%
 }
+ \fl{ \.{\ELSE} {\langle} op {\rangle} \.{\circ} xFormOpOps ( xform ,\, xform
+ ( op ,\, Head ( ops ) ) ,\, Tail ( ops ) )}
+\fl{}
+\fl{ xFormOpsOp ( xform ( \_ ,\, \_ ) ,\, ops ,\, op ) \.{\defeq}%
+\@y{%
+  Transform $ops$ against $op$.
+}%
+}
+\fl{ \.{\LET}}\al{7}{1}{ opX \.{\defeq} xFormOpOps ( xform ,\, op ,\, ops )}
+ \fl{ \.{\IN}}\al{8}{1}{ [ i \.{\in} 1 \.{\dotdot} Len ( ops ) \.{\mapsto}
+ xform ( ops [ i ] ,\, opX [ i ] ) ]}
+\fl{}
+\fl{ xFormFull ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ) \.{\defeq}%
+\@y{%
+  Combine $xFormOpOps$ and $xFormOpsOp$
+}%
+}
+ \fl{ [ xop}\al{11}{2}{ \.{\mapsto}}\al{11}{3}{ Last ( xFormOpOps ( xform ,\,
+ op ,\, ops ) ) ,\,%
+\@y{%
+  (see Figure~\ref{fig:xform-bufferstatespace})
+}%
+}
+ \fl{ xops}\al{12}{1}{ \.{\mapsto}}\al{12}{2}{ xFormOpsOp ( xform ,\, ops ,\,
+ op ) ]}
+\fl{}
+\fl{ xFormShift ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ,\, shift ) \.{\defeq}}
+ \fl{ xFormFull ( xform ,\, op ,\, SubSeq ( ops ,\, shift \.{+} 1 ,\, Len (
+ ops ) ) )}
 \fl{}\bottombar\cl{}
 \end{document}

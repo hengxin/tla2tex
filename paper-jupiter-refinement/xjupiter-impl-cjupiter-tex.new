@@ -16,18 +16,14 @@ VARIABLES op2ss,  \* a function mapping an operation (identifier)
                   \* to the $2D$ state space created during it is transformed
           c2ssX   \* $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
 -----------------------------------------------------------------------------
-DoImpl(c) == /\ DoEx(c)
-
 RevImpl(c) ==
-    /\ RevEx(c)
-    /\ LET cop == Head(cincoming[c])
-       IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]]
+    LET cop == Head(cincoming[c])
+    IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] \* integrate into $c2ssX$
 
 SRevImpl == 
-    /\ SRevEx
-    /\ LET cop == Head(sincoming)
-         xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
-       IN op2ss' = op2ss @@ cop.oid :> xform.xss
+    LET cop == Head(sincoming)
+      xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
+    IN op2ss' = op2ss @@ cop.oid :> xform.xss \* $xss:$ extra $ss$ created during $xform$
 -----------------------------------------------------------------------------
 CJ == INSTANCE CJupiter WITH \* substitution for communication; omitted here.
          css <- [r \in Replica |-> IF r = Server 
@@ -61,22 +57,25 @@ THEOREM SpecImpl => CJ!Spec
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
-\@x{ DoImpl ( c ) \.{\defeq} \.{\land} DoEx ( c )}%
-\@pvspace{8.0pt}%
 \@x{ RevImpl ( c ) \.{\defeq}}%
-\@x{\@s{16.4} \.{\land}\@s{9.20} RevEx ( c )}%
- \@x{\@s{16.4} \.{\land}\@s{9.20} \.{\LET} cop \.{\defeq} Head ( cincoming [ c
- ] )}%
- \@x{\@s{36.71} \.{\IN} c2ssX \.{'} \.{=} [ c2ssX {\EXCEPT} {\bang} [ c ]
- \.{=} @ \.{\oplus} op2ss [ cop . oid ] ]}%
+\@x{\@s{16.4} \.{\LET} cop \.{\defeq} Head ( cincoming [ c ] )}%
+ \@x{\@s{16.4} \.{\IN} c2ssX \.{'} \.{=} [ c2ssX {\EXCEPT} {\bang} [ c ] \.{=}
+ @ \.{\oplus} op2ss [ cop . oid ] ]}%
+\@y{%
+  integrate into $c2ssX$
+}%
+\@xx{}%
 \@pvspace{8.0pt}%
 \@x{ SRevImpl \.{\defeq}}%
-\@x{\@s{16.4} \.{\land} SRevEx}%
-\@x{\@s{16.4} \.{\land} \.{\LET} cop \.{\defeq} Head ( sincoming )}%
- \@x{\@s{35.71} xform\@s{1.16} \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop
+\@x{\@s{16.4} \.{\LET} cop \.{\defeq} Head ( sincoming )}%
+ \@x{\@s{24.59} xform\@s{1.16} \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop
  ,\, s2ss [ ClientOf ( cop ) ] )}%
- \@x{\@s{27.51} \.{\IN} op2ss \.{'} \.{=} op2ss \.{\,@@\,} cop . oid
+ \@x{\@s{16.4} \.{\IN} op2ss \.{'} \.{=} op2ss \.{\,@@\,} cop . oid
  \.{\colongt} xform . xss}%
+\@y{%
+  $xss:$ extra $ss$ created during $xform$
+}%
+\@xx{}%
 \@x{}\midbar\@xx{}%
 \@x{ CJ \.{\defeq} {\INSTANCE} CJupiter {\WITH}}%
 \@y{%

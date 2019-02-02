@@ -1,4 +1,4 @@
-% file: absjupiter-tla.tex
+% file: appendix-absjupiter-tla.tex
 
 \documentclass{article}
 \usepackage{graphicx}
@@ -10,7 +10,13 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE AbsJupiter -----------------------------
+(*
+Abstract $Jupiter$, inspired by the COT algorithm~\cite{Sun:TPDS09}.
+*)
+----------------------------------------------------------------------------
 VARIABLES copss \* $copss[r]$: the set of context-based operations maintained at replia $r$
+
+vars == <<intVars, ctxVars, serialVars, copss>>
 ----------------------------------------------------------------------------
 NextCop(r, cop, ss, ctx) == \* The next $fcop$ against which $cop$ is to be transformed.
     LET foid == CHOOSE oid \in ctx: \* the first $oid$ in $ctx$ according to $serial[r]$
@@ -32,6 +38,33 @@ DoOp(c, op) ==
     LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
     IN  /\ ClientPerform(c, cop)
         /\ Comm!CSend(cop) 
+----------------------------------------------------------------------------
+Init ==
+    /\ InitInt
+    /\ InitCtx
+    /\ InitSerial
+    /\ copss = [r \in Replica |-> {}]
+
+Do(c) == 
+    /\ DoInt(DoOp, c)
+    /\ DoCtx(c)
+    /\ DoSerial(c)
+
+Rev(c) ==
+    /\ RevInt(ClientPerform, c)
+    /\ RevCtx(c)
+    /\ RevSerial(c)
+
+SRev ==
+    /\ SRevInt(ServerPerform)
+    /\ SRevCtx
+    /\ SRevSerial
+-----------------------------------------------------------------------------
+Next ==
+    \/ \E c \in Client: Do(c) \/ Rev(c)
+    \/ SRev
+
+Spec == Init /\ [][Next]_vars
 =============================================================================
 \end{tla}
 \end{document}

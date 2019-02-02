@@ -12,12 +12,11 @@
 ------------------------------ MODULE CJupiter ------------------------------
 VARIABLES css  \* $css[r]$: the $n$-ary ordered state space at replica $r$
 -----------------------------------------------------------------------------
-NextEdge(r, u, ss) ==     \* Return the \emph{first} outgoing edge from $u$ 
-    CHOOSE e \in ss.edge: \* in $n$-ary ordered space $ss$ at replica $r$.
+NextEdge(r, u, ss) == \* Return the \emph{first} outgoing edge from $u$ in $ss$ at replica $r$. 
+    CHOOSE e \in ss.edge:
         /\e.from = u 
-        /\\A ue \in ss.edge \ {e}: 
-           (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
-    
+        /\\A ue \in ss.edge \ {e}: (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+
 Perform(r, cop) == 
     LET xform == xForm(NextEdge, r, cop, css[r])
     IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xss]
@@ -32,21 +31,16 @@ Perform(r, cop) ==
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
-\@x{ NextEdge ( r ,\, u ,\, ss ) \.{\defeq}\@s{16.4}}%
+\@x{ NextEdge ( r ,\, u ,\, ss ) \.{\defeq}}%
 \@y{%
-  Return the \emph{first} outgoing edge from $u$ 
+  Return the \emph{first} outgoing edge from $u$ in $ss$ at replica $r$. 
 }%
 \@xx{}%
-\@x{\@s{16.4} {\CHOOSE} e \.{\in} ss . edge \.{:}\@s{4.51}}%
-\@y{%
-  in $n$-ary ordered space $ss$ at replica $r$.
-}%
-\@xx{}%
+\@x{\@s{16.4} {\CHOOSE} e \.{\in} ss . edge \.{:}}%
 \@x{\@s{32.8} \.{\land} e . from \.{=} u}%
  \@x{\@s{32.8} \.{\land} \A\, ue \.{\in} ss . edge \.{\,\backslash\,} \{ e \}
- \.{:}}%
- \@x{\@s{48.01} ( ue . from \.{=} u ) \.{\implies} tb ( e . cop . oid ,\, ue .
- cop . oid ,\, serial [ r ] )}%
+ \.{:} ( ue . from \.{=} u ) \.{\implies} tb ( e . cop . oid ,\, ue . cop .
+ oid ,\, serial [ r ] )}%
 \@pvspace{8.0pt}%
 \@x{ Perform ( r ,\, cop ) \.{\defeq}}%
  \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xForm ( NextEdge ,\, r ,\, cop ,\,

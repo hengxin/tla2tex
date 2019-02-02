@@ -10,7 +10,7 @@
 \begin{document}
 \begin{tla}
 -------------------------- MODULE BufferStateSpace --------------------------
-RECURSIVE xFormOpOps(_, _,_) \* Transform $op$ against an operation sequence $ops$. 
+RECURSIVE xFormOpOps(_, _,_) \* Transform $op$ against $ops$. 
 xFormOpOps(xform(_, _), op, ops) == \* $xform$: $OT$ on $Op$ or $COT$ on $Cop$
     IF ops = <<>> THEN <<op>> \* Maintain and return intermediate transformed operations.
     ELSE <<op>> \o xFormOpOps(xform, xform(op, Head(ops)), Tail(ops))
@@ -20,10 +20,10 @@ xFormOpsOp(xform(_, _), ops, op) == \* Transform $ops$ against $op$.
     IN  [i \in 1 .. Len(ops) |-> xform(ops[i], opX[i])]
 
 xFormFull(xform(_, _), op, ops) == \* Combine $xFormOpOps$ and $xFormOpsOp$
-    [xop |-> Last(xFormOpOps(xform, op, ops)),
+    [xop |-> Last(xFormOpOps(xform, op, ops)), \* (see Figure~\ref{fig:xform-bufferstatespace})
     xops |-> xFormOpsOp(xform, ops, op)]
 
-xFormShift(xform(_, _), op, ops, shift) == \* shift of $ops$
+xFormShift(xform(_, _), op, ops, shift) == 
     xFormFull(xform, op, SubSeq(ops, shift + 1, Len(ops)))
 =============================================================================
 \end{tla}
@@ -31,7 +31,7 @@ xFormShift(xform(_, _), op, ops, shift) == \* shift of $ops$
 \@x{}\moduleLeftDash\@xx{ {\MODULE} BufferStateSpace}\moduleRightDash\@xx{}%
 \@x{ {\RECURSIVE} xFormOpOps ( \_ ,\, \_ ,\, \_ )}%
 \@y{%
-  Transform $op$ against an operation sequence $ops$. 
+  Transform $op$ against $ops$. 
 }%
 \@xx{}%
 \@x{ xFormOpOps ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ) \.{\defeq}}%
@@ -64,13 +64,13 @@ xFormShift(xform(_, _), op, ops, shift) == \* shift of $ops$
 \@xx{}%
  \@x{\@s{16.4} [ xop\@s{1.50} \.{\mapsto} Last ( xFormOpOps ( xform ,\, op ,\,
  ops ) ) ,\,}%
+\@y{%
+  (see Figure~\ref{fig:xform-bufferstatespace})
+}%
+\@xx{}%
 \@x{\@s{16.4} xops \.{\mapsto} xFormOpsOp ( xform ,\, ops ,\, op ) ]}%
 \@pvspace{8.0pt}%
 \@x{ xFormShift ( xform ( \_ ,\, \_ ) ,\, op ,\, ops ,\, shift ) \.{\defeq}}%
-\@y{%
-  shift of $ops$
-}%
-\@xx{}%
  \@x{\@s{16.4} xFormFull ( xform ,\, op ,\, SubSeq ( ops ,\, shift \.{+} 1 ,\,
  Len ( ops ) ) )}%
 \@x{}\bottombar\@xx{}%

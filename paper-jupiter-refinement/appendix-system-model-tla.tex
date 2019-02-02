@@ -1,4 +1,4 @@
-% file: system-model-tla.tex
+% file: appendix-system-model-tla.tex
 
 \documentclass{article}
 \usepackage{graphicx}
@@ -11,10 +11,12 @@
 \begin{tla}
 ---------------------------- MODULE SystemModel ----------------------------
 CONSTANTS Client, Server, Msg, Char, InitState
+
 Replica == Client \cup {Server}
 ----------------------------------------------------------------------
 VARIABLES cincoming,  \* $cincoming[c]$: incoming channel at client $c$ 
           sincoming   \* incoming channel at the $Server$
+
 Comm == INSTANCE CSComm \* instantiate $CSComm$ for communication
 =============================================================================
 \end{tla}

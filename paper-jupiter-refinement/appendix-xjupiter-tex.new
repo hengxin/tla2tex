@@ -1,0 +1,171 @@
+% file: appendix-xjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE XJupiter ------------------------------
+(*
+Specification of the $Jupiter$ protocol described in $CSCW'2014$ by Xu, Sun, and Li~\cite{Xu:CSCW14}.
+*)
+-----------------------------------------------------------------------------
+VARIABLES c2ss, \* $c2ss[c]$: the $2D$ state space ($2ss$, for short) at client $c$ 
+          s2ss  \* $s2ss[c]$: the $2D$ state space maintained by the $Server$ for client $c$
+
+vars == <<intVars, ctxVars, c2ss, s2ss>>
+-----------------------------------------------------------------------------
+NextEdge(r, u, ss) == \* Return the unique outgoing edge from $u$ in $2D$ state space $ss$ 
+    CHOOSE e \in ss.edge: e.from = u \* before a transformation at $u$ ($r$ is not used). 
+
+ClientPerform(c, cop) == 
+    LET xform == xForm(NextEdge, c, cop, c2ss[c])
+    IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xss]
+        /\ SetNewAop(c, xform.xcop.op)
+
+ServerPerform(cop) == 
+    LET c == ClientOf(cop)
+    xform == xForm(NextEdge, Server, cop, s2ss[c]) \* $xform$: $[xcop, xss, lss]$
+     xcop == xform.xcop
+    IN  /\ s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xss 
+                                                ELSE s2ss[cl] (+) xform.lss]
+        /\ SetNewAop(Server, xcop.op)
+        /\ Comm!SSendSame(c, xcop)  \* broadcast the transformed $xcop$ 
+
+DoOp(c, op) == 
+    LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]] 
+    IN  /\ ClientPerform(c, cop)
+        /\ Comm!CSend(cop)
+-----------------------------------------------------------------------------
+Init == 
+    /\ InitInt
+    /\ InitCtx
+    /\ c2ss = [c \in Client |-> EmptySS]
+    /\ s2ss = [c \in Client |-> EmptySS]
+
+Do(c) == 
+    /\ DoInt(DoOp, c)
+    /\ DoCtx(c)
+    /\ UNCHANGED s2ss
+
+Rev(c) == 
+    /\ RevInt(ClientPerform, c)
+    /\ RevCtx(c)
+    /\ UNCHANGED s2ss
+
+SRev == 
+    /\ SRevInt(ServerPerform)
+    /\ SRevCtx
+    /\ UNCHANGED c2ss
+-----------------------------------------------------------------------------
+Next == 
+    \/ \E c \in Client: Do(c) \/ Rev(c)
+    \/ SRev
+
+Spec == Init /\ [][Next]_vars
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} XJupiter}\moduleRightDash\@xx{}%
+\begin{lcom}{0}%
+\begin{cpar}{0}{F}{F}{0}{0}{}%
+  
+ Specification of the $Jupiter$ protocol described in $CSCW'2014$ by Xu, Sun,
+ and Li~\cite{Xu:CSCW14}.
+ 
+\end{cpar}%
+\end{lcom}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} c2ss ,\,}%
+\@y{%
+  $c2ss[c]$: the $2D$ state space ($2ss$, for short) at client $c$ 
+}%
+\@xx{}%
+\@x{\@s{51.42} s2ss\@s{6.36}}%
+\@y{%
+  $s2ss[c]$: the $2D$ state space maintained by the $Server$ for client $c$
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+ \@x{ vars \.{\defeq} {\langle} intVars ,\, ctxVars ,\, c2ss ,\, s2ss
+ {\rangle}}%
+\@x{}\midbar\@xx{}%
+\@x{ NextEdge ( r ,\, u ,\, ss ) \.{\defeq}}%
+\@y{%
+  Return the unique outgoing edge from $u$ in $2D$ state space $ss$ 
+}%
+\@xx{}%
+\@x{\@s{16.4} {\CHOOSE} e \.{\in} ss . edge \.{:} e . from \.{=} u}%
+\@y{%
+  before a transformation at $u$ ($r$ is not used). 
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ ClientPerform ( c ,\, cop ) \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xForm ( NextEdge ,\, c ,\, cop ,\,
+ c2ss [ c ] )}%
+ \@x{\@s{16.4} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [ c
+ ] \.{=} @ \.{\oplus} xform . xss ]}%
+\@x{\@s{36.79} \.{\land} SetNewAop ( c ,\, xform . xcop . op )}%
+\@pvspace{8.0pt}%
+\@x{ ServerPerform ( cop ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\LET} c\@s{0.41} \.{\defeq} ClientOf ( cop )}%
+ \@x{\@s{16.4} xform \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop ,\, s2ss [
+ c ] )}%
+\@y{%
+  $xform$: $[xcop, xss, lss]$
+}%
+\@xx{}%
+\@x{\@s{20.5} xcop\@s{2.29} \.{\defeq} xform . xcop}%
+ \@x{\@s{16.4} \.{\IN}\@s{4.1} \.{\land} s2ss \.{'} \.{=} [ cl \.{\in} Client
+ \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xss}%
+\@x{\@s{193.02} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lss ]}%
+\@x{\@s{40.89} \.{\land} SetNewAop ( Server ,\, xcop . op )}%
+\@x{\@s{40.89} \.{\land} Comm {\bang} SSendSame ( c ,\, xcop )\@s{4.1}}%
+\@y{%
+  broadcast the transformed $xcop$ 
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ DoOp ( c ,\, op )\@s{5.43} \.{\defeq}}%
+ \@x{\@s{26.06} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op ,\, oid
+ \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx
+ \.{\mapsto} ds [ c ] ]}%
+\@x{\@s{26.06} \.{\IN} \.{\land} ClientPerform ( c ,\, cop )}%
+\@x{\@s{46.46} \.{\land} Comm {\bang} CSend ( cop )}%
+\@x{}\midbar\@xx{}%
+\@x{ Init \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} InitInt}%
+\@x{\@s{16.4} \.{\land} InitCtx}%
+\@x{\@s{16.4} \.{\land} c2ss \.{=} [ c \.{\in} Client \.{\mapsto} EmptySS ]}%
+ \@x{\@s{16.4} \.{\land} s2ss\@s{0.25} \.{=} [ c \.{\in} Client \.{\mapsto}
+ EmptySS ]}%
+\@pvspace{8.0pt}%
+\@x{ Do ( c ) \.{\defeq}}%
+\@x{\@s{22.34} \.{\land} DoInt ( DoOp ,\, c )}%
+\@x{\@s{22.34} \.{\land} DoCtx ( c )}%
+\@x{\@s{22.34} \.{\land} {\UNCHANGED} s2ss}%
+\@pvspace{8.0pt}%
+\@x{ Rev ( c ) \.{\defeq}}%
+\@x{\@s{20.94} \.{\land} RevInt ( ClientPerform ,\, c )}%
+\@x{\@s{20.94} \.{\land} RevCtx ( c )}%
+\@x{\@s{20.94} \.{\land} {\UNCHANGED} s2ss}%
+\@pvspace{8.0pt}%
+\@x{ SRev \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} SRevInt ( ServerPerform )}%
+\@x{\@s{16.4} \.{\land} SRevCtx}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} c2ss}%
+\@x{}\midbar\@xx{}%
+\@x{ Next \.{\defeq}}%
+ \@x{\@s{16.4} \.{\lor} \E\, c \.{\in} Client \.{:} Do ( c ) \.{\lor} Rev ( c
+ )}%
+\@x{\@s{16.4} \.{\lor} SRev}%
+\@pvspace{8.0pt}%
+\@x{ Spec \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ vars}}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

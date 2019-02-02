@@ -16,18 +16,14 @@ VARIABLES op2ss,  \* a function mapping an operation (identifier)
                   \* to the $2D$ state space created during it is transformed
           c2ssX   \* $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
 -----------------------------------------------------------------------------
-DoImpl(c) == /\ DoEx(c)
-
 RevImpl(c) ==
-    /\ RevEx(c)
-    /\ LET cop == Head(cincoming[c])
-       IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]]
+    LET cop == Head(cincoming[c])
+    IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] \* integrate into $c2ssX$
 
 SRevImpl == 
-    /\ SRevEx
-    /\ LET cop == Head(sincoming)
-         xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
-       IN op2ss' = op2ss @@ cop.oid :> xform.xss
+    LET cop == Head(sincoming)
+      xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
+    IN op2ss' = op2ss @@ cop.oid :> xform.xss \* $xss:$ extra $ss$ created during $xform$
 -----------------------------------------------------------------------------
 CJ == INSTANCE CJupiter WITH \* substitution for communication; omitted here.
          css <- [r \in Replica |-> IF r = Server 

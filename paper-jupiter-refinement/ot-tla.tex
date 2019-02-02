@@ -17,7 +17,6 @@ OTII(lins, rins) == \* $lins$ is transformed against $rins$; $II$ is for $Ins$ \
          ELSE IF lins.ch = rins.ch THEN Nop
               ELSE IF lins.pr > rins.pr THEN lins \* using ``priority''
                    ELSE [lins EXCEPT !.pos = @ + 1]
-
 OT(lop, rop) == \* $lop$ is transformed against $rop$
 =============================================================================
 \end{tla}

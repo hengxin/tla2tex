@@ -1,0 +1,155 @@
+% file: appendix-cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE CJupiter ------------------------------
+(*
+Specification of $CJupiter$ protocol proposed by Wei et al.~\cite{Wei:OPODIS18}.
+*)
+-----------------------------------------------------------------------------
+VARIABLES css  \* $css[r]$: the $n$-ary ordered state space at replica $r$
+
+vars == <<intVars, ctxVars, serialVars, css>>
+-----------------------------------------------------------------------------
+NextEdge(r, u, ss) == \* Return the \emph{first} outgoing edge from $u$ in $ss$ at replica $r$. 
+    CHOOSE e \in ss.edge:
+        /\e.from = u 
+        /\\A ue \in ss.edge \ {e}: (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+
+Perform(r, cop) == 
+    LET xform == xForm(NextEdge, r, cop, css[r])
+    IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xss]
+        /\ SetNewAop(r, xform.xcop.op)
+
+ClientPerform(c, cop) == Perform(c, cop)
+
+ServerPerform(cop) ==
+    /\ Perform(Server, cop)
+    /\ Comm!SSendSame(ClientOf(cop), cop)  \* broadcast the original $cop$
+
+DoOp(c, op) == 
+    LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+    IN  /\ ClientPerform(c, cop)
+        /\ Comm!CSend(cop)
+-----------------------------------------------------------------------------
+Init == 
+    /\ InitInt
+    /\ InitCtx
+    /\ InitSerial
+    /\ css = [r \in Replica |-> EmptySS]
+
+Do(c) == 
+    /\ DoInt(DoOp, c) 
+    /\ DoCtx(c)
+    /\ DoSerial(c)
+
+Rev(c) == 
+    /\ RevInt(ClientPerform, c)
+    /\ RevCtx(c)
+    /\ RevSerial(c)
+
+SRev == 
+    /\ SRevInt(ServerPerform)
+    /\ SRevCtx
+    /\ SRevSerial
+-----------------------------------------------------------------------------
+Next == 
+    \/ \E c \in Client: Do(c) \/ Rev(c)
+    \/ SRev
+
+Spec == Init /\ [][Next]_vars
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} CJupiter}\moduleRightDash\@xx{}%
+\begin{lcom}{0}%
+\begin{cpar}{0}{F}{F}{0}{0}{}%
+  
+ Specification of $CJupiter$ protocol proposed by Wei et
+ al.~\cite{Wei:OPODIS18}.
+ 
+\end{cpar}%
+\end{lcom}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} css\@s{4.1}}%
+\@y{%
+  $css[r]$: the $n$-ary ordered state space at replica $r$
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+ \@x{ vars \.{\defeq} {\langle} intVars ,\, ctxVars ,\, serialVars ,\, css
+ {\rangle}}%
+\@x{}\midbar\@xx{}%
+\@x{ NextEdge ( r ,\, u ,\, ss ) \.{\defeq}}%
+\@y{%
+  Return the \emph{first} outgoing edge from $u$ in $ss$ at replica $r$. 
+}%
+\@xx{}%
+\@x{\@s{16.4} {\CHOOSE} e \.{\in} ss . edge \.{:}}%
+\@x{\@s{32.8} \.{\land} e . from \.{=} u}%
+ \@x{\@s{32.8} \.{\land} \A\, ue \.{\in} ss . edge \.{\,\backslash\,} \{ e \}
+ \.{:} ( ue . from \.{=} u ) \.{\implies} tb ( e . cop . oid ,\, ue . cop .
+ oid ,\, serial [ r ] )}%
+\@pvspace{8.0pt}%
+\@x{ Perform ( r ,\, cop ) \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xForm ( NextEdge ,\, r ,\, cop ,\,
+ css [ r ] )}%
+ \@x{\@s{16.4} \.{\IN} \.{\land} css \.{'} \.{=} [ css {\EXCEPT} {\bang} [ r ]
+ \.{=} @ \.{\oplus} xform . xss ]}%
+\@x{\@s{36.79} \.{\land} SetNewAop ( r ,\, xform . xcop . op )}%
+\@pvspace{8.0pt}%
+\@x{ ClientPerform ( c ,\, cop ) \.{\defeq} Perform ( c ,\, cop )}%
+\@pvspace{8.0pt}%
+\@x{ ServerPerform ( cop ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} Perform ( Server ,\, cop )}%
+ \@x{\@s{16.4} \.{\land} Comm {\bang} SSendSame ( ClientOf ( cop ) ,\, cop
+ )\@s{4.1}}%
+\@y{%
+  broadcast the original $cop$
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ DoOp ( c ,\, op )\@s{5.43} \.{\defeq}}%
+ \@x{\@s{26.06} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op ,\, oid
+ \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx
+ \.{\mapsto} ds [ c ] ]}%
+\@x{\@s{26.06} \.{\IN} \.{\land} ClientPerform ( c ,\, cop )}%
+\@x{\@s{46.46} \.{\land} Comm {\bang} CSend ( cop )}%
+\@x{}\midbar\@xx{}%
+\@x{ Init \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} InitInt}%
+\@x{\@s{16.4} \.{\land} InitCtx}%
+\@x{\@s{16.4} \.{\land} InitSerial}%
+\@x{\@s{16.4} \.{\land} css \.{=} [ r \.{\in} Replica \.{\mapsto} EmptySS ]}%
+\@pvspace{8.0pt}%
+\@x{ Do ( c ) \.{\defeq}}%
+\@x{\@s{22.34} \.{\land} DoInt ( DoOp ,\, c )}%
+\@x{\@s{22.34} \.{\land} DoCtx ( c )}%
+\@x{\@s{22.34} \.{\land} DoSerial ( c )}%
+\@pvspace{8.0pt}%
+\@x{ Rev ( c ) \.{\defeq}}%
+\@x{\@s{20.94} \.{\land} RevInt ( ClientPerform ,\, c )}%
+\@x{\@s{20.94} \.{\land} RevCtx ( c )}%
+\@x{\@s{20.94} \.{\land} RevSerial ( c )}%
+\@pvspace{8.0pt}%
+\@x{ SRev \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} SRevInt ( ServerPerform )}%
+\@x{\@s{16.4} \.{\land} SRevCtx}%
+\@x{\@s{16.4} \.{\land} SRevSerial}%
+\@x{}\midbar\@xx{}%
+\@x{ Next \.{\defeq}}%
+ \@x{\@s{16.4} \.{\lor} \E\, c \.{\in} Client \.{:} Do ( c ) \.{\lor} Rev ( c
+ )}%
+\@x{\@s{16.4} \.{\lor} SRev}%
+\@pvspace{8.0pt}%
+\@x{ Spec \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ vars}}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

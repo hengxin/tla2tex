@@ -10,16 +10,12 @@
 \begin{document}
 \begin{tla}
 --------------------------- MODULE SetStateSpace ---------------------------
-(*
-The set representation of state space, used by $AbsJupiter$.
-*)
------------------------------------------------------------------------------
 RECURSIVE xForm(_, _, _, _) \* Transform $cop$ in state space $ss$ at replica $r$.
 xForm(NextCop(_, _, _, _), r, cop, ss) == 
     LET ctxDiff == ds[r] \ cop.ctx \* \textsc{theorem}: $cop.ctx \subseteq ds[r]$
         RECURSIVE xFormHelper(_, _, _)
-        xFormHelper(coph, ctxDiffh, xss) == \* Return transformed $xcop$
-            IF ctxDiffh = {} THEN [xcop |-> coph, xss |-> xss] \* and new state space $xss$
+        xFormHelper(coph, ctxDiffh, xss) == \* Return transformed $xcop$ and
+            IF ctxDiffh = {} THEN [xcop |-> coph, xss |-> xss] \* new state space $xss$
             ELSE LET fcoph == NextCop(r, coph, ss, ctxDiffh)
                      xcoph == COT(coph, fcoph)
                     xfcoph == COT(fcoph, coph)
@@ -30,14 +26,6 @@ xForm(NextCop(_, _, _, _), r, cop, ss) ==
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} SetStateSpace}\moduleRightDash\@xx{}%
-\begin{lcom}{0}%
-\begin{cpar}{0}{F}{F}{0}{0}{}%
-  
- The set representation of state space, used by $AbsJupiter$.
- 
-\end{cpar}%
-\end{lcom}%
-\@x{}\midbar\@xx{}%
 \@x{ {\RECURSIVE} xForm ( \_ ,\, \_ ,\, \_ ,\, \_ )}%
 \@y{%
   Transform $cop$ in state space $ss$ at replica $r$.
@@ -54,13 +42,13 @@ xForm(NextCop(_, _, _, _), r, cop, ss) ==
 \@x{\@s{36.79} {\RECURSIVE} xFormHelper ( \_ ,\, \_ ,\, \_ )}%
 \@x{\@s{40.89} xFormHelper ( coph ,\, ctxDiffh ,\, xss ) \.{\defeq}}%
 \@y{%
-  Return transformed $xcop$
+  Return transformed $xcop$ and
 }%
 \@xx{}%
  \@x{\@s{57.29} {\IF} ctxDiffh \.{=} \{ \} \.{\THEN} [ xcop \.{\mapsto} coph
  ,\, xss \.{\mapsto} xss ]}%
 \@y{%
-  and new state space $xss$
+  new state space $xss$
 }%
 \@xx{}%
  \@x{\@s{57.29} \.{\ELSE} \.{\LET} fcoph\@s{1.57} \.{\defeq} NextCop ( r ,\,

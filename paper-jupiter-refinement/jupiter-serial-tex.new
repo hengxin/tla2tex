@@ -10,15 +10,6 @@
 \begin{document}
 \begin{tla}
 --------------------------- MODULE JupiterSerial ---------------------------
-(*
-Specification of serial views used by \absjupiter{} and \cjupiter{}.
-*)
------------------------------------------------------------------------------
-VARIABLES serial, \* $serial[r]$: the serial view of replica $r$ about \textsc{so} 
-          cincomingSerial, sincomingSerial
-commSerial == INSTANCE CSComm WITH Msg <- Seq(Oid), 
-                cincoming <- cincomingSerial, sincoming <- sincomingSerial
------------------------------------------------------------------------------
 tb(oid1, oid2, sv) == \* Is $oid1$ totally ordered before $oid2$ according to $sv$?
     LET  pos1== FirstIndexOfElementSafe(sv, oid1) \* 0 if $oid1$ is not in $sv$
         pos2 == FirstIndexOfElementSafe(sv, oid2) \* 0 if $oid2$ is not in $sv$
@@ -27,40 +18,10 @@ tb(oid1, oid2, sv) == \* Is $oid1$ totally ordered before $oid2$ according to $s
         ELSE IF pos1 = 0 /\ pos2 = 0  \* none have been at the $Server$
              THEN oid1.seq < oid2.seq \* using the order they are generated
              ELSE pos1 # 0 \* the one has been at the $Server$ is ahead
------------------------------------------------------------------------------
-DoSerial(c) == UNCHANGED serialVars
-
-RevSerial(c) ==
-    /\ commSerial!CRev(c)
-    /\ serial' = [serial EXCEPT ![c] = Head(cincomingSerial[c])]
-
-SRevSerial ==
-    LET cop == Head(sincoming)
-    IN  /\ serial' = [serial EXCEPT ![Server] = Append(@, cop.oid)]
-        /\ commSerial!SSendSame(ClientOf(cop), serial'[Server])
 =============================================================================
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} JupiterSerial}\moduleRightDash\@xx{}%
-\begin{lcom}{0}%
-\begin{cpar}{0}{F}{F}{0}{0}{}%
-  
- Specification of serial views used by \absjupiter{} and \cjupiter{}.
- 
-\end{cpar}%
-\end{lcom}%
-\@x{}\midbar\@xx{}%
-\@x{ {\VARIABLES} serial ,\,}%
-\@y{%
-  $serial[r]$: the serial view of replica $r$ about \textsc{so} 
-}%
-\@xx{}%
-\@x{\@s{51.42} cincomingSerial ,\, sincomingSerial}%
- \@x{ commSerial \.{\defeq} {\INSTANCE} CSComm {\WITH} Msg \.{\leftarrow} Seq
- ( Oid ) ,\,}%
- \@x{\@s{78.84} cincoming \.{\leftarrow} cincomingSerial ,\, sincoming
- \.{\leftarrow} sincomingSerial}%
-\@x{}\midbar\@xx{}%
 \@x{ tb ( oid1 ,\, oid2 ,\, sv ) \.{\defeq}}%
 \@y{%
   Is $oid1$ totally ordered before $oid2$ according to $sv$?
@@ -103,20 +64,6 @@ SRevSerial ==
   the one has been at the $Server$ is ahead
 }%
 \@xx{}%
-\@x{}\midbar\@xx{}%
-\@x{ DoSerial ( c ) \.{\defeq} {\UNCHANGED} serialVars}%
-\@pvspace{8.0pt}%
-\@x{ RevSerial ( c ) \.{\defeq}}%
-\@x{\@s{16.4} \.{\land} commSerial {\bang} CRev ( c )}%
- \@x{\@s{16.4} \.{\land} serial \.{'} \.{=} [ serial {\EXCEPT} {\bang} [ c ]
- \.{=} Head ( cincomingSerial [ c ] ) ]}%
-\@pvspace{8.0pt}%
-\@x{ SRevSerial \.{\defeq}}%
-\@x{\@s{16.4} \.{\LET} cop \.{\defeq} Head ( sincoming )}%
- \@x{\@s{16.4} \.{\IN} \.{\land} serial \.{'} \.{=} [ serial {\EXCEPT} {\bang}
- [ Server ] \.{=} Append ( @ ,\, cop . oid ) ]}%
- \@x{\@s{36.79} \.{\land} commSerial {\bang} SSendSame ( ClientOf ( cop ) ,\,
- serial \.{'} [ Server ] )}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}

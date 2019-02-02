@@ -10,7 +10,7 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE GraphStateSpace -----------------------------
-IsSS(G) == \* A state space is a digraph with labeled edges.
+IsSS(G) == \* A graph state space is a digraph with labeled edges.
     /\ G = [node |-> G.node, edge |-> G.edge] \* Digraph with $node$ field and $edge$ field.
     /\ G.node \subseteq (SUBSET Oid) \* Each node represents a document state.
     /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* Labeled with a $Cop$.
@@ -20,37 +20,14 @@ g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge]
 Locate(cop, ss) == \* Locate the node in $ss$ that matches the context of $cop$.     
     CHOOSE n \in ss.node : n = cop.ctx \* \textsc{theorem}: Existence of $n$.
 
-xForm(NextEdge(_, _, _), r, cop, ss) == \* Transform $cop$ with an operation sequence 
-    LET u == Locate(cop, ss)            \* in state space $ss$ at replica $r$.
-        v == u \cup {cop.oid}
-        RECURSIVE xFormHelper(_, _, _, _)
-        xFormHelper(uh, vh, coph, xss) == 
-            IF uh = ds[r] 
-            THEN [xcop |-> coph, \* transformed $cop$
-                  xss |-> xss,   \* extra $ss$ created during transformation
-                  lss |-> [node |-> {vh}, \* the last piece of $xss$
-                           edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]]
-            ELSE LET e == NextEdge(r, uh, ss)
-                     copprime == e.cop
-                     uprime == e.to
-                     vprime == vh \cup {copprime.oid}
-                      coph2copprime == COT(coph, copprime)
-                     copprime2coph == COT(copprime, coph)
-                 IN  xFormHelper(uprime, vprime, coph2copprime,
-                        xss (+) [node |-> {vprime},
-                                 edge |-> {[from |-> vh, to |-> vprime, 
-                                             cop |-> copprime2coph], 
-                                           [from |-> uprime, to |-> vprime, 
-                                             cop |-> coph2copprime]}])
-    IN  xFormHelper(u, v, cop, [node |-> {v}, 
-                                edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
+xForm(NextEdge(_, _, _), r, cop, ss) == \* in Appendix~\ref{section:appendix-tla-code}; see also Figure~\ref{fig:xform-graphstatespace}
 =============================================================================
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} GraphStateSpace}\moduleRightDash\@xx{}%
 \@x{ IsSS ( G ) \.{\defeq}}%
 \@y{%
-  A state space is a digraph with labeled edges.
+  A graph state space is a digraph with labeled edges.
 }%
 \@xx{}%
  \@x{\@s{20.38} \.{\land} G \.{=} [ node \.{\mapsto} G . node ,\, edge
@@ -87,53 +64,10 @@ xForm(NextEdge(_, _, _), r, cop, ss) == \* Transform $cop$ with an operation seq
 \@pvspace{8.0pt}%
 \@x{ xForm ( NextEdge ( \_ ,\, \_ ,\, \_ ) ,\, r ,\, cop ,\, ss ) \.{\defeq}}%
 \@y{%
-  Transform $cop$ with an operation sequence 
+ in Appendix~\ref{section:appendix-tla-code}; see also
+ Figure~\ref{fig:xform-graphstatespace}
 }%
 \@xx{}%
-\@x{\@s{16.4} \.{\LET} u \.{\defeq} Locate ( cop ,\, ss )\@s{50.35}}%
-\@y{%
-  in state space $ss$ at replica $r$.
-}%
-\@xx{}%
-\@x{\@s{36.79} v\@s{0.45} \.{\defeq} u \.{\cup} \{ cop . oid \}}%
-\@x{\@s{36.79} {\RECURSIVE} xFormHelper ( \_ ,\, \_ ,\, \_ ,\, \_ )}%
-\@x{\@s{40.89} xFormHelper ( uh ,\, vh ,\, coph ,\, xss ) \.{\defeq}}%
-\@x{\@s{57.29} {\IF} uh \.{=} ds [ r ]}%
-\@x{\@s{57.29} \.{\THEN} [ xcop \.{\mapsto} coph ,\,}%
-\@y{%
-  transformed $cop$
-}%
-\@xx{}%
-\@x{\@s{91.38} xss \.{\mapsto} xss ,\,\@s{12.49}}%
-\@y{%
-  extra $ss$ created during transformation
-}%
-\@xx{}%
-\@x{\@s{91.38} lss\@s{2.08} \.{\mapsto} [ node \.{\mapsto} \{ vh \} ,\,}%
-\@y{%
-  the last piece of $xss$
-}%
-\@xx{}%
- \@x{\@s{123.35} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} uh ,\, to
- \.{\mapsto} vh ,\, cop \.{\mapsto} coph ] \} ] ]}%
-\@x{\@s{57.29} \.{\ELSE} \.{\LET} e \.{\defeq} NextEdge ( r ,\, uh ,\, ss )}%
-\@x{\@s{109.01} copprime \.{\defeq} e . cop}%
-\@x{\@s{109.01} uprime \.{\defeq} e . to}%
-\@x{\@s{109.01} vprime\@s{0.76} \.{\defeq} vh \.{\cup} \{ copprime . oid \}}%
-\@x{\@s{113.11} coph2copprime \.{\defeq} COT ( coph ,\, copprime )}%
-\@x{\@s{113.11} copprime2coph \.{\defeq} COT ( copprime ,\, coph )}%
- \@x{\@s{88.61} \.{\IN}\@s{4.09} xFormHelper ( uprime ,\, vprime ,\,
- coph2copprime ,\,}%
-\@x{\@s{125.41} xss \.{\oplus} [ node \.{\mapsto} \{ vprime \} ,\,}%
- \@x{\@s{154.04} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} vh ,\, to
- \.{\mapsto} vprime ,\,}%
-\@x{\@s{202.16} cop\@s{1.78} \.{\mapsto} copprime2coph ] ,\,}%
-\@x{\@s{195.28} [ from \.{\mapsto} uprime ,\, to \.{\mapsto} vprime ,\,}%
-\@x{\@s{202.16} cop\@s{1.78} \.{\mapsto} coph2copprime ] \} ] )}%
- \@x{\@s{16.4} \.{\IN}\@s{4.09} xFormHelper ( u ,\, v ,\, cop ,\, [ node
- \.{\mapsto} \{ v \} ,\,}%
- \@x{\@s{149.63} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to
- \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ] )}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}

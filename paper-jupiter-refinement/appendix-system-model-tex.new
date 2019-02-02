@@ -1,4 +1,4 @@
-% file: system-model-tla.tex
+% file: appendix-system-model-tla.tex
 
 \documentclass{article}
 \usepackage{graphicx}
@@ -11,16 +11,19 @@
 \begin{tla}
 ---------------------------- MODULE SystemModel ----------------------------
 CONSTANTS Client, Server, Msg, Char, InitState
+
 Replica == Client \cup {Server}
 ----------------------------------------------------------------------
 VARIABLES cincoming,  \* $cincoming[c]$: incoming channel at client $c$ 
           sincoming   \* incoming channel at the $Server$
+
 Comm == INSTANCE CSComm \* instantiate $CSComm$ for communication
 =============================================================================
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} SystemModel}\moduleRightDash\@xx{}%
 \@x{ {\CONSTANTS} Client ,\, Server ,\, Msg ,\, Char ,\, InitState}%
+\@pvspace{8.0pt}%
 \@x{ Replica \.{\defeq} Client \.{\cup} \{ Server \}}%
 \@x{}\midbar\@xx{}%
 \@x{ {\VARIABLES} cincoming ,\,\@s{4.1}}%
@@ -33,6 +36,7 @@ Comm == INSTANCE CSComm \* instantiate $CSComm$ for communication
   incoming channel at the $Server$
 }%
 \@xx{}%
+\@pvspace{8.0pt}%
 \@x{ Comm \.{\defeq} {\INSTANCE} CSComm}%
 \@y{%
   instantiate $CSComm$ for communication

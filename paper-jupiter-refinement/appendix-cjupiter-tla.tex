@@ -1,0 +1,70 @@
+% file: appendix-cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE CJupiter ------------------------------
+(*
+Specification of $CJupiter$ protocol proposed by Wei et al.~\cite{Wei:OPODIS18}.
+*)
+-----------------------------------------------------------------------------
+VARIABLES css  \* $css[r]$: the $n$-ary ordered state space at replica $r$
+
+vars == <<intVars, ctxVars, serialVars, css>>
+-----------------------------------------------------------------------------
+NextEdge(r, u, ss) == \* Return the \emph{first} outgoing edge from $u$ in $ss$ at replica $r$. 
+    CHOOSE e \in ss.edge:
+        /\e.from = u 
+        /\\A ue \in ss.edge \ {e}: (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+
+Perform(r, cop) == 
+    LET xform == xForm(NextEdge, r, cop, css[r])
+    IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xss]
+        /\ SetNewAop(r, xform.xcop.op)
+
+ClientPerform(c, cop) == Perform(c, cop)
+
+ServerPerform(cop) ==
+    /\ Perform(Server, cop)
+    /\ Comm!SSendSame(ClientOf(cop), cop)  \* broadcast the original $cop$
+
+DoOp(c, op) == 
+    LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+    IN  /\ ClientPerform(c, cop)
+        /\ Comm!CSend(cop)
+-----------------------------------------------------------------------------
+Init == 
+    /\ InitInt
+    /\ InitCtx
+    /\ InitSerial
+    /\ css = [r \in Replica |-> EmptySS]
+
+Do(c) == 
+    /\ DoInt(DoOp, c) 
+    /\ DoCtx(c)
+    /\ DoSerial(c)
+
+Rev(c) == 
+    /\ RevInt(ClientPerform, c)
+    /\ RevCtx(c)
+    /\ RevSerial(c)
+
+SRev == 
+    /\ SRevInt(ServerPerform)
+    /\ SRevCtx
+    /\ SRevSerial
+-----------------------------------------------------------------------------
+Next == 
+    \/ \E c \in Client: Do(c) \/ Rev(c)
+    \/ SRev
+
+Spec == Init /\ [][Next]_vars
+=============================================================================
+\end{tla}
+\end{document}

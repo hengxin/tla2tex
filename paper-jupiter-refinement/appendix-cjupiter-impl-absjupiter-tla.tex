@@ -1,0 +1,20 @@
+% file: appendix-cjupiter-impl-absjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------- MODULE CJupiterImplAbsJupiter -----------------------
+EXTENDS CJupiter
+-----------------------------------------------------------------------------
+AbsJ == INSTANCE AbsJupiter
+            WITH copss <- [r \in Replica |-> {e.cop: e \in css[r].edge}]
+THEOREM Spec => AbsJ!Spec
+=============================================================================
+\end{tla}
+\end{document}
