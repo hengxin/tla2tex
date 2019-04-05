@@ -1,0 +1,19 @@
+% file: cot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE COT -----------------------------
+Oid == [c: Client, seq: Nat]                         \* the client that generates $cop$
+Cop == [op: Op, oid: Oid, ctx: SUBSET Oid]      ClientOf(cop) == cop.oid.c 
+COT(lcop, rcop) == \* Precondition: $lcop.ctx = rcop.ctx$
+    [lcop EXCEPT !.op = OT(lcop.op, rcop.op), !.ctx = @ \cup {rcop.oid}]
+=============================================================================
+\end{tla}
+\end{document}

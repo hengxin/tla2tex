@@ -1,0 +1,35 @@
+% file: xjupiter-impl-cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------ MODULE XJupiterImplCJupiter ------------------------
+EXTENDS XJupiterExtended \* $XJupiter$ extended with $JupiterSerial$
+-----------------------------------------------------------------------------
+VARIABLES op2ss,  \* a function mapping an operation (identifier)
+                  \* to the $2D$ state space created during it is transformed
+          c2ssX   \* $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
+-----------------------------------------------------------------------------
+RevImpl(c) ==
+    LET cop == Head(cincoming[c])
+    IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] \* integrate into $c2ssX$
+
+SRevImpl == 
+    LET cop == Head(sincoming)
+      xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
+    IN op2ss' = op2ss @@ cop.oid :> xform.xss \* $xss:$ extra $ss$ created during $xform$
+-----------------------------------------------------------------------------
+CJ == INSTANCE CJupiter WITH \* substitution for communication; omitted here.
+         css <- [r \in Replica |-> IF r = Server 
+                                   THEN SetReduce((+), Range(s2ss), EmptySS)
+                                   ELSE c2ss[r] (+) c2ssX[r]]
+THEOREM SpecImpl => CJ!Spec
+=============================================================================
+\end{tla}
+\end{document}

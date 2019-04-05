@@ -1,0 +1,94 @@
+% file: jupiter-interface-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+
+\begin{tla}
+-------------------------- MODULE JupiterInterface --------------------------
+VARIABLES aop,  \* $aop[r]$: the actual operation applied at replica $r$
+          state \* $state[r]$: state (the list content) of replica $r$
+----------------------------------------------------------------------
+SetNewAop(r, aopr) == aop' = [aop EXCEPT ![r] = aopr]
+ApplyNewAop(r) == state' = [state EXCEPT ![r] = Apply(aop'[r], @)]
+-----------------------------------------------------------------------------
+DoInt(DoOp(_, _), c) == \* Client $c$ generates an operation.
+    /\ \/ DoIns(DoOp, c)\* $DoOp(c \in Client, op \in Op)$
+       \/ DoDel(DoOp, c)
+    /\ ApplyNewAop(c)
+    
+RevInt(ClientPerform(_, _), c) == \* Client $c$ receives and processes a message.
+    /\ Comm!CRev(c)
+    /\ ClientPerform(c, Head(cincoming[c])) \* $ClientPerform(c \in Client, m \in Msg)$
+    /\ ApplyNewAop(c)
+
+SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
+    /\ Comm!SRev
+    /\ ServerPerform(Head(sincoming)) \* $ServerPerform(m \in Msg)$
+    /\ ApplyNewAop(Server)
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} JupiterInterface}\moduleRightDash\@xx{}%
+\@x{ {\VARIABLES} aop ,\,\@s{4.1}}%
+\@y{%
+  $aop[r]$: the actual operation applied at replica $r$
+}%
+\@xx{}%
+\@x{\@s{51.42} state\@s{4.97}}%
+\@y{%
+  $state[r]$: state (the list content) of replica $r$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+ \@x{ SetNewAop ( r ,\, aopr ) \.{\defeq} aop \.{'} \.{=} [ aop {\EXCEPT}
+ {\bang} [ r ] \.{=} aopr ]}%
+ \@x{ ApplyNewAop ( r ) \.{\defeq} state \.{'} \.{=} [ state {\EXCEPT} {\bang}
+ [ r ]\@s{4.75} \.{=} Apply ( aop \.{'} [ r ] ,\, @ ) ]}%
+\@x{}\midbar\@xx{}%
+\@x{ DoInt ( DoOp ( \_ ,\, \_ ) ,\, c ) \.{\defeq}}%
+\@y{%
+  Client $c$ generates an operation.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} \.{\lor} DoIns ( DoOp ,\, c )\@s{2.51}}%
+\@y{%
+  $DoOp(c \in Client, op \in Op)$
+}%
+\@xx{}%
+\@x{\@s{27.51} \.{\lor} DoDel ( DoOp ,\, c )}%
+\@x{\@s{16.4} \.{\land} ApplyNewAop ( c )}%
+\@pvspace{8.0pt}%
+\@x{ RevInt ( ClientPerform ( \_ ,\, \_ ) ,\, c ) \.{\defeq}}%
+\@y{%
+  Client $c$ receives and processes a message.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} Comm {\bang} CRev ( c )}%
+\@x{\@s{16.4} \.{\land} ClientPerform ( c ,\, Head ( cincoming [ c ] ) )}%
+\@y{%
+  $ClientPerform(c \in Client, m \in Msg)$
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} ApplyNewAop ( c )}%
+\@pvspace{8.0pt}%
+\@x{ SRevInt ( ServerPerform ( \_ ) ) \.{\defeq}}%
+\@y{%
+  The $Server$ receives and processes a message.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} Comm {\bang} SRev}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} ServerPerform ( Head ( sincoming ) )}%
+\@y{%
+  $ServerPerform(m \in Msg)$
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} ApplyNewAop ( Server )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

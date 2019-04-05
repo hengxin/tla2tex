@@ -1,0 +1,42 @@
+% file: ot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+--------------------------------- MODULE OT ---------------------------------
+OTID(ins, del) == \* $ins$ is transformed against $del$; $I$ for $Ins$ and $D$ for $Del$.
+    IF ins.pos <= del.pos THEN ins
+    ELSE [ins EXCEPT !.pos = @ - 1]
+OT(lop, rop) == \* $lop$ is transformed against $rop$
+    \* It calls $OTII$, $OTID$, $OTDI$, or $OTDD$ according to the types of $lop$ and $rop$.
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} OT}\moduleRightDash\@xx{}%
+\@x{ OTID ( ins ,\, del ) \.{\defeq}}%
+\@y{%
+  $ins$ is transformed against $del$; $I$ for $Ins$ and $D$ for $Del$.
+}%
+\@xx{}%
+\@x{\@s{27.16} {\IF} ins . pos \.{\leq} del . pos \.{\THEN} ins}%
+\@x{\@s{27.16} \.{\ELSE} [ ins {\EXCEPT} {\bang} . pos \.{=} @ \.{-} 1 ]}%
+\@x{ OT ( lop ,\, rop ) \.{\defeq}}%
+\@y{%
+  $lop$ is transformed against $rop$
+}%
+\@xx{}%
+\@x{\@s{24.14}}%
+\@y{%
+ It calls $OTII$, $OTID$, $OTDI$, or $OTDD$ according to the types of $lop$
+ and $rop$.
+}%
+\@xx{}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

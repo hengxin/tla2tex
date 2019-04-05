@@ -1,0 +1,58 @@
+% file: absjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE AbsJupiter -----------------------------
+VARIABLES copss \* $copss[r]$: the set of context-based operations maintained at replia $r$
+----------------------------------------------------------------------------
+Perform(r, cop) == LET xform == xForm(r, cop)
+                   IN  /\ copss' = [copss EXCEPT ![r] = xform.xcopss]
+                       /\ list' = [list EXCEPT ![r] = Apply(xform.xcop.op, @)]
+Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+             IN  /\ Perform(c, cop)
+                 /\ \* send $cop$ to the $Server$
+Rev(c, cop) == Perform(c, cop)
+SRev(cop) == /\ Perform(Server, cop)
+             /\ \* broadcast $cop$ to clients other than $ClientOf(cop)$
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} AbsJupiter}\moduleRightDash\@xx{}%
+\@x{ {\VARIABLES} copss}%
+\@y{%
+  $copss[r]$: the set of context-based operations maintained at replia $r$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+ \@x{ Perform ( r ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm ( r ,\,
+ cop )}%
+ \@x{\@s{89.95} \.{\IN} \.{\land} copss \.{'} \.{=} [ copss {\EXCEPT} {\bang}
+ [ r ] \.{=} xform . xcopss ]}%
+ \@x{\@s{110.35} \.{\land} list \.{'} \.{=} [ list {\EXCEPT} {\bang} [ r ]
+ \.{=} Apply ( xform . xcop . op ,\, @ ) ]}%
+ \@x{ Do ( c ,\, op ) \.{\defeq} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op
+ ,\, oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\,
+ ctx \.{\mapsto} ds [ c ] ]}%
+\@x{\@s{62.08} \.{\IN} \.{\land} Perform ( c ,\, cop )}%
+\@x{\@s{82.48} \.{\land}}%
+\@y{%
+  send $cop$ to the $Server$
+}%
+\@xx{}%
+\@x{ Rev ( c ,\, cop ) \.{\defeq} Perform ( c ,\, cop )}%
+\@x{ SRev ( cop ) \.{\defeq} \.{\land} Perform ( Server ,\, cop )}%
+\@x{\@s{64.29} \.{\land}}%
+\@y{%
+  broadcast $cop$ to clients other than $ClientOf(cop)$
+}%
+\@xx{}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

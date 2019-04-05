@@ -1,0 +1,24 @@
+% file: buffer-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+-------------------------- MODULE Buffer --------------------------
+xFormOpOps(op, ops) == \* Transform $op$ against $ops$
+    IF ops = <<>> THEN <<op>> \* and return intermediate transformed operations.
+    ELSE <<op>> \o xFormOpOps(OT(op, Head(ops)), Tail(ops))
+xFormOpsOp(ops, op) == \* Transform $ops$ against $op$ and return the transformed $ops$.
+    LET opX == xFormOpOps(op, ops)
+    IN  [i \in 1 .. Len(ops) |-> OT(ops[i], opX[i])]
+xForm(op, ops) ==
+    [xop |-> Last(xFormOpOps(op, ops)), xops |-> xFormOpsOp(ops, op)]
+xFormShift(op, ops, shift) == xForm(op, SubSeq(ops, shift + 1, Len(ops)))
+=============================================================================
+\end{tla}
+\end{document}

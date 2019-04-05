@@ -1,0 +1,62 @@
+% file: appendix-jupiter-interface-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+-------------------------- MODULE JupiterInterface --------------------------
+(*
+Interface of a family of $Jupiter$ protocols.
+*)
+-----------------------------------------------------------------------------
+VARIABLES aop,    \* $aop[r]$: the actual operation applied at replica $r$
+          state,  \* $state[r]$: state (the list content) of replica $r$ 
+          chins   \* a set of chars allowed to insert; this is for model checking
+-----------------------------------------------------------------------------
+SetNewAop(r, aopr) == aop' = [aop EXCEPT ![r] = aopr]
+ApplyNewAop(r) == state' = [state EXCEPT ![r] = Apply(aop'[r], @)]
+-----------------------------------------------------------------------------
+InitInt ==
+    /\ aop = [r \in Replica |-> Nop]
+    /\ state = [r \in Replica |-> InitState]
+    /\ Comm!Init
+    /\ chins = Char
+    
+DoIns(DoOp(_, _), c) == \* Client $c$ generates and processes an $Ins$ operation.
+    \E ins \in Ins: 
+        /\ ins.pos \in 1 .. (Len(state[c]) + 1) 
+        /\ ins.ch \in chins 
+        /\ ins.pr = Priority[c]
+        /\ DoOp(c, ins)
+        /\ chins' = chins \ {ins.ch} \* We assume that all inserted elements are unique.
+
+DoDel(DoOp(_, _), c) == \* Client $c$ generates and processes a $Del$ operation.
+    \E del \in Del: 
+        /\ del.pos \in 1 .. Len(state[c])
+        /\ DoOp(c, del)
+        /\ UNCHANGED chins
+
+DoInt(DoOp(_, _), c) == \* Client $c$ generates an operation.
+    /\ \/ DoIns(DoOp, c)\* $DoOp(c \in Client, op \in Op)$
+       \/ DoDel(DoOp, c)
+    /\ ApplyNewAop(c)
+    
+RevInt(ClientPerform(_, _), c) == \* Client $c$ receives and processes a message.
+    /\ Comm!CRev(c)
+    /\ ClientPerform(c, Head(cincoming[c])) \* $ClientPerform(c \in Client, m \in Msg)$
+    /\ ApplyNewAop(c)
+    /\ UNCHANGED chins
+
+SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
+    /\ Comm!SRev
+    /\ ServerPerform(Head(sincoming)) \* $ServerPerform(m \in Msg)$
+    /\ ApplyNewAop(Server)
+    /\ UNCHANGED chins
+=============================================================================
+\end{tla}
+\end{document}

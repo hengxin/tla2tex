@@ -1,0 +1,23 @@
+% file: jupiter-serial-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+--------------------------- MODULE JupiterSerial ---------------------------
+tb(oid1, oid2, sv) == \* Is $oid1$ totally ordered before $oid2$ according to $sv$?
+    LET  pos1== FirstIndexOfElementSafe(sv, oid1) \* 0 if $oid1$ is not in $sv$
+        pos2 == FirstIndexOfElementSafe(sv, oid2) \* 0 if $oid2$ is not in $sv$
+    IN  IF pos1 # 0 /\ pos2 # 0 \* both have been at the $Server$
+        THEN pos1 < pos2        \* using the order they reach the $Server$
+        ELSE IF pos1 = 0 /\ pos2 = 0  \* none have been at the $Server$
+             THEN oid1.seq < oid2.seq \* using the order they are generated
+             ELSE pos1 # 0 \* the one has been at the $Server$ is ahead
+=============================================================================
+\end{tla}
+\end{document}

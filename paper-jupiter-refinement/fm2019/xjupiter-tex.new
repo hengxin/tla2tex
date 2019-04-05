@@ -1,0 +1,94 @@
+% file: xjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE XJupiter ------------------------------
+VARIABLES c2ss, \* $c2ss[c]$: the $2D$ digraph maintained at client $c$ 
+          s2ss  \* $s2ss[c]$: the $2D$ digraph maintained by the $Server$ for client $c$
+-----------------------------------------------------------------------------
+NextEdge(r, u, g) == \* Return the \emph{unique} outgoing edge from $u$ in $2D$ digraph $g$ 
+    CHOOSE e \in g.edge: e.from = u \* ($r$ is not used). 
+CPerform(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c])
+                    IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
+                        /\ list' = [list EXCEPT ![c] = Apply(xform.xcop.op, @)]
+Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+             IN  /\ CPerform(c, cop)
+                 /\ \* send $cop$ to the $Server$
+Rev(c, cop) == CPerform(c, cop)
+SRev(cop) == 
+    LET c == ClientOf(cop)
+    xform == xForm(NextEdge, Server, cop, s2ss[c]) \* $xform$: $[xcop, xg, lg]$
+    IN  /\ s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xg
+                                                ELSE s2ss[cl] (+) xform.lg]
+        /\ list' = [list EXCEPT ![Server] = Apply(xform.xcop.op, @)]
+        /\ \* broadcast the {\it transformed operation} $xform.xcop$ to clients other than $c$
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} XJupiter}\moduleRightDash\@xx{}%
+\@x{ {\VARIABLES} c2ss ,\,}%
+\@y{%
+  $c2ss[c]$: the $2D$ digraph maintained at client $c$ 
+}%
+\@xx{}%
+\@x{\@s{51.42} s2ss\@s{6.36}}%
+\@y{%
+  $s2ss[c]$: the $2D$ digraph maintained by the $Server$ for client $c$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ NextEdge ( r ,\, u ,\, g ) \.{\defeq}}%
+\@y{%
+  Return the \emph{unique} outgoing edge from $u$ in $2D$ digraph $g$ 
+}%
+\@xx{}%
+\@x{\@s{16.4} {\CHOOSE} e \.{\in} g . edge \.{:} e . from \.{=} u}%
+\@y{%
+  ($r$ is not used). 
+}%
+\@xx{}%
+ \@x{ CPerform ( c ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm (
+ NextEdge ,\, c ,\, cop ,\, c2ss [ c ] )}%
+ \@x{\@s{96.97} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
+ c ] \.{=} @ \.{\oplus} xform . xg ]}%
+ \@x{\@s{117.37} \.{\land} list \.{'}\@s{5.18} \.{=} [ list {\EXCEPT} {\bang}
+ [ c ]\@s{5.18} \.{=} Apply ( xform . xcop . op ,\, @ ) ]}%
+ \@x{ Do ( c ,\, op ) \.{\defeq} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op
+ ,\, oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\,
+ ctx \.{\mapsto} ds [ c ] ]}%
+\@x{\@s{62.08} \.{\IN} \.{\land} CPerform ( c ,\, cop )}%
+\@x{\@s{82.48} \.{\land}}%
+\@y{%
+  send $cop$ to the $Server$
+}%
+\@xx{}%
+\@x{ Rev ( c ,\, cop ) \.{\defeq} CPerform ( c ,\, cop )}%
+\@x{ SRev ( cop )\@s{3.25} \.{\defeq}}%
+\@x{\@s{22.68} \.{\LET} c\@s{0.41} \.{\defeq} ClientOf ( cop )}%
+ \@x{\@s{22.68} xform \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop ,\, s2ss
+ [ c ] )}%
+\@y{%
+  $xform$: $[xcop, xg, lg]$
+}%
+\@xx{}%
+ \@x{\@s{22.68} \.{\IN}\@s{4.1} \.{\land} s2ss \.{'} \.{=} [ cl \.{\in} Client
+ \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xg}%
+\@x{\@s{199.30} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lg ]}%
+ \@x{\@s{47.18} \.{\land} list \.{'}\@s{4.92} \.{=} [ list {\EXCEPT} {\bang} [
+ Server ] \.{=} Apply ( xform . xcop . op ,\, @ ) ]}%
+\@x{\@s{47.18} \.{\land}}%
+\@y{%
+ broadcast the {\it transformed operation} $xform.xcop$ to clients other
+ than $c$
+}%
+\@xx{}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

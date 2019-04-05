@@ -1,0 +1,170 @@
+% file: appendix-jupiter-interface-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+-------------------------- MODULE JupiterInterface --------------------------
+(*
+Interface of a family of $Jupiter$ protocols.
+*)
+-----------------------------------------------------------------------------
+VARIABLES aop,    \* $aop[r]$: the actual operation applied at replica $r$
+          state,  \* $state[r]$: state (the list content) of replica $r$ 
+          chins   \* a set of chars allowed to insert; this is for model checking
+-----------------------------------------------------------------------------
+SetNewAop(r, aopr) == aop' = [aop EXCEPT ![r] = aopr]
+ApplyNewAop(r) == state' = [state EXCEPT ![r] = Apply(aop'[r], @)]
+-----------------------------------------------------------------------------
+InitInt ==
+    /\ aop = [r \in Replica |-> Nop]
+    /\ state = [r \in Replica |-> InitState]
+    /\ Comm!Init
+    /\ chins = Char
+    
+DoIns(DoOp(_, _), c) == \* Client $c$ generates and processes an $Ins$ operation.
+    \E ins \in Ins: 
+        /\ ins.pos \in 1 .. (Len(state[c]) + 1) 
+        /\ ins.ch \in chins 
+        /\ ins.pr = Priority[c]
+        /\ DoOp(c, ins)
+        /\ chins' = chins \ {ins.ch} \* We assume that all inserted elements are unique.
+
+DoDel(DoOp(_, _), c) == \* Client $c$ generates and processes a $Del$ operation.
+    \E del \in Del: 
+        /\ del.pos \in 1 .. Len(state[c])
+        /\ DoOp(c, del)
+        /\ UNCHANGED chins
+
+DoInt(DoOp(_, _), c) == \* Client $c$ generates an operation.
+    /\ \/ DoIns(DoOp, c)\* $DoOp(c \in Client, op \in Op)$
+       \/ DoDel(DoOp, c)
+    /\ ApplyNewAop(c)
+    
+RevInt(ClientPerform(_, _), c) == \* Client $c$ receives and processes a message.
+    /\ Comm!CRev(c)
+    /\ ClientPerform(c, Head(cincoming[c])) \* $ClientPerform(c \in Client, m \in Msg)$
+    /\ ApplyNewAop(c)
+    /\ UNCHANGED chins
+
+SRevInt(ServerPerform(_)) == \* The $Server$ receives and processes a message.
+    /\ Comm!SRev
+    /\ ServerPerform(Head(sincoming)) \* $ServerPerform(m \in Msg)$
+    /\ ApplyNewAop(Server)
+    /\ UNCHANGED chins
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} JupiterInterface}\moduleRightDash\@xx{}%
+\begin{lcom}{0}%
+\begin{cpar}{0}{F}{F}{0}{0}{}%
+  
+ Interface of a family of $Jupiter$ protocols.
+ 
+\end{cpar}%
+\end{lcom}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} aop ,\,\@s{12.29}}%
+\@y{%
+  $aop[r]$: the actual operation applied at replica $r$
+}%
+\@xx{}%
+\@x{\@s{51.42} state ,\,\@s{7.06}}%
+\@y{%
+  $state[r]$: state (the list content) of replica $r$ 
+}%
+\@xx{}%
+\@x{\@s{51.42} chins\@s{11.06}}%
+\@y{%
+  a set of chars allowed to insert; this is for model checking
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+ \@x{ SetNewAop ( r ,\, aopr ) \.{\defeq} aop \.{'} \.{=} [ aop {\EXCEPT}
+ {\bang} [ r ] \.{=} aopr ]}%
+ \@x{ ApplyNewAop ( r ) \.{\defeq} state \.{'} \.{=} [ state {\EXCEPT} {\bang}
+ [ r ]\@s{4.75} \.{=} Apply ( aop \.{'} [ r ] ,\, @ ) ]}%
+\@x{}\midbar\@xx{}%
+\@x{ InitInt \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} aop \.{=} [ r \.{\in} Replica \.{\mapsto} Nop ]}%
+ \@x{\@s{16.4} \.{\land} state \.{=} [ r \.{\in} Replica \.{\mapsto} InitState
+ ]}%
+\@x{\@s{16.4} \.{\land} Comm {\bang} Init}%
+\@x{\@s{16.4} \.{\land} chins \.{=} Char}%
+\@pvspace{8.0pt}%
+\@x{ DoIns ( DoOp ( \_ ,\, \_ ) ,\, c ) \.{\defeq}}%
+\@y{%
+  Client $c$ generates and processes an $Ins$ operation.
+}%
+\@xx{}%
+\@x{\@s{16.4} \E\, ins \.{\in} Ins \.{:}}%
+ \@x{\@s{27.72} \.{\land} ins . pos \.{\in} 1 \.{\dotdot} ( Len ( state [ c ]
+ ) \.{+} 1 )}%
+\@x{\@s{27.72} \.{\land} ins . ch \.{\in} chins}%
+\@x{\@s{27.72} \.{\land} ins . pr\@s{0.07} \.{=} Priority [ c ]}%
+\@x{\@s{27.72} \.{\land} DoOp ( c ,\, ins )}%
+ \@x{\@s{27.72} \.{\land} chins \.{'} \.{=} chins \.{\,\backslash\,} \{ ins .
+ ch \}}%
+\@y{%
+  We assume that all inserted elements are unique.
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ DoDel ( DoOp ( \_ ,\, \_ ) ,\, c ) \.{\defeq}}%
+\@y{%
+  Client $c$ generates and processes a $Del$ operation.
+}%
+\@xx{}%
+\@x{\@s{16.4} \E\, del \.{\in} Del \.{:}}%
+\@x{\@s{27.72} \.{\land} del . pos \.{\in} 1 \.{\dotdot} Len ( state [ c ] )}%
+\@x{\@s{27.72} \.{\land} DoOp ( c ,\, del )}%
+\@x{\@s{27.72} \.{\land} {\UNCHANGED} chins}%
+\@pvspace{8.0pt}%
+\@x{ DoInt ( DoOp ( \_ ,\, \_ ) ,\, c ) \.{\defeq}}%
+\@y{%
+  Client $c$ generates an operation.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} \.{\lor} DoIns ( DoOp ,\, c )\@s{2.51}}%
+\@y{%
+  $DoOp(c \in Client, op \in Op)$
+}%
+\@xx{}%
+\@x{\@s{27.51} \.{\lor} DoDel ( DoOp ,\, c )}%
+\@x{\@s{16.4} \.{\land} ApplyNewAop ( c )}%
+\@pvspace{8.0pt}%
+\@x{ RevInt ( ClientPerform ( \_ ,\, \_ ) ,\, c ) \.{\defeq}}%
+\@y{%
+  Client $c$ receives and processes a message.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} Comm {\bang} CRev ( c )}%
+\@x{\@s{16.4} \.{\land} ClientPerform ( c ,\, Head ( cincoming [ c ] ) )}%
+\@y{%
+  $ClientPerform(c \in Client, m \in Msg)$
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} ApplyNewAop ( c )}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} chins}%
+\@pvspace{8.0pt}%
+\@x{ SRevInt ( ServerPerform ( \_ ) ) \.{\defeq}}%
+\@y{%
+  The $Server$ receives and processes a message.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} Comm {\bang} SRev}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} ServerPerform ( Head ( sincoming ) )}%
+\@y{%
+  $ServerPerform(m \in Msg)$
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} ApplyNewAop ( Server )}%
+\@x{\@s{16.4} \.{\land}\@s{7.84} {\UNCHANGED} chins}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

@@ -1,0 +1,141 @@
+% file: appendix-xjupiter-impl-cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------ MODULE XJupiterImplCJupiter ------------------------
+EXTENDS XJupiterExtended \* $XJupiter$ extended with $JupiterSerial$
+-----------------------------------------------------------------------------
+VARIABLES op2ss,  \* a function mapping an operation (identifier)
+                  \* to the $2D$ state space created during it is transformed
+          c2ssX   \* $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
+
+varsImpl == <<varsEx, op2ss, c2ssX>>
+-----------------------------------------------------------------------------
+InitImpl ==
+    /\ InitEx
+    /\ op2ss = <<>>
+    /\ c2ssX = [c \in Client |-> EmptySS]
+
+DoImpl(c) ==
+    /\ DoEx(c)
+    /\ UNCHANGED <<op2ss, c2ssX>>
+
+RevImpl(c) ==
+    /\ RevEx(c)
+    /\ LET cop == Head(cincoming[c])
+       IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] \* integrate into $c2ssX$
+    /\ UNCHANGED op2ss
+
+SRevImpl == 
+    /\ SRevEx
+    /\ LET cop == Head(sincoming)
+             c == ClientOf(cop)
+         xform == xForm(NextEdge, Server, cop, s2ss[c])  
+       IN op2ss' = op2ss @@ cop.oid :> xform.xss \* $xss:$ extra $ss$ created during $xform$
+    /\ UNCHANGED c2ssX
+-----------------------------------------------------------------------------
+NextImpl ==
+    \/ \E c \in Client: DoImpl(c) \/ RevImpl(c)
+    \/ SRevImpl
+    
+SpecImpl == InitImpl /\ [][NextImpl]_varsImpl
+-----------------------------------------------------------------------------
+CJ == INSTANCE CJupiter 
+        WITH cincoming <- cincomingCJ, \* sincoming needs no substitution
+             css <- [r \in Replica |-> IF r = Server 
+                                       THEN SetReduce((+), Range(s2ss), EmptySS)
+                                       ELSE c2ss[r] (+) c2ssX[r]]
+THEOREM SpecImpl => CJ!Spec
+=============================================================================
+\end{tla}
+\begin{tlatex}
+ \@x{}\moduleLeftDash\@xx{ {\MODULE}
+ XJupiterImplCJupiter}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} XJupiterExtended}%
+\@y{%
+  $XJupiter$ extended with $JupiterSerial$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} op2ss ,\,\@s{4.1}}%
+\@y{%
+  a function mapping an operation (identifier)
+}%
+\@xx{}%
+\@x{\@s{86.97}}%
+\@y{%
+  to the $2D$ state space created during it is transformed
+}%
+\@xx{}%
+\@x{\@s{51.42} c2ssX\@s{7.70}}%
+\@y{%
+  $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ varsImpl \.{\defeq} {\langle} varsEx ,\, op2ss ,\, c2ssX {\rangle}}%
+\@x{}\midbar\@xx{}%
+\@x{ InitImpl \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} InitEx}%
+\@x{\@s{16.4} \.{\land} op2ss\@s{2.50} \.{=} {\langle} {\rangle}}%
+\@x{\@s{16.4} \.{\land} c2ssX \.{=} [ c \.{\in} Client \.{\mapsto} EmptySS ]}%
+\@pvspace{8.0pt}%
+\@x{ DoImpl ( c ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} DoEx ( c )}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} {\langle} op2ss ,\, c2ssX {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{ RevImpl ( c ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\land}\@s{9.20} RevEx ( c )}%
+ \@x{\@s{16.4} \.{\land}\@s{9.20} \.{\LET} cop \.{\defeq} Head ( cincoming [ c
+ ] )}%
+ \@x{\@s{36.71} \.{\IN} c2ssX \.{'} \.{=} [ c2ssX {\EXCEPT} {\bang} [ c ]
+ \.{=} @ \.{\oplus} op2ss [ cop . oid ] ]}%
+\@y{%
+  integrate into $c2ssX$
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land}\@s{9.20} {\UNCHANGED} op2ss}%
+\@pvspace{8.0pt}%
+\@x{ SRevImpl \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} SRevEx}%
+\@x{\@s{16.4} \.{\land} \.{\LET} cop \.{\defeq} Head ( sincoming )}%
+\@x{\@s{56.11} c\@s{1.57} \.{\defeq} ClientOf ( cop )}%
+ \@x{\@s{35.71} xform\@s{1.16} \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop
+ ,\, s2ss [ c ] )}%
+ \@x{\@s{27.51} \.{\IN} op2ss \.{'} \.{=} op2ss \.{\,@@\,} cop . oid
+ \.{\colongt} xform . xss}%
+\@y{%
+  $xss:$ extra $ss$ created during $xform$
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} c2ssX}%
+\@x{}\midbar\@xx{}%
+\@x{ NextImpl \.{\defeq}}%
+ \@x{\@s{16.4} \.{\lor} \E\, c \.{\in} Client \.{:} DoImpl ( c ) \.{\lor}
+ RevImpl ( c )}%
+\@x{\@s{16.4} \.{\lor} SRevImpl}%
+\@pvspace{8.0pt}%
+\@x{ SpecImpl \.{\defeq} InitImpl \.{\land} {\Box} [ NextImpl ]_{ varsImpl}}%
+\@x{}\midbar\@xx{}%
+\@x{ CJ \.{\defeq} {\INSTANCE} CJupiter}%
+\@x{\@s{40.89} {\WITH} cincoming \.{\leftarrow} cincomingCJ ,\,}%
+\@y{%
+  sincoming needs no substitution
+}%
+\@xx{}%
+ \@x{\@s{71.87} css \.{\leftarrow} [ r \.{\in} Replica \.{\mapsto} {\IF} r
+ \.{=} Server}%
+ \@x{\@s{170.07} \.{\THEN} SetReduce ( \.{\oplus} ,\, Range ( s2ss ) ,\,
+ EmptySS )}%
+\@x{\@s{170.07} \.{\ELSE} c2ss [ r ] \.{\oplus} c2ssX [ r ] ]}%
+\@x{ {\THEOREM} SpecImpl \.{\implies} CJ {\bang} Spec}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

@@ -1,0 +1,34 @@
+% file: xjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE XJupiter ------------------------------
+VARIABLES c2ss, \* $c2ss[c]$: the $2D$ digraph maintained at client $c$ 
+          s2ss  \* $s2ss[c]$: the $2D$ digraph maintained by the $Server$ for client $c$
+-----------------------------------------------------------------------------
+NextEdge(r, u, g) == \* Return the \emph{unique} outgoing edge from $u$ in $2D$ digraph $g$ 
+    CHOOSE e \in g.edge: e.from = u \* ($r$ is not used). 
+CPerform(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c])
+                    IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
+                        /\ list' = [list EXCEPT ![c] = Apply(xform.xcop.op, @)]
+Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+             IN  /\ CPerform(c, cop)
+                 /\ \* send $cop$ to the $Server$
+Rev(c, cop) == CPerform(c, cop)
+SRev(cop) == 
+    LET c == ClientOf(cop)
+    xform == xForm(NextEdge, Server, cop, s2ss[c]) \* $xform$: $[xcop, xg, lg]$
+    IN  /\ s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xg
+                                                ELSE s2ss[cl] (+) xform.lg]
+        /\ list' = [list EXCEPT ![Server] = Apply(xform.xcop.op, @)]
+        /\ \* broadcast the {\it transformed operation} $xform.xcop$ to clients other than $c$
+=============================================================================
+\end{tla}
+\end{document}

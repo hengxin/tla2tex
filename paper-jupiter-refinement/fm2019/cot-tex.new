@@ -1,0 +1,37 @@
+% file: cot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE COT -----------------------------
+Oid == [c: Client, seq: Nat]                      \* the client that generates $cop$
+Cop == [op: Op, oid: Oid, ctx: SUBSET Oid]      ClientOf(cop) == cop.oid.c 
+COT(lcop, rcop) == \* Precondition: $lcop.ctx = rcop.ctx$
+    [lcop EXCEPT !.op = OT(lcop.op, rcop.op), !.ctx = @ \cup {rcop.oid}]
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} COT}\moduleRightDash\@xx{}%
+\@x{ Oid\@s{1.13} \.{\defeq} [ c \.{:} Client ,\, seq \.{:} Nat ]\@s{86.1}}%
+\@y{%
+  the client that generates $cop$
+}%
+\@xx{}%
+ \@x{ Cop \.{\defeq} [ op \.{:} Op ,\, oid \.{:} Oid ,\, ctx \.{:} {\SUBSET}
+ Oid ]\@s{20.5} ClientOf ( cop ) \.{\defeq} cop . oid . c}%
+\@x{ COT ( lcop ,\, rcop ) \.{\defeq}}%
+\@y{%
+  Precondition: $lcop.ctx = rcop.ctx$
+}%
+\@xx{}%
+ \@x{\@s{27.19} [ lcop {\EXCEPT} {\bang} . op \.{=} OT ( lcop . op ,\, rcop .
+ op ) ,\, {\bang} . ctx \.{=} @ \.{\cup} \{ rcop . oid \} ]}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

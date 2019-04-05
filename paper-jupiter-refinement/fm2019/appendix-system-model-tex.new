@@ -1,0 +1,47 @@
+% file: appendix-system-model-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE SystemModel ----------------------------
+CONSTANTS Client, Server, Msg, Char, InitState
+
+Replica == Client \cup {Server}
+----------------------------------------------------------------------
+VARIABLES cincoming,  \* $cincoming[c]$: incoming channel at client $c$ 
+          sincoming   \* incoming channel at the $Server$
+
+Comm == INSTANCE CSComm \* instantiate $CSComm$ for communication
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} SystemModel}\moduleRightDash\@xx{}%
+\@x{ {\CONSTANTS} Client ,\, Server ,\, Msg ,\, Char ,\, InitState}%
+\@pvspace{8.0pt}%
+\@x{ Replica \.{\defeq} Client \.{\cup} \{ Server \}}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} cincoming ,\,\@s{4.1}}%
+\@y{%
+  $cincoming[c]$: incoming channel at client $c$ 
+}%
+\@xx{}%
+\@x{\@s{51.42} sincoming\@s{10.72}}%
+\@y{%
+  incoming channel at the $Server$
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ Comm \.{\defeq} {\INSTANCE} CSComm}%
+\@y{%
+  instantiate $CSComm$ for communication
+}%
+\@xx{}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

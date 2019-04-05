@@ -1,0 +1,18 @@
+% file: ot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE Op ----------------------------
+Del == [type: {"Del"}, pos: Nat] \* The positions ($pos$) are indexed from 1.
+Ins == [type: {"Ins"}, pos: Nat, ch: Char, pr: 1 .. Cardinality(Client)]
+Op == Ins \cup Del \* The set of all possible update operations.
+=============================================================================
+\end{tla}
+\end{document}

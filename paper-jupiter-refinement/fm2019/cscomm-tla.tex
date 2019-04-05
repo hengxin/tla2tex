@@ -1,0 +1,27 @@
+% file: cscomm-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+
+\begin{tla}
+------------------------------- MODULE CSComm -------------------------------
+CONSTANTS Client, Server, Msg
+VARIABLES cincoming, sincoming
+-----------------------------------------------------------------------------
+CSend(msg) == \* A client sends a message $msg$ to the $Server$.
+CRev(c) == \* Client $c$ receives and consumes a message from the $Server$.                  
+SRev == \* The $Server$ receives and consumes a message.      
+SSend(c, cmsg) == \* The $Server$ sents message $cmsg[cl]$ to client $cl$ (other than $c$).
+    cincoming' = [cl \in Client |-> IF cl = c THEN cincoming[cl] 
+                                    ELSE Append(cincoming[cl], cmsg[cl])]
+
+SSendSame(c, msg) == SSend(c, [cl \in Client |-> msg])
+=============================================================================
+\end{tla}
+\end{document}

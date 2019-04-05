@@ -1,0 +1,54 @@
+% file: buffer-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+-------------------------- MODULE Buffer --------------------------
+xFormOpOps(op, ops) == \* Transform $op$ against $ops$
+    IF ops = <<>> THEN <<op>> \* and return intermediate transformed operations.
+    ELSE <<op>> \o xFormOpOps(OT(op, Head(ops)), Tail(ops))
+xFormOpsOp(ops, op) == \* Transform $ops$ against $op$ and return the transformed $ops$.
+    LET opX == xFormOpOps(op, ops)
+    IN  [i \in 1 .. Len(ops) |-> OT(ops[i], opX[i])]
+xForm(op, ops) ==
+    [xop |-> Last(xFormOpOps(op, ops)), xops |-> xFormOpsOp(ops, op)]
+xFormShift(op, ops, shift) == xForm(op, SubSeq(ops, shift + 1, Len(ops)))
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} Buffer}\moduleRightDash\@xx{}%
+\@x{ xFormOpOps ( op ,\, ops ) \.{\defeq}}%
+\@y{%
+  Transform $op$ against $ops$
+}%
+\@xx{}%
+ \@x{\@s{16.4} {\IF} ops \.{=} {\langle} {\rangle} \.{\THEN} {\langle} op
+ {\rangle}}%
+\@y{%
+  and return intermediate transformed operations.
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\ELSE} {\langle} op {\rangle} \.{\circ} xFormOpOps ( OT ( op
+ ,\, Head ( ops ) ) ,\, Tail ( ops ) )}%
+\@x{ xFormOpsOp ( ops ,\, op ) \.{\defeq}}%
+\@y{%
+  Transform $ops$ against $op$ and return the transformed $ops$.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\LET} opX \.{\defeq} xFormOpOps ( op ,\, ops )}%
+ \@x{\@s{16.4} \.{\IN} [ i \.{\in} 1 \.{\dotdot} Len ( ops ) \.{\mapsto} OT (
+ ops [ i ] ,\, opX [ i ] ) ]}%
+\@x{ xForm ( op ,\, ops ) \.{\defeq}}%
+ \@x{\@s{16.4} [ xop \.{\mapsto} Last ( xFormOpOps ( op ,\, ops ) ) ,\, xops
+ \.{\mapsto} xFormOpsOp ( ops ,\, op ) ]}%
+ \@x{ xFormShift ( op ,\, ops ,\, shift ) \.{\defeq} xForm ( op ,\, SubSeq (
+ ops ,\, shift \.{+} 1 ,\, Len ( ops ) ) )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

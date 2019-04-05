@@ -1,0 +1,26 @@
+% file: absjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE AbsJupiter -----------------------------
+VARIABLES copss \* $copss[r]$: the set of context-based operations maintained at replia $r$
+----------------------------------------------------------------------------
+Perform(r, cop) == LET xform == xForm(r, cop)
+                   IN  /\ copss' = [copss EXCEPT ![r] = xform.xcopss]
+                       /\ list' = [list EXCEPT ![r] = Apply(xform.xcop.op, @)]
+Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+             IN  /\ Perform(c, cop)
+                 /\ \* send $cop$ to the $Server$
+Rev(c, cop) == Perform(c, cop)
+SRev(cop) == /\ Perform(Server, cop)
+             /\ \* broadcast $cop$ to clients other than $ClientOf(cop)$
+=============================================================================
+\end{tla}
+\end{document}

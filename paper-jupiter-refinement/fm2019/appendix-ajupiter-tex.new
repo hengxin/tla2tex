@@ -1,0 +1,172 @@
+% file: appendix-ajupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE AJupiter ------------------------------
+(* 
+Specification of the $AJupiter$ protocol presented by Attiya et al.~\cite{Attiya:TR17}.
+*)
+-----------------------------------------------------------------------------
+VARIABLES cbuf, crec, sbuf, srec
+
+vars == <<intVars, cbuf, crec, sbuf, srec>>
+
+AJMsg == [c: Client, ack: Nat, op: Op \cup {Nop}] \cup \* from client $c$ to $Server$ 
+         [ack: Nat, op: Op \cup {Nop}] \* from $Server$ to clients
+-----------------------------------------------------------------------------
+DoOp(c, op) == 
+    /\ SetNewAop(c, op)
+    /\ cbuf' = [cbuf EXCEPT ![c] = Append(@, op)]
+    /\ crec' = [crec EXCEPT ![c] = 0]
+    /\ Comm!CSend([c |-> c, ack |-> crec[c], op |-> op])
+
+ClientPerform(c, m) == 
+    LET xform == xFormShift(OT, m.op, cbuf[c], m.ack) \* $[xop, xops]$
+    IN  /\ cbuf' = [cbuf EXCEPT ![c] = xform.xops]
+        /\ crec' = [crec EXCEPT ![c] = @ + 1]
+        /\ SetNewAop(c, xform.xop)
+
+ServerPerform(m) == 
+    LET     c == m.c             
+        xform == xFormShift(OT, m.op, sbuf[c], m.ack) \* $[xop, xops]$
+          xop == xform.xop
+    IN  /\ srec' = [cl \in Client |-> IF cl = c THEN srec[cl] + 1 ELSE 0] 
+        /\ sbuf' = [cl \in Client |-> IF cl = c THEN xform.xops 
+                                                ELSE Append(sbuf[cl], xop)] 
+        /\ SetNewAop(Server, xop)
+        /\ Comm!SSend(c, [cl \in Client |-> [ack |-> srec[cl], op |-> xop]])
+-----------------------------------------------------------------------------
+Init == 
+    /\ InitInt
+    /\ cbuf = [c \in Client |-> <<>>]
+    /\ crec = [c \in Client |-> 0]
+    /\ sbuf = [c \in Client |-> <<>>]
+    /\ srec = [c \in Client |-> 0]
+
+Do(c) == 
+    /\ DoInt(DoOp, c)
+    /\ UNCHANGED <<sbuf, srec>>
+
+Rev(c) == 
+    /\ RevInt(ClientPerform, c)
+    /\ UNCHANGED <<sbuf, srec>>
+
+SRev == 
+    /\ SRevInt(ServerPerform)
+    /\ UNCHANGED <<cbuf, crec>>
+-----------------------------------------------------------------------------
+Next == 
+    \/ \E c \in Client: Do(c) \/ Rev(c)
+    \/ SRev
+
+Spec == Init /\ [][Next]_vars
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} AJupiter}\moduleRightDash\@xx{}%
+\begin{lcom}{0}%
+\begin{cpar}{0}{F}{F}{0}{0}{}%
+   
+ Specification of the $AJupiter$ protocol presented by Attiya et
+ al.~\cite{Attiya:TR17}.
+ 
+\end{cpar}%
+\end{lcom}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} cbuf ,\, crec ,\, sbuf ,\, srec}%
+\@pvspace{8.0pt}%
+ \@x{ vars \.{\defeq} {\langle} intVars ,\, cbuf ,\, crec ,\, sbuf ,\, srec
+ {\rangle}}%
+\@pvspace{8.0pt}%
+ \@x{ AJMsg \.{\defeq} [ c \.{:} Client ,\, ack \.{:} Nat ,\, op \.{:} Op
+ \.{\cup} \{ Nop \} ] \.{\cup}}%
+\@y{%
+  from client $c$ to $Server$ 
+}%
+\@xx{}%
+\@x{\@s{50.11} [ ack \.{:} Nat ,\, op \.{:} Op \.{\cup} \{ Nop \} ]}%
+\@y{%
+  from $Server$ to clients
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ DoOp ( c ,\, op ) \.{\defeq}}%
+\@x{\@s{26.06} \.{\land} SetNewAop ( c ,\, op )}%
+ \@x{\@s{26.06} \.{\land} cbuf \.{'} \.{=} [ cbuf {\EXCEPT} {\bang} [ c ]
+ \.{=} Append ( @ ,\, op ) ]}%
+ \@x{\@s{26.06} \.{\land} crec \.{'}\@s{2.19} \.{=} [ crec {\EXCEPT} {\bang} [
+ c ]\@s{2.19} \.{=} 0 ]}%
+ \@x{\@s{26.06} \.{\land} Comm {\bang} CSend ( [ c \.{\mapsto} c ,\, ack
+ \.{\mapsto} crec [ c ] ,\, op \.{\mapsto} op ] )}%
+\@pvspace{8.0pt}%
+\@x{ ClientPerform ( c ,\, m ) \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xFormShift ( OT ,\, m . op ,\, cbuf [
+ c ] ,\, m . ack )\@s{3.58}}%
+\@y{%
+  $[xop, xops]$
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\IN} \.{\land} cbuf \.{'} \.{=} [ cbuf {\EXCEPT} {\bang} [ c
+ ] \.{=} xform . xops ]}%
+ \@x{\@s{36.79} \.{\land} crec \.{'}\@s{2.19} \.{=} [ crec {\EXCEPT} {\bang} [
+ c ]\@s{2.19} \.{=} @ \.{+} 1 ]}%
+\@x{\@s{36.79} \.{\land} SetNewAop ( c ,\, xform . xop )}%
+\@pvspace{8.0pt}%
+\@x{ ServerPerform ( m ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\LET}\@s{16.4} c\@s{8.51} \.{\defeq} m . c}%
+ \@x{\@s{40.89} xform \.{\defeq} xFormShift ( OT ,\, m . op ,\, sbuf [ c ] ,\,
+ m . ack )}%
+\@y{%
+  $[xop, xops]$
+}%
+\@xx{}%
+\@x{\@s{49.09} xop\@s{2.28} \.{\defeq} xform . xop}%
+ \@x{\@s{16.4} \.{\IN}\@s{4.09} \.{\land} srec \.{'}\@s{2.19} \.{=} [ cl
+ \.{\in} Client \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} srec [ cl ] \.{+} 1
+ \.{\ELSE} 0 ]}%
+ \@x{\@s{40.89} \.{\land} sbuf \.{'} \.{=} [ cl \.{\in} Client \.{\mapsto}
+ {\IF} cl \.{=} c \.{\THEN} xform . xops}%
+\@x{\@s{193.35} \.{\ELSE} Append ( sbuf [ cl ] ,\, xop ) ]}%
+\@x{\@s{40.89} \.{\land} SetNewAop ( Server ,\, xop )}%
+ \@x{\@s{40.89} \.{\land} Comm {\bang} SSend ( c ,\, [ cl \.{\in} Client
+ \.{\mapsto} [ ack \.{\mapsto} srec [ cl ] ,\, op \.{\mapsto} xop ] ] )}%
+\@x{}\midbar\@xx{}%
+\@x{ Init \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} InitInt}%
+ \@x{\@s{16.4} \.{\land} cbuf \.{=} [ c \.{\in} Client \.{\mapsto} {\langle}
+ {\rangle} ]}%
+ \@x{\@s{16.4} \.{\land} crec\@s{2.19} \.{=} [ c \.{\in} Client \.{\mapsto} 0
+ ]}%
+ \@x{\@s{16.4} \.{\land} sbuf\@s{0.51} \.{=} [ c \.{\in} Client \.{\mapsto}
+ {\langle} {\rangle} ]}%
+ \@x{\@s{16.4} \.{\land} srec\@s{2.70} \.{=} [ c \.{\in} Client \.{\mapsto} 0
+ ]}%
+\@pvspace{8.0pt}%
+\@x{ Do ( c ) \.{\defeq}}%
+\@x{\@s{22.34} \.{\land} DoInt ( DoOp ,\, c )}%
+\@x{\@s{22.34} \.{\land} {\UNCHANGED} {\langle} sbuf ,\, srec {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{ Rev ( c ) \.{\defeq}}%
+\@x{\@s{20.94} \.{\land} RevInt ( ClientPerform ,\, c )}%
+\@x{\@s{20.94} \.{\land} {\UNCHANGED} {\langle} sbuf ,\, srec {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{ SRev \.{\defeq}}%
+\@x{\@s{16.4} \.{\land} SRevInt ( ServerPerform )}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} {\langle} cbuf ,\, crec {\rangle}}%
+\@x{}\midbar\@xx{}%
+\@x{ Next \.{\defeq}}%
+ \@x{\@s{16.4} \.{\lor} \E\, c \.{\in} Client \.{:} Do ( c ) \.{\lor} Rev ( c
+ )}%
+\@x{\@s{16.4} \.{\lor} SRev}%
+\@pvspace{8.0pt}%
+\@x{ Spec \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ vars}}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

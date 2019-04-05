@@ -1,0 +1,90 @@
+% file: ajupiter-impl-xjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------ MODULE AJupiterImplXJupiter ------------------------
+EXTENDS AJupiterExtended \* $AJupiter$ extended with $JupiterCtx$.
+-----------------------------------------------------------------------------
+VARIABLES c2ss, s2ss
+-----------------------------------------------------------------------------
+DoOpImpl(c, op) == 
+    LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]] 
+    IN  c2ss' = [c2ss EXCEPT ![c] = 
+                     @ (+) [node |-> {ds'[c]},
+                            edge |-> {[from |-> ds[c], to |-> ds'[c], cop |-> cop]}]]
+
+ClientPerformImpl(c, m) ==
+    LET xform == xFormCopCopsShift(m.cop, cbuf[c], m.ack) \* $[xcop, xss, lss]$
+    IN  c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xss]
+
+ServerPerformImpl(m) ==
+    LET c == ClientOf(m.cop)
+        xform == xFormCopCopsShift(m.cop, sbuf[c], m.ack) \* $[xcop, xss, lss]$
+    IN  s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xss 
+                                             ELSE s2ss[cl] (+) xform.lss]
+-----------------------------------------------------------------------------
+XJ == INSTANCE XJupiter WITH \* substitutions for communication; omitted here
+         c2ss <- c2ss, s2ss <- s2ss
+THEOREM SpecImpl => XJ!Spec
+=============================================================================
+\end{tla}
+\begin{tlatex}
+ \@x{}\moduleLeftDash\@xx{ {\MODULE}
+ AJupiterImplXJupiter}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} AJupiterExtended}%
+\@y{%
+  $AJupiter$ extended with $JupiterCtx$.
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} c2ss ,\, s2ss}%
+\@x{}\midbar\@xx{}%
+\@x{ DoOpImpl ( c ,\, op ) \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET}\@s{9.37} cop \.{\defeq} [ op \.{\mapsto} op ,\, oid
+ \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx
+ \.{\mapsto} ds [ c ] ]}%
+ \@x{\@s{16.4} \.{\IN}\@s{9.37} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [ c
+ ] \.{=}}%
+\@x{\@s{100.65} @ \.{\oplus} [ node \.{\mapsto} \{ ds \.{'} [ c ] \} ,\,}%
+ \@x{\@s{123.43} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} ds [ c ] ,\,
+ to \.{\mapsto} ds \.{'} [ c ] ,\, cop \.{\mapsto} cop ] \} ] ]}%
+\@pvspace{8.0pt}%
+\@x{ ClientPerformImpl ( c ,\, m ) \.{\defeq}}%
+ \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xFormCopCopsShift ( m . cop ,\, cbuf
+ [ c ] ,\, m . ack )\@s{3.58}}%
+\@y{%
+  $[xcop, xss, lss]$
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\IN} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [ c ] \.{=} @
+ \.{\oplus} xform . xss ]}%
+\@pvspace{8.0pt}%
+\@x{ ServerPerformImpl ( m ) \.{\defeq}}%
+\@x{\@s{16.4} \.{\LET} c \.{\defeq} ClientOf ( m . cop )}%
+ \@x{\@s{40.89} xform \.{\defeq} xFormCopCopsShift ( m . cop ,\, sbuf [ c ]
+ ,\, m . ack )}%
+\@y{%
+  $[xcop, xss, lss]$
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\IN}\@s{4.09} s2ss \.{'} \.{=} [ cl \.{\in} Client
+ \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xss}%
+\@x{\@s{181.91} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lss ]}%
+\@x{}\midbar\@xx{}%
+\@x{ XJ \.{\defeq} {\INSTANCE} XJupiter {\WITH}}%
+\@y{%
+  substitutions for communication; omitted here
+}%
+\@xx{}%
+\@x{\@s{45.27} c2ss \.{\leftarrow} c2ss ,\, s2ss \.{\leftarrow} s2ss}%
+\@x{ {\THEOREM} SpecImpl \.{\implies} XJ {\bang} Spec}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

@@ -1,0 +1,25 @@
+% file: cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE CJupiter ------------------------------
+VARIABLES css  \* $css[r]$: the $n$-ary digraph maintained at replica $r$; initially $EmptyGraph$
+-----------------------------------------------------------------------------
+NextEdge(r, u, g) == \* Return the \emph{first} outgoing edge from $u$ in $g$ at replica $r$. 
+    CHOOSE e \in g.edge:
+        /\e.from = u 
+        /\\A ue \in g.edge \ {e}: (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+Perform(r, cop) == LET xform == xForm(NextEdge, r, cop, css[r])
+                   IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xg]
+                       /\ list' = [list EXCEPT ![r] = Apply(xform.xcop.op, @)]
+Do(c, op),  Rev(c, cop),  SRev(cop) \* the same with those in $AbsJupiter$
+=============================================================================
+\end{tla}
+\end{document}

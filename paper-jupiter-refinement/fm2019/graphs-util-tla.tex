@@ -1,0 +1,16 @@
+% file: graph-utils-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE GraphsUtil -----------------------------
+g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge]
+=============================================================================
+\end{tla}
+\end{document}

@@ -1,0 +1,60 @@
+% file: cscomm-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+
+\begin{tla}
+------------------------------- MODULE CSComm -------------------------------
+CONSTANTS Client, Server, Msg
+VARIABLES cincoming, sincoming
+-----------------------------------------------------------------------------
+CSend(msg) == \* A client sends a message $msg$ to the $Server$.
+CRev(c) == \* Client $c$ receives and consumes a message from the $Server$.                  
+SRev == \* The $Server$ receives and consumes a message.      
+SSend(c, cmsg) == \* The $Server$ sents message $cmsg[cl]$ to client $cl$ (other than $c$).
+    cincoming' = [cl \in Client |-> IF cl = c THEN cincoming[cl] 
+                                    ELSE Append(cincoming[cl], cmsg[cl])]
+
+SSendSame(c, msg) == SSend(c, [cl \in Client |-> msg])
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} CSComm}\moduleRightDash\@xx{}%
+\@x{ {\CONSTANTS} Client ,\, Server ,\, Msg}%
+\@x{ {\VARIABLES} cincoming ,\, sincoming}%
+\@x{}\midbar\@xx{}%
+\@x{ CSend ( msg ) \.{\defeq}}%
+\@y{%
+  A client sends a message $msg$ to the $Server$.
+}%
+\@xx{}%
+\@x{ CRev ( c ) \.{\defeq}}%
+\@y{%
+ Client $c$ receives and consumes a message from the $Server$.              
+}%
+\@xx{}%
+\@x{ SRev \.{\defeq}}%
+\@y{%
+  The $Server$ receives and consumes a message.      
+}%
+\@xx{}%
+\@x{ SSend ( c ,\, cmsg ) \.{\defeq}}%
+\@y{%
+  The $Server$ sents message $cmsg[cl]$ to client $cl$ (other than $c$).
+}%
+\@xx{}%
+ \@x{\@s{16.4} cincoming \.{'} \.{=} [ cl \.{\in} Client \.{\mapsto} {\IF} cl
+ \.{=} c \.{\THEN} cincoming [ cl ]}%
+\@x{\@s{144.50} \.{\ELSE} Append ( cincoming [ cl ] ,\, cmsg [ cl ] ) ]}%
+\@pvspace{8.0pt}%
+ \@x{ SSendSame ( c ,\, msg ) \.{\defeq} SSend ( c ,\, [ cl \.{\in} Client
+ \.{\mapsto} msg ] )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

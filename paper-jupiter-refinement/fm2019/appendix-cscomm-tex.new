@@ -1,0 +1,93 @@
+% file: appendix-cscomm-tla.tex
+
+\begin{document}
+\begin{tla}
+------------------------------- MODULE CSComm -------------------------------
+CONSTANTS Client, Server, Msg
+-----------------------------------------------------------------------------
+VARIABLES cincoming, sincoming
+-----------------------------------------------------------------------------
+Init == 
+    /\ cincoming = [c \in Client |-> <<>>]
+    /\ sincoming = <<>>
+
+EmptyChannel == Init
+-----------------------------------------------------------------------------
+CSend(m) == \* A client sends message $m$ to the $Server$.
+    /\ sincoming' = Append(sincoming, m)
+    /\ UNCHANGED cincoming
+
+CRev(c) == \* Client $c$ receives and consumes a message from the $Server$.                  
+    /\ cincoming[c] # <<>>
+    /\ cincoming' = [cincoming EXCEPT ![c] = Tail(@)]
+    /\ UNCHANGED sincoming
+-----------------------------------------------------------------------------
+SRev == \* The $Server$ receives and consumes a message.      
+    /\ sincoming # <<>>
+    /\ sincoming' = Tail(sincoming)
+
+SSend(c, cm) == \* The $Server$ sents $cm[cl]$ to client $cl$ (other than $c$).
+    cincoming' = [cl \in Client |-> IF cl = c THEN cincoming[cl] 
+                                    ELSE Append(cincoming[cl], cm[cl])]
+
+SSendSame(c, m) == \* The $Server$ broadcasts $m$ to all clients other than $c$.
+    SSend(c, [cl \in Client |-> m])
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} CSComm}\moduleRightDash\@xx{}%
+\@x{ {\CONSTANTS} Client ,\, Server ,\, Msg}%
+\@x{}\midbar\@xx{}%
+\@x{ {\VARIABLES} cincoming ,\, sincoming}%
+\@x{}\midbar\@xx{}%
+\@x{ Init \.{\defeq}}%
+ \@x{\@s{16.4} \.{\land} cincoming \.{=} [ c \.{\in} Client \.{\mapsto}
+ {\langle} {\rangle} ]}%
+\@x{\@s{16.4} \.{\land} sincoming \.{=} {\langle} {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{ EmptyChannel \.{\defeq} Init}%
+\@x{}\midbar\@xx{}%
+\@x{ CSend ( m ) \.{\defeq}}%
+\@y{%
+  A client sends message $m$ to the $Server$.
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} sincoming \.{'} \.{=} Append ( sincoming ,\, m )}%
+\@x{\@s{16.4} \.{\land} {\UNCHANGED} cincoming}%
+\@pvspace{8.0pt}%
+\@x{ CRev ( c ) \.{\defeq}}%
+\@y{%
+ Client $c$ receives and consumes a message from the $Server$.              
+}%
+\@xx{}%
+\@x{ \.{\land} cincoming [ c ] \.{\neq} {\langle} {\rangle}}%
+ \@x{ \.{\land} cincoming \.{'} \.{=} [ cincoming {\EXCEPT} {\bang} [ c ]
+ \.{=} Tail ( @ ) ]}%
+\@x{ \.{\land} {\UNCHANGED} sincoming}%
+\@x{}\midbar\@xx{}%
+\@x{ SRev \.{\defeq}}%
+\@y{%
+  The $Server$ receives and consumes a message.      
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\land} sincoming \.{\neq} {\langle} {\rangle}}%
+\@x{\@s{16.4} \.{\land} sincoming \.{'} \.{=} Tail ( sincoming )}%
+\@pvspace{8.0pt}%
+\@x{ SSend ( c ,\, cm ) \.{\defeq}}%
+\@y{%
+  The $Server$ sents $cm[cl]$ to client $cl$ (other than $c$).
+}%
+\@xx{}%
+ \@x{\@s{16.4} cincoming \.{'} \.{=} [ cl \.{\in} Client \.{\mapsto} {\IF} cl
+ \.{=} c \.{\THEN} cincoming [ cl ]}%
+\@x{\@s{16.4} \.{\ELSE} Append ( cincoming [ cl ] ,\, cm [ cl ] ) ]}%
+\@pvspace{8.0pt}%
+\@x{ SSendSame ( c ,\, m ) \.{\defeq}}%
+\@y{%
+  The $Server$ broadcasts $m$ to all clients other than $c$.
+}%
+\@xx{}%
+\@x{\@s{16.4} SSend ( c ,\, [ cl \.{\in} Client \.{\mapsto} m ] )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

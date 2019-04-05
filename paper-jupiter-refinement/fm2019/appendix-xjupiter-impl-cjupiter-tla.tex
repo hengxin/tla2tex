@@ -1,0 +1,58 @@
+% file: appendix-xjupiter-impl-cjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------ MODULE XJupiterImplCJupiter ------------------------
+EXTENDS XJupiterExtended \* $XJupiter$ extended with $JupiterSerial$
+-----------------------------------------------------------------------------
+VARIABLES op2ss,  \* a function mapping an operation (identifier)
+                  \* to the $2D$ state space created during it is transformed
+          c2ssX   \* $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
+
+varsImpl == <<varsEx, op2ss, c2ssX>>
+-----------------------------------------------------------------------------
+InitImpl ==
+    /\ InitEx
+    /\ op2ss = <<>>
+    /\ c2ssX = [c \in Client |-> EmptySS]
+
+DoImpl(c) ==
+    /\ DoEx(c)
+    /\ UNCHANGED <<op2ss, c2ssX>>
+
+RevImpl(c) ==
+    /\ RevEx(c)
+    /\ LET cop == Head(cincoming[c])
+       IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] \* integrate into $c2ssX$
+    /\ UNCHANGED op2ss
+
+SRevImpl == 
+    /\ SRevEx
+    /\ LET cop == Head(sincoming)
+             c == ClientOf(cop)
+         xform == xForm(NextEdge, Server, cop, s2ss[c])  
+       IN op2ss' = op2ss @@ cop.oid :> xform.xss \* $xss:$ extra $ss$ created during $xform$
+    /\ UNCHANGED c2ssX
+-----------------------------------------------------------------------------
+NextImpl ==
+    \/ \E c \in Client: DoImpl(c) \/ RevImpl(c)
+    \/ SRevImpl
+    
+SpecImpl == InitImpl /\ [][NextImpl]_varsImpl
+-----------------------------------------------------------------------------
+CJ == INSTANCE CJupiter 
+        WITH cincoming <- cincomingCJ, \* sincoming needs no substitution
+             css <- [r \in Replica |-> IF r = Server 
+                                       THEN SetReduce((+), Range(s2ss), EmptySS)
+                                       ELSE c2ss[r] (+) c2ssX[r]]
+THEOREM SpecImpl => CJ!Spec
+=============================================================================
+\end{tla}
+\end{document}

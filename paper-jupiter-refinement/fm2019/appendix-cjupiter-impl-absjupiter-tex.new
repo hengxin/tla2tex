@@ -1,0 +1,31 @@
+% file: appendix-cjupiter-impl-absjupiter-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------- MODULE CJupiterImplAbsJupiter -----------------------
+EXTENDS CJupiter
+-----------------------------------------------------------------------------
+AbsJ == INSTANCE AbsJupiter
+            WITH copss <- [r \in Replica |-> {e.cop: e \in css[r].edge}]
+THEOREM Spec => AbsJ!Spec
+=============================================================================
+\end{tla}
+\begin{tlatex}
+ \@x{}\moduleLeftDash\@xx{ {\MODULE}
+ CJupiterImplAbsJupiter}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} CJupiter}%
+\@x{}\midbar\@xx{}%
+\@x{ AbsJ \.{\defeq} {\INSTANCE} AbsJupiter}%
+ \@x{\@s{57.80} {\WITH} copss \.{\leftarrow} [ r \.{\in} Replica \.{\mapsto}
+ \{ e . cop \.{:} e \.{\in} css [ r ] . edge \} ]}%
+\@x{ {\THEOREM} Spec \.{\implies} AbsJ {\bang} Spec}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

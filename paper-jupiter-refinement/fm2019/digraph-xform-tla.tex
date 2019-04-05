@@ -1,0 +1,37 @@
+% file: digraph-xform-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------------- MODULE Digraph -----------------------------
+xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ against an operation sequence 
+    LET u == CHOOSE n \in g.node : n = cop.ctx \* in $g$ at replica $r$; see Figure~\ref{fig:xform-graphstatespace}.
+        v == u \cup {cop.oid}
+        xFormHelper(uh, vh, coph, gh) == 
+            IF uh = ds[r] \* no outgoing edges from $uh$
+            THEN [xcop |-> coph, 
+                  xg |-> gh,
+                  lg |-> [node |-> {vh}, edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]] 
+            ELSE LET e == NextEdge(r, uh, g) \* specific to \cjupiter{} and \xjupiter{}
+                     copprime == e.cop
+                     uprime == e.to
+                     vprime == vh \cup {copprime.oid}
+                     coph2copprime == COT(coph, copprime)
+                     copprime2coph == COT(copprime, coph)
+                 IN  xFormHelper(uprime, vprime, coph2copprime,
+                        gh (+) [node |-> {vprime},
+                                edge |-> {[from |-> vh, to |-> vprime, 
+                                            cop |-> copprime2coph], 
+                                          [from |-> uprime, to |-> vprime, 
+                                            cop |-> coph2copprime]}])
+    IN  xFormHelper(u, v, cop, [node |-> {v}, 
+                                edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
+=============================================================================
+\end{tla}
+\end{document}

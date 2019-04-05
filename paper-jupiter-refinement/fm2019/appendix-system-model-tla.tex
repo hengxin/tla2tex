@@ -1,0 +1,23 @@
+% file: appendix-system-model-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE SystemModel ----------------------------
+CONSTANTS Client, Server, Msg, Char, InitState
+
+Replica == Client \cup {Server}
+----------------------------------------------------------------------
+VARIABLES cincoming,  \* $cincoming[c]$: incoming channel at client $c$ 
+          sincoming   \* incoming channel at the $Server$
+
+Comm == INSTANCE CSComm \* instantiate $CSComm$ for communication
+=============================================================================
+\end{tla}
+\end{document}
