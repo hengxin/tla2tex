@@ -10,44 +10,71 @@
 \begin{document}
 \begin{tla}
 ------------------------------ MODULE CJupiter ------------------------------
-VARIABLES css  \* $css[r]$: the $n$-ary digraph maintained at replica $r$; initially $EmptyGraph$
+VARIABLES css  \* $css[r]$: the $n$-ary digraph maintained at replica $r$
 -----------------------------------------------------------------------------
-NextEdge(r, u, g) == \* Return the \emph{first} outgoing edge from $u$ in $g$ at replica $r$. 
-    CHOOSE e \in g.edge:
-        /\e.from = u 
-        /\\A ue \in g.edge \ {e}: (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+NextEdge(r, u, g) == CHOOSE e \in g.edge:
+                       /\ e.from = u
+                       /\ \A ue \in g.edge \ {e}: \* \emph{first} in terms of $tb$
+                            (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
 Perform(r, cop) == LET xform == xForm(NextEdge, r, cop, css[r])
                    IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xg]
-                       /\ list' = [list EXCEPT ![r] = Apply(xform.xcop.op, @)]
-Do(c, op),  Rev(c, cop),  SRev(cop) \* the same with those in $AbsJupiter$
+                       /\ \* apply $xform.xcop.op$ to $list[r]$
+Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+                   u == ds[c]    v == u \cup {cop.oid}
+             IN  /\ css' = [css EXCEPT ![c] = \* append $cop$ to $u \triangleq ds[c]$
+                    @ (+) [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
+                 /\ \* apply $op$ to $list[c]$; send $cop$ to the $Server$
+Rev(c, cop),  SRev(cop) \* the same with those in $AbsJupiter$
 =============================================================================
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} CJupiter}\moduleRightDash\@xx{}%
 \@x{ {\VARIABLES} css\@s{4.1}}%
 \@y{%
- $css[r]$: the $n$-ary digraph maintained at replica $r$; initially
- $EmptyGraph$
+  $css[r]$: the $n$-ary digraph maintained at replica $r$
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
-\@x{ NextEdge ( r ,\, u ,\, g ) \.{\defeq}}%
+ \@x{ NextEdge ( r ,\, u ,\, g ) \.{\defeq} {\CHOOSE} e \.{\in} g . edge
+ \.{:}}%
+\@x{\@s{105.83} \.{\land} e . from \.{=} u}%
+ \@x{\@s{105.83} \.{\land} \A\, ue \.{\in} g . edge \.{\,\backslash\,} \{ e \}
+ \.{:}}%
 \@y{%
-  Return the \emph{first} outgoing edge from $u$ in $g$ at replica $r$. 
+  \emph{first} in terms of $tb$
 }%
 \@xx{}%
-\@x{\@s{16.4} {\CHOOSE} e \.{\in} g . edge \.{:}}%
-\@x{\@s{32.8} \.{\land} e . from \.{=} u}%
- \@x{\@s{32.8} \.{\land} \A\, ue \.{\in} g . edge \.{\,\backslash\,} \{ e \}
- \.{:} ( ue . from \.{=} u ) \.{\implies} tb ( e . cop . oid ,\, ue . cop .
- oid ,\, serial [ r ] )}%
+ \@x{\@s{125.15} ( ue . from \.{=} u ) \.{\implies} tb ( e . cop . oid ,\, ue
+ . cop . oid ,\, serial [ r ] )}%
  \@x{ Perform ( r ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm (
  NextEdge ,\, r ,\, cop ,\, css [ r ] )}%
  \@x{\@s{89.95} \.{\IN} \.{\land} css \.{'} \.{=} [ css {\EXCEPT} {\bang} [ r
  ] \.{=} @ \.{\oplus} xform . xg ]}%
- \@x{\@s{110.35} \.{\land} list \.{'} \.{=} [ list {\EXCEPT} {\bang} [ r ]
- \.{=} Apply ( xform . xcop . op ,\, @ ) ]}%
-\@x{ Do ( c ,\, op ) ,\,\@s{4.1} Rev ( c ,\, cop ) ,\,\@s{4.1} SRev ( cop )}%
+\@x{\@s{110.35} \.{\land}}%
+\@y{%
+  apply $xform.xcop.op$ to $list[r]$
+}%
+\@xx{}%
+ \@x{ Do ( c ,\, op ) \.{\defeq} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op
+ ,\, oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\,
+ ctx \.{\mapsto} ds [ c ] ]}%
+ \@x{\@s{90.68} u\@s{0.60} \.{\defeq} ds [ c ]\@s{12.29} v \.{\defeq} u
+ \.{\cup} \{ cop . oid \}}%
+ \@x{\@s{62.08} \.{\IN} \.{\land} css \.{'} \.{=} [ css {\EXCEPT} {\bang} [ c
+ ] \.{=}}%
+\@y{%
+  append $cop$ to $u \triangleq ds[c]$
+}%
+\@xx{}%
+ \@x{\@s{93.59} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto}
+ \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ]
+ ]}%
+\@x{\@s{82.48} \.{\land}}%
+\@y{%
+  apply $op$ to $list[c]$; send $cop$ to the $Server$
+}%
+\@xx{}%
+\@x{ Rev ( c ,\, cop ) ,\,\@s{4.1} SRev ( cop )}%
 \@y{%
   the same with those in $AbsJupiter$
 }%

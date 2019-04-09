@@ -14,27 +14,22 @@ VARIABLES cbuf, crec, sbuf, srec
 AJMsg == [c: Client, ack: Nat, op: Op \cup {Nop}] \cup \* from client $c$ to $Server$ 
          [ack: Nat, op: Op \cup {Nop}] \* from $Server$ to clients
 -----------------------------------------------------------------------------
-DoOp(c, op) == 
-    /\ SetNewAop(c, op)
-    /\ cbuf' = [cbuf EXCEPT ![c] = Append(@, op)]
-    /\ crec' = [crec EXCEPT ![c] = 0]
-    /\ Comm!CSend([c |-> c, ack |-> crec[c], op |-> op])
-
-ClientPerform(c, m) == 
-    LET xform == xFormShift(OT, m.op, cbuf[c], m.ack) \* $[xop, xops]$
-    IN  /\ cbuf' = [cbuf EXCEPT ![c] = xform.xops]
-        /\ crec' = [crec EXCEPT ![c] = @ + 1]
-        /\ SetNewAop(c, xform.xop)
-
-ServerPerform(m) == 
-    LET     c == m.c             
-        xform == xFormShift(OT, m.op, sbuf[c], m.ack) \* $[xop, xops]$
-          xop == xform.xop
-    IN  /\ srec' = [cl \in Client |-> IF cl = c THEN srec[cl] + 1 ELSE 0] 
-        /\ sbuf' = [cl \in Client |-> IF cl = c THEN xform.xops 
-                                                ELSE Append(sbuf[cl], xop)] 
-        /\ SetNewAop(Server, xop)
-        /\ Comm!SSend(c, [cl \in Client |-> [ack |-> srec[cl], op |-> xop]])
+Do(c, op) == /\ cbuf' = [cbuf EXCEPT ![c] = Append(@, op)]
+             /\ crec' = [crec EXCEPT ![c] = 0]
+             /\ \* apply $op$ to $list[c]$
+             /\ \* send $[c \mapsto c, ack \mapsto crec[c], op \mapsto op]$ to the $Server$
+Rev(c, m) == LET xform == xFormShift(m.op, cbuf[c], m.ack) \* $xform: [xop, xops]$
+             IN  /\ cbuf' = [cbuf EXCEPT ![c] = xform.xops]
+                 /\ crec' = [crec EXCEPT ![c] = @ + 1]
+                 /\ \* apply $xform.xop$ to $list[c]$
+SRev(m) == LET c == m.c
+           xform == xFormShift(m.op, sbuf[c], m.ack) \* $xform: [xop, xops]$
+             xop == xform.xop
+           IN  /\ srec' = [cl \in Client |-> IF cl = c THEN srec[cl] + 1 ELSE 0]
+               /\ sbuf' = [cl \in Client |-> IF cl = c THEN xform.xops
+                                                       ELSE Append(sbuf[cl], xop)]
+               /\ \* apply $xop$ to $list[Server]$
+               /\ \* send $[ack \mapsto srec[cl], op \mapsto xop]$ to client $cl \neq c$
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -52,46 +47,59 @@ ServerPerform(m) ==
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
-\@x{ DoOp ( c ,\, op ) \.{\defeq}}%
-\@x{\@s{26.06} \.{\land} SetNewAop ( c ,\, op )}%
- \@x{\@s{26.06} \.{\land} cbuf \.{'} \.{=} [ cbuf {\EXCEPT} {\bang} [ c ]
- \.{=} Append ( @ ,\, op ) ]}%
- \@x{\@s{26.06} \.{\land} crec \.{'}\@s{2.19} \.{=} [ crec {\EXCEPT} {\bang} [
+ \@x{ Do ( c ,\, op )\@s{1.85} \.{\defeq} \.{\land} cbuf \.{'} \.{=} [ cbuf
+ {\EXCEPT} {\bang} [ c ] \.{=} Append ( @ ,\, op ) ]}%
+ \@x{\@s{63.94} \.{\land} crec \.{'}\@s{2.19} \.{=} [ crec {\EXCEPT} {\bang} [
  c ]\@s{2.19} \.{=} 0 ]}%
- \@x{\@s{26.06} \.{\land} Comm {\bang} CSend ( [ c \.{\mapsto} c ,\, ack
- \.{\mapsto} crec [ c ] ,\, op \.{\mapsto} op ] )}%
-\@pvspace{8.0pt}%
-\@x{ ClientPerform ( c ,\, m ) \.{\defeq}}%
- \@x{\@s{16.4} \.{\LET} xform \.{\defeq} xFormShift ( OT ,\, m . op ,\, cbuf [
- c ] ,\, m . ack )\@s{3.58}}%
+\@x{\@s{63.94} \.{\land}}%
 \@y{%
-  $[xop, xops]$
+  apply $op$ to $list[c]$
 }%
 \@xx{}%
- \@x{\@s{16.4} \.{\IN} \.{\land} cbuf \.{'} \.{=} [ cbuf {\EXCEPT} {\bang} [ c
- ] \.{=} xform . xops ]}%
- \@x{\@s{36.79} \.{\land} crec \.{'}\@s{2.19} \.{=} [ crec {\EXCEPT} {\bang} [
+\@x{\@s{63.94} \.{\land}}%
+\@y{%
+  send $[c \mapsto c, ack \mapsto crec[c], op \mapsto op]$ to the $Server$
+}%
+\@xx{}%
+ \@x{ Rev ( c ,\, m ) \.{\defeq} \.{\LET} xform \.{\defeq} xFormShift ( m . op
+ ,\, cbuf [ c ] ,\, m . ack )}%
+\@y{%
+  $xform: [xop, xops]$
+}%
+\@xx{}%
+ \@x{\@s{63.94} \.{\IN} \.{\land} cbuf \.{'} \.{=} [ cbuf {\EXCEPT} {\bang} [
+ c ] \.{=} xform . xops ]}%
+ \@x{\@s{84.34} \.{\land} crec \.{'}\@s{2.19} \.{=} [ crec {\EXCEPT} {\bang} [
  c ]\@s{2.19} \.{=} @ \.{+} 1 ]}%
-\@x{\@s{36.79} \.{\land} SetNewAop ( c ,\, xform . xop )}%
-\@pvspace{8.0pt}%
-\@x{ ServerPerform ( m ) \.{\defeq}}%
-\@x{\@s{16.4} \.{\LET}\@s{16.4} c\@s{8.51} \.{\defeq} m . c}%
- \@x{\@s{40.89} xform \.{\defeq} xFormShift ( OT ,\, m . op ,\, sbuf [ c ] ,\,
- m . ack )}%
+\@x{\@s{84.34} \.{\land}}%
 \@y{%
-  $[xop, xops]$
+  apply $xform.xop$ to $list[c]$
 }%
 \@xx{}%
-\@x{\@s{49.09} xop\@s{2.28} \.{\defeq} xform . xop}%
- \@x{\@s{16.4} \.{\IN}\@s{4.09} \.{\land} srec \.{'}\@s{2.19} \.{=} [ cl
+\@x{ SRev ( m ) \.{\defeq} \.{\LET} c\@s{0.41} \.{\defeq} m . c}%
+ \@x{\@s{58.29} xform \.{\defeq} xFormShift ( m . op ,\, sbuf [ c ] ,\, m .
+ ack )}%
+\@y{%
+  $xform: [xop, xops]$
+}%
+\@xx{}%
+\@x{\@s{66.49} xop\@s{2.28} \.{\defeq} xform . xop}%
+ \@x{\@s{58.29} \.{\IN}\@s{4.1} \.{\land} srec \.{'}\@s{2.19} \.{=} [ cl
  \.{\in} Client \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} srec [ cl ] \.{+} 1
  \.{\ELSE} 0 ]}%
- \@x{\@s{40.89} \.{\land} sbuf \.{'} \.{=} [ cl \.{\in} Client \.{\mapsto}
+ \@x{\@s{82.79} \.{\land} sbuf \.{'} \.{=} [ cl \.{\in} Client \.{\mapsto}
  {\IF} cl \.{=} c \.{\THEN} xform . xops}%
-\@x{\@s{193.35} \.{\ELSE} Append ( sbuf [ cl ] ,\, xop ) ]}%
-\@x{\@s{40.89} \.{\land} SetNewAop ( Server ,\, xop )}%
- \@x{\@s{40.89} \.{\land} Comm {\bang} SSend ( c ,\, [ cl \.{\in} Client
- \.{\mapsto} [ ack \.{\mapsto} srec [ cl ] ,\, op \.{\mapsto} xop ] ] )}%
+\@x{\@s{235.25} \.{\ELSE} Append ( sbuf [ cl ] ,\, xop ) ]}%
+\@x{\@s{82.79} \.{\land}}%
+\@y{%
+  apply $xop$ to $list[Server]$
+}%
+\@xx{}%
+\@x{\@s{82.79} \.{\land}}%
+\@y{%
+  send $[ack \mapsto srec[cl], op \mapsto xop]$ to client $cl \neq c$
+}%
+\@xx{}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}

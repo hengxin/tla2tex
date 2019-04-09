@@ -23,34 +23,40 @@
 }%
 }
 \fl{}\midbar\cl{}
-\fl{ NextEdge ( r ,\, u ,\, g ) \.{\defeq}%
+ \fl{ NextEdge ( \_ ,\, u ,\, g ) \.{\defeq} {\CHOOSE} e \.{\in} g . edge
+ \.{:} e . from \.{=} u}
+ \fl{ Do ( c ,\, op ) \.{\defeq}}\al{5}{7}{ \.{\LET}}\al{5}{8}{ cop}\al{5}{9}{
+ \.{\defeq}}\al{5}{10}{ [ op \.{\mapsto} op ,\, oid \.{\mapsto} [ c
+ \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx \.{\mapsto} ds [ c ]
+ ]}
+ \fl{ u}\al{6}{1}{ \.{\defeq}}\al{6}{2}{ ds [ c ] v \.{\defeq} u \.{\cup} \{
+ cop . oid \}}
+ \fl{ \.{\IN}}\al{7}{1}{ \.{\land}}\al{7}{2}{ c2ss \.{'} \.{=} [ c2ss
+ {\EXCEPT} {\bang} [ c ] \.{=}%
 \@y{%
-  Return the \emph{unique} outgoing edge from $u$ in $2D$ digraph $g$ 
+  append $cop$ to $u \triangleq ds[c]$
 }%
 }
-\fl{ {\CHOOSE} e \.{\in} g . edge \.{:} e . from \.{=} u%
+ \fl{ @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto} \{ [ from
+ \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ] ]}
+\fl{ \.{\land}}\al{9}{1}{%
 \@y{%
-  ($r$ is not used). 
+  apply $op$ to $list[c]$; send $cop$ to the $Server$
 }%
 }
- \fl{ CPerform ( c ,\, cop ) \.{\defeq}}\al{6}{7}{ \.{\LET}}\al{6}{8}{ xform
- \.{\defeq} xForm ( NextEdge ,\, c ,\, cop ,\, c2ss [ c ] )}
- \fl{ \.{\IN}}\al{7}{1}{ \.{\land}}\al{7}{2}{ c2ss \.{'}}\al{7}{4}{
- \.{=}}\al{7}{5}{ [ c2ss {\EXCEPT} {\bang} [ c ]}\al{7}{12}{
- \.{=}}\al{7}{13}{ @ \.{\oplus} xform . xg ]}
- \fl{ \.{\land}}\al{8}{1}{ list \.{'}}\al{8}{3}{ \.{=}}\al{8}{4}{ [ list
- {\EXCEPT} {\bang} [ c ]}\al{8}{11}{ \.{=}}\al{8}{12}{ Apply ( xform . xcop .
- op ,\, @ ) ]}
- \fl{ Do ( c ,\, op ) \.{\defeq}}\al{9}{7}{ \.{\LET}}\al{9}{8}{ cop \.{\defeq}
- [ op \.{\mapsto} op ,\, oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq
- \.{\mapsto} cseq [ c ] ] ,\, ctx \.{\mapsto} ds [ c ] ]}
-\fl{ \.{\IN}}\al{10}{1}{ \.{\land}}\al{10}{2}{ CPerform ( c ,\, cop )}
-\fl{ \.{\land}}\al{11}{1}{%
+ \fl{ Rev ( c ,\, cop ) \.{\defeq}}\al{10}{7}{ \.{\LET}}\al{10}{8}{ xform
+ \.{\defeq} xForm ( NextEdge ,\, c ,\, cop ,\, c2ss [ c ] )%
 \@y{%
-  send $cop$ to the $Server$
+  $xform$: $[xcop, xg, lg]$
 }%
 }
-\fl{ Rev ( c ,\, cop ) \.{\defeq} CPerform ( c ,\, cop )}
+ \fl{ \.{\IN}}\al{11}{1}{ \.{\land}}\al{11}{2}{ c2ss \.{'} \.{=} [ c2ss
+ {\EXCEPT} {\bang} [ c ] \.{=} @ \.{\oplus} xform . xg ]}
+\fl{ \.{\land}}\al{12}{1}{%
+\@y{%
+  apply $xform.xcop.op$ to $list[c]$
+}%
+}
 \fl{ SRev}\al{13}{1}{ ( cop )}\al{13}{4}{ \.{\defeq}}
 \fl{ \.{\LET} c}\al{14}{2}{ \.{\defeq} ClientOf ( cop )}
  \fl{ xform}\al{15}{1}{ \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop ,\,
@@ -59,16 +65,18 @@
   $xform$: $[xcop, xg, lg]$
 }%
 }
- \fl{ \.{\IN}}\al{16}{1}{ \.{\land}}\al{16}{2}{ s2ss \.{'}}\al{16}{4}{
- \.{=}}\al{16}{5}{ [ cl \.{\in} Client \.{\mapsto} {\IF} cl \.{=}
- c}\al{16}{14}{ \.{\THEN} s2ss [ cl ]}\al{16}{19}{ \.{\oplus}}\al{16}{20}{
- xform . xg}
+ \fl{ \.{\IN}}\al{16}{1}{ \.{\land}}\al{16}{2}{ s2ss \.{'} \.{=} [ cl \.{\in}
+ Client \.{\mapsto} {\IF} cl \.{=} c}\al{16}{14}{ \.{\THEN} s2ss [ cl
+ ]}\al{16}{19}{ \.{\oplus}}\al{16}{20}{ xform . xg}
 \fl{ \.{\ELSE} s2ss [ cl ]}\al{17}{5}{ \.{\oplus}}\al{17}{6}{ xform . lg ]}
- \fl{ \.{\land}}\al{18}{1}{ list \.{'}}\al{18}{3}{ \.{=}}\al{18}{4}{ [ list
- {\EXCEPT} {\bang} [ Server ] \.{=} Apply ( xform . xcop . op ,\, @ ) ]}
+\fl{ \.{\land}}\al{18}{1}{%
+\@y{%
+  apply $xform.xcop.op$ to $list[Server]$
+}%
+}
 \fl{ \.{\land}}\al{19}{1}{%
 \@y{%
- broadcast the {\it transformed operation} $xform.xcop$ to clients other
+ broadcast the \emph{transformed} operation $xform.xcop$ to clients other
  than $c$
 }%
 }

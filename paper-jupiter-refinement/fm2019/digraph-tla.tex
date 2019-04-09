@@ -10,10 +10,9 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE Digraph -----------------------------
-IsGigraph(G) == 
-    /\ G = [node |-> G.node, edge |-> G.edge] \* $node$ field and $edge$ field.
-    /\ G.node \subseteq (SUBSET Oid) \* each node represents a document state.
-    /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* labeled with a $Cop$.
+IsGigraph(G) == \* $G$ is a record with $node$ field and $edge$ field
+    /\ G.node \subseteq (SUBSET Oid) \* each node represents a document state
+    /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* label: $cop$
 EmptyGraph == [node |-> {{}}, edge |-> {}]
 g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge] \* union
 =============================================================================

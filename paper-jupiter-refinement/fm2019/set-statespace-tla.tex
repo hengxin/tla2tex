@@ -9,17 +9,16 @@
 
 \begin{document}
 \begin{tla}
---------------------------- MODULE SetStateSpace ---------------------------
-xForm(r, cop) == \* Transform $cop$ at replica $r$.
+--------------------------- MODULE Set ---------------------------
+xForm(r, cop) == \* Transform $cop$ at replica $r$
     LET ctxDiff == ds[r] \ cop.ctx \* calculate concurrent operations
         xFormHelper(coph, ctxDiffh, copssh) == \* Return transformed $xcop$ and
-            IF ctxDiffh = {} THEN [xcop |-> coph, xcopss |-> copssh] \* new $copss$ 
+            IF ctxDiffh = {} THEN [xcop |-> coph, xcopss |-> copssh]  \* new $copss$ 
             ELSE LET foidh == CHOOSE oid \in ctxDiffh: \* the first $oid$ in $ctxDiffh$ 
                                 \A id \in ctxDiffh \ {oid}: tb(oid, id, serial[r]) 
                      fcoph == CHOOSE fcop \in copss[r]: 
                                 fcop.oid = foidh /\ fcop.ctx = coph.ctx \* \cc
-                     xcoph == COT(coph, fcoph)
-                    xfcoph == COT(fcoph, coph)
+                     xcoph == COT(coph, fcoph)    xfcoph == COT(fcoph, coph)
                  IN  xFormHelper(xcoph, ctxDiffh \ {fcoph.oid}, 
                                         copssh \cup {xcoph, xfcoph})
     IN  xFormHelper(cop, ctxDiff, copss[r] \cup {cop}) 

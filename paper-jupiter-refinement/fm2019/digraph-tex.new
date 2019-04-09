@@ -10,10 +10,9 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE Digraph -----------------------------
-IsGigraph(G) == 
-    /\ G = [node |-> G.node, edge |-> G.edge] \* $node$ field and $edge$ field.
-    /\ G.node \subseteq (SUBSET Oid) \* each node represents a document state.
-    /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* labeled with a $Cop$.
+IsGigraph(G) == \* $G$ is a record with $node$ field and $edge$ field
+    /\ G.node \subseteq (SUBSET Oid) \* each node represents a document state
+    /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* label: $cop$
 EmptyGraph == [node |-> {{}}, edge |-> {}]
 g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge] \* union
 =============================================================================
@@ -21,21 +20,19 @@ g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge] \* union
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} Digraph}\moduleRightDash\@xx{}%
 \@x{ IsGigraph ( G ) \.{\defeq}}%
- \@x{\@s{16.4} \.{\land} G \.{=} [ node \.{\mapsto} G . node ,\, edge
- \.{\mapsto} G . edge ]}%
 \@y{%
-  $node$ field and $edge$ field.
+  $G$ is a record with $node$ field and $edge$ field
 }%
 \@xx{}%
 \@x{\@s{16.4} \.{\land} G . node \.{\subseteq} ( {\SUBSET} Oid )}%
 \@y{%
-  each node represents a document state.
+  each node represents a document state
 }%
 \@xx{}%
  \@x{\@s{16.4} \.{\land} G . edge\@s{1.53} \.{\subseteq} [ from \.{:} G . node
  ,\, to \.{:} G . node ,\, cop \.{:} Cop ]}%
 \@y{%
-  labeled with a $Cop$.
+  label: $cop$
 }%
 \@xx{}%
  \@x{ EmptyGraph \.{\defeq} [ node \.{\mapsto} \{ \{ \} \} ,\, edge

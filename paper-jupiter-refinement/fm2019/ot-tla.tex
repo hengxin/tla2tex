@@ -11,10 +11,8 @@
 \begin{tla}
 --------------------------------- MODULE OT ---------------------------------
 OTID(ins, del) == \* $ins$ is transformed against $del$; $I$ for $Ins$ and $D$ for $Del$.
-    IF ins.pos <= del.pos THEN ins
-    ELSE [ins EXCEPT !.pos = @ - 1]
-OT(lop, rop) == \* $lop$ is transformed against $rop$
-    \* It calls $OTII$, $OTID$, $OTDI$, or $OTDD$ according to the types of $lop$ and $rop$.
+    IF ins.pos <= del.pos THEN ins ELSE [ins EXCEPT !.pos = @ - 1]
+OT(lop, rop) == \* Calls $OTII$, $OTID$, $OTDI$, or $OTDD$ to transform $lop$ against $rop$.
 =============================================================================
 \end{tla}
 \end{document}

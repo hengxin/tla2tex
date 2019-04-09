@@ -13,22 +13,22 @@
 VARIABLES c2ss, \* $c2ss[c]$: the $2D$ digraph maintained at client $c$ 
           s2ss  \* $s2ss[c]$: the $2D$ digraph maintained by the $Server$ for client $c$
 -----------------------------------------------------------------------------
-NextEdge(r, u, g) == \* Return the \emph{unique} outgoing edge from $u$ in $2D$ digraph $g$ 
-    CHOOSE e \in g.edge: e.from = u \* ($r$ is not used). 
-CPerform(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c])
-                    IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
-                        /\ list' = [list EXCEPT ![c] = Apply(xform.xcop.op, @)]
+NextEdge(_, u, g) == CHOOSE e \in g.edge: e.from = u
 Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
-             IN  /\ CPerform(c, cop)
-                 /\ \* send $cop$ to the $Server$
-Rev(c, cop) == CPerform(c, cop)
+                   u == ds[c]    v == u \cup {cop.oid}
+             IN  /\ c2ss' = [c2ss EXCEPT ![c] = \* append $cop$ to $u \triangleq ds[c]$
+                    @ (+) [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
+                 /\ \* apply $op$ to $list[c]$; send $cop$ to the $Server$
+Rev(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c]) \* $xform$: $[xcop, xg, lg]$
+               IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
+                   /\ \* apply $xform.xcop.op$ to $list[c]$
 SRev(cop) == 
     LET c == ClientOf(cop)
     xform == xForm(NextEdge, Server, cop, s2ss[c]) \* $xform$: $[xcop, xg, lg]$
     IN  /\ s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xg
                                                 ELSE s2ss[cl] (+) xform.lg]
-        /\ list' = [list EXCEPT ![Server] = Apply(xform.xcop.op, @)]
-        /\ \* broadcast the {\it transformed operation} $xform.xcop$ to clients other than $c$
+        /\ \* apply $xform.xcop.op$ to $list[Server]$
+        /\ \* broadcast the \emph{transformed} operation $xform.xcop$ to clients other than $c$
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -44,32 +44,40 @@ SRev(cop) ==
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
-\@x{ NextEdge ( r ,\, u ,\, g ) \.{\defeq}}%
-\@y{%
-  Return the \emph{unique} outgoing edge from $u$ in $2D$ digraph $g$ 
-}%
-\@xx{}%
-\@x{\@s{16.4} {\CHOOSE} e \.{\in} g . edge \.{:} e . from \.{=} u}%
-\@y{%
-  ($r$ is not used). 
-}%
-\@xx{}%
- \@x{ CPerform ( c ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm (
- NextEdge ,\, c ,\, cop ,\, c2ss [ c ] )}%
- \@x{\@s{96.97} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
- c ] \.{=} @ \.{\oplus} xform . xg ]}%
- \@x{\@s{117.37} \.{\land} list \.{'}\@s{5.18} \.{=} [ list {\EXCEPT} {\bang}
- [ c ]\@s{5.18} \.{=} Apply ( xform . xcop . op ,\, @ ) ]}%
+ \@x{ NextEdge ( \_ ,\, u ,\, g ) \.{\defeq} {\CHOOSE} e \.{\in} g . edge
+ \.{:} e . from \.{=} u}%
  \@x{ Do ( c ,\, op ) \.{\defeq} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op
  ,\, oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\,
  ctx \.{\mapsto} ds [ c ] ]}%
-\@x{\@s{62.08} \.{\IN} \.{\land} CPerform ( c ,\, cop )}%
-\@x{\@s{82.48} \.{\land}}%
+ \@x{\@s{90.68} u\@s{0.60} \.{\defeq} ds [ c ]\@s{12.29} v \.{\defeq} u
+ \.{\cup} \{ cop . oid \}}%
+ \@x{\@s{62.08} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
+ c ] \.{=}}%
 \@y{%
-  send $cop$ to the $Server$
+  append $cop$ to $u \triangleq ds[c]$
 }%
 \@xx{}%
-\@x{ Rev ( c ,\, cop ) \.{\defeq} CPerform ( c ,\, cop )}%
+ \@x{\@s{93.59} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto}
+ \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ]
+ ]}%
+\@x{\@s{82.48} \.{\land}}%
+\@y{%
+  apply $op$ to $list[c]$; send $cop$ to the $Server$
+}%
+\@xx{}%
+ \@x{ Rev ( c ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm ( NextEdge
+ ,\, c ,\, cop ,\, c2ss [ c ] )}%
+\@y{%
+  $xform$: $[xcop, xg, lg]$
+}%
+\@xx{}%
+ \@x{\@s{69.94} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
+ c ] \.{=} @ \.{\oplus} xform . xg ]}%
+\@x{\@s{90.34} \.{\land}}%
+\@y{%
+  apply $xform.xcop.op$ to $list[c]$
+}%
+\@xx{}%
 \@x{ SRev ( cop )\@s{3.25} \.{\defeq}}%
 \@x{\@s{22.68} \.{\LET} c\@s{0.41} \.{\defeq} ClientOf ( cop )}%
  \@x{\@s{22.68} xform \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop ,\, s2ss
@@ -81,11 +89,14 @@ SRev(cop) ==
  \@x{\@s{22.68} \.{\IN}\@s{4.1} \.{\land} s2ss \.{'} \.{=} [ cl \.{\in} Client
  \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xg}%
 \@x{\@s{199.30} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lg ]}%
- \@x{\@s{47.18} \.{\land} list \.{'}\@s{4.92} \.{=} [ list {\EXCEPT} {\bang} [
- Server ] \.{=} Apply ( xform . xcop . op ,\, @ ) ]}%
 \@x{\@s{47.18} \.{\land}}%
 \@y{%
- broadcast the {\it transformed operation} $xform.xcop$ to clients other
+  apply $xform.xcop.op$ to $list[Server]$
+}%
+\@xx{}%
+\@x{\@s{47.18} \.{\land}}%
+\@y{%
+ broadcast the \emph{transformed} operation $xform.xcop$ to clients other
  than $c$
 }%
 \@xx{}%

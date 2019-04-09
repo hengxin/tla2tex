@@ -10,77 +10,63 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE Digraph -----------------------------
-xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ against an operation sequence 
-    LET u == CHOOSE n \in g.node : n = cop.ctx \* in $g$ at replica $r$; see Figure~\ref{fig:xform-graphstatespace}.
-        v == u \cup {cop.oid}
-        xFormHelper(uh, vh, coph, gh) == 
-            IF uh = ds[r] \* no outgoing edges from $uh$
-            THEN [xcop |-> coph, 
-                  xg |-> gh,
-                  lg |-> [node |-> {vh}, edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]] 
+xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$; see Figure~\ref{fig:xform-graphstatespace}.
+    LET u == CHOOSE n \in g.node : n = cop.ctx    v == u \cup {cop.oid}
+        xFormHelper(uh, vh, coph, gh) == \* $gh$: extra digraph produced in $xForm$
+            IF uh = ds[r] THEN [xcop |-> coph, xg |-> gh,
+                 lg |-> [node |-> {vh}, edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]] 
             ELSE LET e == NextEdge(r, uh, g) \* specific to \cjupiter{} and \xjupiter{}
-                     copprime == e.cop
-                     uprime == e.to
-                     vprime == vh \cup {copprime.oid}
-                     coph2copprime == COT(coph, copprime)
-                     copprime2coph == COT(copprime, coph)
-                 IN  xFormHelper(uprime, vprime, coph2copprime,
-                        gh (+) [node |-> {vprime},
-                                edge |-> {[from |-> vh, to |-> vprime, 
-                                            cop |-> copprime2coph], 
-                                          [from |-> uprime, to |-> vprime, 
-                                            cop |-> coph2copprime]}])
-    IN  xFormHelper(u, v, cop, [node |-> {v}, 
-                                edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
+                  ecop == e.cop    eu == e.to    ev == vh \cup {ecop.oid}
+             coph2ecop == COT(coph, ecop)    ecop2coph == COT(ecop, coph)
+                 IN  xFormHelper(eu, ev, coph2ecop,
+                       gh (+) [node |-> {ev}, \* union with new $node$ and $edge$
+                               edge |-> {[from |-> vh, to |-> ev, cop |-> ecop2coph],
+                                         [from |-> eu, to |-> ev, cop |-> coph2ecop]}])
+    IN xFormHelper(u, v, cop, [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
 =============================================================================
 \end{tla}
 \begin{tlatex}
 \@x{}\moduleLeftDash\@xx{ {\MODULE} Digraph}\moduleRightDash\@xx{}%
 \@x{ xForm ( NextEdge ( \_ ,\, \_ ,\, \_ ) ,\, r ,\, cop ,\, g ) \.{\defeq}}%
 \@y{%
-  Transform $cop$ against an operation sequence 
+ Transform $cop$ in $g$ at replica $r$; see
+ Figure~\ref{fig:xform-graphstatespace}.
 }%
 \@xx{}%
  \@x{\@s{16.4} \.{\LET} u \.{\defeq} {\CHOOSE} n \.{\in} g . node \.{:} n
- \.{=} cop . ctx}%
+ \.{=} cop . ctx\@s{12.29} v \.{\defeq} u \.{\cup} \{ cop . oid \}}%
+\@x{\@s{36.79} xFormHelper ( uh ,\, vh ,\, coph ,\, gh ) \.{\defeq}}%
 \@y{%
-  in $g$ at replica $r$; see Figure~\ref{fig:xform-graphstatespace}.
+  $gh$: extra digraph produced in $xForm$
 }%
 \@xx{}%
-\@x{\@s{36.79} v\@s{0.45} \.{\defeq} u \.{\cup} \{ cop . oid \}}%
-\@x{\@s{40.89} xFormHelper ( uh ,\, vh ,\, coph ,\, gh ) \.{\defeq}}%
-\@x{\@s{57.29} {\IF} uh \.{=} ds [ r ]}%
-\@y{%
-  no outgoing edges from $uh$
-}%
-\@xx{}%
-\@x{\@s{57.29} \.{\THEN} [ xcop \.{\mapsto} coph ,\,}%
-\@x{\@s{91.38} xg \.{\mapsto} gh ,\,}%
- \@x{\@s{91.38} lg\@s{2.08} \.{\mapsto} [ node \.{\mapsto} \{ vh \} ,\, edge
+ \@x{\@s{53.19} {\IF} uh \.{=} ds [ r ] \.{\THEN} [ xcop \.{\mapsto} coph ,\,
+ xg \.{\mapsto} gh ,\,}%
+ \@x{\@s{73.55} lg \.{\mapsto} [ node \.{\mapsto} \{ vh \} ,\, edge
  \.{\mapsto} \{ [ from \.{\mapsto} uh ,\, to \.{\mapsto} vh ,\, cop
  \.{\mapsto} coph ] \} ] ]}%
-\@x{\@s{57.29} \.{\ELSE} \.{\LET} e \.{\defeq} NextEdge ( r ,\, uh ,\, g )}%
+\@x{\@s{53.19} \.{\ELSE} \.{\LET} e \.{\defeq} NextEdge ( r ,\, uh ,\, g )}%
 \@y{%
   specific to \cjupiter{} and \xjupiter{}
 }%
 \@xx{}%
-\@x{\@s{109.01} copprime \.{\defeq} e . cop}%
-\@x{\@s{109.01} uprime \.{\defeq} e . to}%
-\@x{\@s{109.01} vprime\@s{0.76} \.{\defeq} vh \.{\cup} \{ copprime . oid \}}%
-\@x{\@s{109.01} coph2copprime\@s{4.10} \.{\defeq} COT ( coph ,\, copprime )}%
-\@x{\@s{113.11} copprime2coph \.{\defeq} COT ( copprime ,\, coph )}%
- \@x{\@s{88.61} \.{\IN}\@s{4.09} xFormHelper ( uprime ,\, vprime ,\,
- coph2copprime ,\,}%
-\@x{\@s{125.41} gh \.{\oplus} [ node \.{\mapsto} \{ vprime \} ,\,}%
- \@x{\@s{150.88} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} vh ,\, to
- \.{\mapsto} vprime ,\,}%
-\@x{\@s{199.00} cop\@s{1.78} \.{\mapsto} copprime2coph ] ,\,}%
-\@x{\@s{192.12} [ from \.{\mapsto} uprime ,\, to \.{\mapsto} vprime ,\,}%
-\@x{\@s{199.00} cop\@s{1.78} \.{\mapsto} coph2copprime ] \} ] )}%
- \@x{\@s{16.4} \.{\IN}\@s{4.09} xFormHelper ( u ,\, v ,\, cop ,\, [
- node\@s{1.24} \.{\mapsto} \{ v \} ,\,}%
- \@x{\@s{149.63} edge\@s{2.78} \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to
- \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ] )}%
+ \@x{\@s{88.61} ecop\@s{2.62} \.{\defeq} e . cop\@s{12.29} eu \.{\defeq} e .
+ to\@s{12.29} ev \.{\defeq} vh \.{\cup} \{ ecop . oid \}}%
+ \@x{\@s{57.29} coph2ecop\@s{8.74} \.{\defeq} COT ( coph ,\, ecop )\@s{12.29}
+ ecop2coph \.{\defeq} COT ( ecop ,\, coph )}%
+\@x{\@s{73.69} \.{\IN}\@s{4.1} xFormHelper ( eu ,\, ev ,\, coph2ecop ,\,}%
+\@x{\@s{106.39} gh \.{\oplus} [ node\@s{13.66} \.{\mapsto} \{ ev \} ,\,}%
+\@y{%
+  union with new $node$ and $edge$
+}%
+\@xx{}%
+ \@x{\@s{131.87} edge\@s{15.19} \.{\mapsto} \{ [ from \.{\mapsto} vh ,\,
+ to\@s{0.25} \.{\mapsto} ev ,\, cop \.{\mapsto} ecop2coph ] ,\,}%
+ \@x{\@s{186.77} [ from \.{\mapsto} eu ,\, to \.{\mapsto} ev ,\, cop
+ \.{\mapsto} coph2ecop ] \} ] )}%
+ \@x{\@s{16.4} \.{\IN} xFormHelper ( u ,\, v ,\, cop ,\, [ node \.{\mapsto} \{
+ v \} ,\, edge \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\,
+ cop \.{\mapsto} cop ] \} ] )}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}
