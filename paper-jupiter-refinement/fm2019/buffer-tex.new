@@ -16,7 +16,7 @@ xFormOpOps(op, ops) == \* Transform $op$ against $ops$
 xFormOpsOp(ops, op) == \* Transform $ops$ against $op$ and return the transformed $ops$.
     LET opX == xFormOpOps(op, ops)
     IN  [i \in 1 .. Len(ops) |-> OT(ops[i], opX[i])]
-xForm(op, ops) ==
+xForm(op, ops) == \* see Figure~\ref{fig:xform-buffer}
     [xop |-> Last(xFormOpOps(op, ops)), xops |-> xFormOpsOp(ops, op)]
 xFormShift(op, ops, shift) == xForm(op, SubSeq(ops, shift + 1, Len(ops)))
 =============================================================================
@@ -45,6 +45,10 @@ xFormShift(op, ops, shift) == xForm(op, SubSeq(ops, shift + 1, Len(ops)))
  \@x{\@s{16.4} \.{\IN} [ i \.{\in} 1 \.{\dotdot} Len ( ops ) \.{\mapsto} OT (
  ops [ i ] ,\, opX [ i ] ) ]}%
 \@x{ xForm ( op ,\, ops ) \.{\defeq}}%
+\@y{%
+  see Figure~\ref{fig:xform-buffer}
+}%
+\@xx{}%
  \@x{\@s{16.4} [ xop \.{\mapsto} Last ( xFormOpOps ( op ,\, ops ) ) ,\, xops
  \.{\mapsto} xFormOpsOp ( ops ,\, op ) ]}%
  \@x{ xFormShift ( op ,\, ops ,\, shift ) \.{\defeq} xForm ( op ,\, SubSeq (

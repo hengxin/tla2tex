@@ -10,7 +10,7 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE Digraph -----------------------------
-xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$; see Figure~\ref{fig:xform-graphstatespace}.
+xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$; see Figure~\ref{fig:xform-digraph}.
     LET u == CHOOSE n \in g.node : n = cop.ctx    v == u \cup {cop.oid}
         xFormHelper(uh, vh, coph, gh) == \* $gh$: extra digraph produced in $xForm$
             IF uh = ds[r] THEN [xcop |-> coph, xg |-> gh,
@@ -19,9 +19,9 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$;
                   ecop == e.cop    eu == e.to    ev == vh \cup {ecop.oid}
              coph2ecop == COT(coph, ecop)    ecop2coph == COT(ecop, coph)
                  IN  xFormHelper(eu, ev, coph2ecop,
-                       gh (+) [node |-> {ev}, \* union with new $node$ and $edge$
-                               edge |-> {[from |-> vh, to |-> ev, cop |-> ecop2coph],
-                                         [from |-> eu, to |-> ev, cop |-> coph2ecop]}])
+                       gh (+) [node|-> {ev}, \* union with new $node$ and $edge$
+                               edge|-> {[from |-> vh, to |-> ev, cop |-> ecop2coph],
+                                        [from |-> eu, to |-> ev, cop |-> coph2ecop]}])
     IN xFormHelper(u, v, cop, [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
 =============================================================================
 \end{tla}

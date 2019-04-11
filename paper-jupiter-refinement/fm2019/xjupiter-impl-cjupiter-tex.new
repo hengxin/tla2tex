@@ -10,84 +10,52 @@
 \begin{document}
 \begin{tla}
 ------------------------ MODULE XJupiterImplCJupiter ------------------------
-EXTENDS XJupiterExtended \* $XJupiter$ extended with $JupiterSerial$
+EXTENDS XJupiter
+VARIABLES op2ss, \* a function mapping an operation (identifier)
+                 \* to the $2D$ digraph produced during it is transformed at the server
+          c2ssX  \* $c2ssX[c]$: $2D$ digraph that has been skipped by client $c$
 -----------------------------------------------------------------------------
-VARIABLES op2ss,  \* a function mapping an operation (identifier)
-                  \* to the $2D$ state space created during it is transformed
-          c2ssX   \* $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
+RevImpl(c, cop) == c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] 
+SRevImpl(cop) == LET xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
+                 IN op2ss' = op2ss @@ cop.oid :> xform.xg
 -----------------------------------------------------------------------------
-RevImpl(c) ==
-    LET cop == Head(cincoming[c])
-    IN  c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] \* integrate into $c2ssX$
-
-SRevImpl == 
-    LET cop == Head(sincoming)
-      xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
-    IN op2ss' = op2ss @@ cop.oid :> xform.xss \* $xss:$ extra $ss$ created during $xform$
------------------------------------------------------------------------------
-CJ == INSTANCE CJupiter WITH \* substitution for communication; omitted here.
-         css <- [r \in Replica |-> IF r = Server 
-                                   THEN SetReduce((+), Range(s2ss), EmptySS)
-                                   ELSE c2ss[r] (+) c2ssX[r]]
-THEOREM SpecImpl => CJ!Spec
+CJ == INSTANCE CJupiter WITH ss <- [r \in Replica |->
+                   IF r = Server THEN SetReduce((+), Range(s2ss), EmptySS)
+                                 ELSE c2ss[r] (+) c2ssX[r]]
 =============================================================================
 \end{tla}
 \begin{tlatex}
  \@x{}\moduleLeftDash\@xx{ {\MODULE}
  XJupiterImplCJupiter}\moduleRightDash\@xx{}%
-\@x{ {\EXTENDS} XJupiterExtended}%
-\@y{%
-  $XJupiter$ extended with $JupiterSerial$
-}%
-\@xx{}%
-\@x{}\midbar\@xx{}%
-\@x{ {\VARIABLES} op2ss ,\,\@s{4.1}}%
+\@x{ {\EXTENDS} XJupiter}%
+\@x{ {\VARIABLES} op2ss ,\,}%
 \@y{%
   a function mapping an operation (identifier)
 }%
 \@xx{}%
-\@x{\@s{86.97}}%
+\@x{\@s{82.87}}%
 \@y{%
-  to the $2D$ state space created during it is transformed
+  to the $2D$ digraph produced during it is transformed at the server
 }%
 \@xx{}%
-\@x{\@s{51.42} c2ssX\@s{7.70}}%
+\@x{\@s{51.42} c2ssX\@s{3.60}}%
 \@y{%
-  $c2ssX[c]$: redundant $2D$ state space maintained for client $c$
-}%
-\@xx{}%
-\@x{}\midbar\@xx{}%
-\@x{ RevImpl ( c ) \.{\defeq}}%
-\@x{\@s{16.4} \.{\LET} cop \.{\defeq} Head ( cincoming [ c ] )}%
- \@x{\@s{16.4} \.{\IN} c2ssX \.{'} \.{=} [ c2ssX {\EXCEPT} {\bang} [ c ] \.{=}
- @ \.{\oplus} op2ss [ cop . oid ] ]}%
-\@y{%
-  integrate into $c2ssX$
-}%
-\@xx{}%
-\@pvspace{8.0pt}%
-\@x{ SRevImpl \.{\defeq}}%
-\@x{\@s{16.4} \.{\LET} cop \.{\defeq} Head ( sincoming )}%
- \@x{\@s{24.59} xform\@s{1.16} \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop
- ,\, s2ss [ ClientOf ( cop ) ] )}%
- \@x{\@s{16.4} \.{\IN} op2ss \.{'} \.{=} op2ss \.{\,@@\,} cop . oid
- \.{\colongt} xform . xss}%
-\@y{%
-  $xss:$ extra $ss$ created during $xform$
+  $c2ssX[c]$: $2D$ digraph that has been skipped by client $c$
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
-\@x{ CJ \.{\defeq} {\INSTANCE} CJupiter {\WITH}}%
-\@y{%
-  substitution for communication; omitted here.
-}%
-\@xx{}%
- \@x{\@s{44.99} css \.{\leftarrow} [ r \.{\in} Replica \.{\mapsto} {\IF} r
- \.{=} Server}%
- \@x{\@s{143.19} \.{\THEN} SetReduce ( \.{\oplus} ,\, Range ( s2ss ) ,\,
- EmptySS )}%
-\@x{\@s{143.19} \.{\ELSE} c2ss [ r ] \.{\oplus} c2ssX [ r ] ]}%
-\@x{ {\THEOREM} SpecImpl \.{\implies} CJ {\bang} Spec}%
+ \@x{ RevImpl ( c ,\, cop ) \.{\defeq} c2ssX \.{'} \.{=} [ c2ssX {\EXCEPT}
+ {\bang} [ c ] \.{=} @ \.{\oplus} op2ss [ cop . oid ] ]}%
+ \@x{ SRevImpl ( cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm ( NextEdge
+ ,\, Server ,\, cop ,\, s2ss [ ClientOf ( cop ) ] )}%
+ \@x{\@s{83.94} \.{\IN} op2ss \.{'} \.{=} op2ss \.{\,@@\,} cop . oid
+ \.{\colongt} xform . xg}%
+\@x{}\midbar\@xx{}%
+ \@x{ CJ \.{\defeq} {\INSTANCE} CJupiter {\WITH} ss \.{\leftarrow} [ r \.{\in}
+ Replica \.{\mapsto}}%
+ \@x{\@s{95.60} {\IF} r \.{=} Server \.{\THEN} SetReduce ( \.{\oplus} ,\,
+ Range ( s2ss ) ,\, EmptySS )}%
+\@x{\@s{155.32} \.{\ELSE} c2ss [ r ] \.{\oplus} c2ssX [ r ] ]}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}

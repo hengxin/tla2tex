@@ -12,10 +12,9 @@
 ------------------------------ MODULE CJupiter ------------------------------
 VARIABLES css  \* $css[r]$: the $n$-ary digraph maintained at replica $r$
 -----------------------------------------------------------------------------
-NextEdge(r, u, g) == CHOOSE e \in g.edge:
-                       /\ e.from = u
-                       /\ \A ue \in g.edge \ {e}: \* \emph{first} in terms of $tb$
-                            (ue.from = u) => tb(e.cop.oid, ue.cop.oid, serial[r])
+NextEdge(r, u, g) == CHOOSE e \in g.edge: /\ e.from = u
+                                          /\ \A ue \in g.edge \ {e}:
+                           (ue.from = u) => so(e.cop.oid, ue.cop.oid, serial[r])
 Perform(r, cop) == LET xform == xForm(NextEdge, r, cop, css[r])
                    IN  /\ css' = [css EXCEPT ![r] = @ (+) xform.xg]
                        /\ \* apply $xform.xcop.op$ to $list[r]$
@@ -35,16 +34,11 @@ Rev(c, cop),  SRev(cop) \* the same with those in $AbsJupiter$
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
- \@x{ NextEdge ( r ,\, u ,\, g ) \.{\defeq} {\CHOOSE} e \.{\in} g . edge
+ \@x{ NextEdge ( r ,\, u ,\, g ) \.{\defeq} {\CHOOSE} e \.{\in} g . edge \.{:}
+ \.{\land} e . from \.{=} u}%
+ \@x{\@s{190.76} \.{\land} \A\, ue \.{\in} g . edge \.{\,\backslash\,} \{ e \}
  \.{:}}%
-\@x{\@s{105.83} \.{\land} e . from \.{=} u}%
- \@x{\@s{105.83} \.{\land} \A\, ue \.{\in} g . edge \.{\,\backslash\,} \{ e \}
- \.{:}}%
-\@y{%
-  \emph{first} in terms of $tb$
-}%
-\@xx{}%
- \@x{\@s{125.15} ( ue . from \.{=} u ) \.{\implies} tb ( e . cop . oid ,\, ue
+ \@x{\@s{122.23} ( ue . from \.{=} u ) \.{\implies} so ( e . cop . oid ,\, ue
  . cop . oid ,\, serial [ r ] )}%
  \@x{ Perform ( r ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm (
  NextEdge ,\, r ,\, cop ,\, css [ r ] )}%

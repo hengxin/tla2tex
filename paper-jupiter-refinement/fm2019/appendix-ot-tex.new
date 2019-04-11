@@ -17,21 +17,16 @@ OTII(lins, rins) == \* $lins$ is transformed against $rins$; $II$ is for $Ins$ \
          ELSE IF lins.ch = rins.ch THEN Nop
               ELSE IF lins.pr > rins.pr THEN lins \* using ``priority''
                    ELSE [lins EXCEPT !.pos = @ + 1]
-
 OTID(ins, del) == \* $ins$ is transformed against $del$
     IF ins.pos <= del.pos THEN ins
-    ELSE [ins EXCEPT !.pos = @ - 1]
-
+                          ELSE [ins EXCEPT !.pos = @ - 1]
 OTDI(del, ins) == \* $del$ is transformed against $ins$
     IF del.pos < ins.pos THEN del
-    ELSE [del EXCEPT !.pos = @ + 1]
-
+                         ELSE [del EXCEPT !.pos = @ + 1]
 OTDD(ldel, rdel) == \* $ldel$ is transformed against $rdel$; $DD$ is for $Del$ \emph{vs.} $Del$.
     IF ldel.pos < rdel.pos THEN ldel
-    ELSE IF ldel.pos > rdel.pos
-         THEN [ldel EXCEPT !.pos = @ - 1]
-         ELSE Nop
-
+    ELSE IF ldel.pos = rdel.pos THEN Nop
+         ELSE [ldel EXCEPT !.pos = @ - 1]
 OT(lop, rop) == \* $lop$ is transformed against $rop$
     CASE lop = Nop \/ rop = Nop -> lop
        []  lop.type = "Ins" /\ rop.type = "Ins" -> OTII(lop, rop)
@@ -57,33 +52,28 @@ OT(lop, rop) == \* $lop$ is transformed against $rop$
 }%
 \@xx{}%
 \@x{\@s{118.04} \.{\ELSE} [ lins {\EXCEPT} {\bang} . pos \.{=} @ \.{+} 1 ]}%
-\@pvspace{8.0pt}%
 \@x{ OTID ( ins ,\, del ) \.{\defeq}}%
 \@y{%
   $ins$ is transformed against $del$
 }%
 \@xx{}%
 \@x{\@s{27.16} {\IF} ins . pos \.{\leq} del . pos \.{\THEN} ins}%
-\@x{\@s{27.16} \.{\ELSE} [ ins {\EXCEPT} {\bang} . pos \.{=} @ \.{-} 1 ]}%
-\@pvspace{8.0pt}%
+\@x{\@s{114.35} \.{\ELSE} [ ins {\EXCEPT} {\bang} . pos \.{=} @ \.{-} 1 ]}%
 \@x{ OTDI ( del ,\, ins ) \.{\defeq}}%
 \@y{%
   $del$ is transformed against $ins$
 }%
 \@xx{}%
 \@x{\@s{27.80} {\IF} del . pos \.{<} ins . pos \.{\THEN} del}%
-\@x{\@s{27.80} \.{\ELSE} [ del {\EXCEPT} {\bang} . pos \.{=} @ \.{+} 1 ]}%
-\@pvspace{8.0pt}%
+\@x{\@s{114.99} \.{\ELSE} [ del {\EXCEPT} {\bang} . pos \.{=} @ \.{+} 1 ]}%
 \@x{ OTDD ( ldel ,\, rdel ) \.{\defeq}}%
 \@y{%
   $ldel$ is transformed against $rdel$; $DD$ is for $Del$ \emph{vs.} $Del$.
 }%
 \@xx{}%
 \@x{\@s{30.86} {\IF} ldel . pos \.{<} rdel . pos \.{\THEN} ldel}%
-\@x{\@s{30.86} \.{\ELSE} {\IF} ldel . pos \.{>} rdel . pos}%
-\@x{\@s{62.17} \.{\THEN} [ ldel {\EXCEPT} {\bang} . pos \.{=} @ \.{-} 1 ]}%
-\@x{\@s{62.17} \.{\ELSE} Nop}%
-\@pvspace{8.0pt}%
+\@x{\@s{30.86} \.{\ELSE} {\IF} ldel . pos \.{=} rdel . pos \.{\THEN} Nop}%
+\@x{\@s{62.17} \.{\ELSE} [ ldel {\EXCEPT} {\bang} . pos \.{=} @ \.{-} 1 ]}%
 \@x{ OT ( lop ,\, rop ) \.{\defeq}}%
 \@y{%
   $lop$ is transformed against $rop$

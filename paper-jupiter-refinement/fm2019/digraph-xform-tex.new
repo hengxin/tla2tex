@@ -10,7 +10,7 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE Digraph -----------------------------
-xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$; see Figure~\ref{fig:xform-graphstatespace}.
+xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$; see Figure~\ref{fig:xform-digraph}.
     LET u == CHOOSE n \in g.node : n = cop.ctx    v == u \cup {cop.oid}
         xFormHelper(uh, vh, coph, gh) == \* $gh$: extra digraph produced in $xForm$
             IF uh = ds[r] THEN [xcop |-> coph, xg |-> gh,
@@ -19,9 +19,9 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$;
                   ecop == e.cop    eu == e.to    ev == vh \cup {ecop.oid}
              coph2ecop == COT(coph, ecop)    ecop2coph == COT(ecop, coph)
                  IN  xFormHelper(eu, ev, coph2ecop,
-                       gh (+) [node |-> {ev}, \* union with new $node$ and $edge$
-                               edge |-> {[from |-> vh, to |-> ev, cop |-> ecop2coph],
-                                         [from |-> eu, to |-> ev, cop |-> coph2ecop]}])
+                       gh (+) [node|-> {ev}, \* union with new $node$ and $edge$
+                               edge|-> {[from |-> vh, to |-> ev, cop |-> ecop2coph],
+                                        [from |-> eu, to |-> ev, cop |-> coph2ecop]}])
     IN xFormHelper(u, v, cop, [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
 =============================================================================
 \end{tla}
@@ -29,8 +29,7 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$;
 \@x{}\moduleLeftDash\@xx{ {\MODULE} Digraph}\moduleRightDash\@xx{}%
 \@x{ xForm ( NextEdge ( \_ ,\, \_ ,\, \_ ) ,\, r ,\, cop ,\, g ) \.{\defeq}}%
 \@y{%
- Transform $cop$ in $g$ at replica $r$; see
- Figure~\ref{fig:xform-graphstatespace}.
+  Transform $cop$ in $g$ at replica $r$; see Figure~\ref{fig:xform-digraph}.
 }%
 \@xx{}%
  \@x{\@s{16.4} \.{\LET} u \.{\defeq} {\CHOOSE} n \.{\in} g . node \.{:} n
@@ -55,14 +54,14 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$;
  \@x{\@s{57.29} coph2ecop\@s{8.74} \.{\defeq} COT ( coph ,\, ecop )\@s{12.29}
  ecop2coph \.{\defeq} COT ( ecop ,\, coph )}%
 \@x{\@s{73.69} \.{\IN}\@s{4.1} xFormHelper ( eu ,\, ev ,\, coph2ecop ,\,}%
-\@x{\@s{106.39} gh \.{\oplus} [ node\@s{13.66} \.{\mapsto} \{ ev \} ,\,}%
+\@x{\@s{106.39} gh \.{\oplus} [ node \.{\mapsto} \{ ev \} ,\,}%
 \@y{%
   union with new $node$ and $edge$
 }%
 \@xx{}%
- \@x{\@s{131.87} edge\@s{15.19} \.{\mapsto} \{ [ from \.{\mapsto} vh ,\,
+ \@x{\@s{131.87} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} vh ,\,
  to\@s{0.25} \.{\mapsto} ev ,\, cop \.{\mapsto} ecop2coph ] ,\,}%
- \@x{\@s{186.77} [ from \.{\mapsto} eu ,\, to \.{\mapsto} ev ,\, cop
+ \@x{\@s{173.11} [ from \.{\mapsto} eu ,\, to \.{\mapsto} ev ,\, cop
  \.{\mapsto} coph2ecop ] \} ] )}%
  \@x{\@s{16.4} \.{\IN} xFormHelper ( u ,\, v ,\, cop ,\, [ node \.{\mapsto} \{
  v \} ,\, edge \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\,

@@ -1,5 +1,5 @@
 \batchmode
-% file: xjupiter-tla.tex
+% op-ot-tla.tex
 
 \documentclass{article}
 \usepackage{graphicx}
@@ -11,73 +11,32 @@
 \begin{document}
 \makeatletter
 \chardef\%=`\%
-\fl{}\moduleLeftDash\cl{ {\MODULE} XJupiter}\moduleRightDash\cl{}
-\fl{ {\VARIABLES}}\al{1}{1}{ c2ss ,\,}\al{1}{3}{%
+\fl{}\moduleLeftDash\cl{ {\MODULE} OT}\moduleRightDash\cl{}
+ \fl{ Del}\al{1}{1}{ \.{\defeq}}\al{1}{2}{ [ type}\al{1}{4}{ \.{:}}\al{1}{5}{
+ \{\@w{Del} \} ,\, pos}\al{1}{10}{ \.{:}}\al{1}{11}{ Nat ]%
 \@y{%
-  $c2ss[c]$: the $2D$ digraph maintained at client $c$ 
+  The positions ($pos$) are indexed from 1.
 }%
 }
-\fl{ s2ss}\al{2}{1}{%
+ \fl{ Ins}\al{2}{1}{ \.{\defeq}}\al{2}{2}{ [ type}\al{2}{4}{ \.{:}}\al{2}{5}{
+ \{\@w{Ins} \} ,\, pos}\al{2}{10}{ \.{:}}\al{2}{11}{ Nat ,\, ch \.{:} Char
+ ,\, pr \.{:} 1 \.{\dotdot} Cardinality ( Client ) ]}
+\fl{ Op \.{\defeq} Ins \.{\cup} Del%
 \@y{%
-  $s2ss[c]$: the $2D$ digraph maintained by the $Server$ for client $c$
+  The set of all possible update operations.
 }%
 }
 \fl{}\midbar\cl{}
- \fl{ NextEdge ( \_ ,\, u ,\, g ) \.{\defeq} {\CHOOSE} e \.{\in} g . edge
- \.{:} e . from \.{=} u}
- \fl{ Do ( c ,\, op ) \.{\defeq}}\al{5}{7}{ \.{\LET}}\al{5}{8}{ cop}\al{5}{9}{
- \.{\defeq}}\al{5}{10}{ [ op \.{\mapsto} op ,\, oid \.{\mapsto} [ c
- \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx \.{\mapsto} ds [ c ]
- ]}
- \fl{ u}\al{6}{1}{ \.{\defeq}}\al{6}{2}{ ds [ c ] v \.{\defeq} u \.{\cup} \{
- cop . oid \}}
- \fl{ \.{\IN}}\al{7}{1}{ \.{\land}}\al{7}{2}{ c2ss \.{'} \.{=} [ c2ss
- {\EXCEPT} {\bang} [ c ] \.{=}%
+\fl{ OTID}\al{5}{1}{ ( ins ,\, del ) \.{\defeq}%
 \@y{%
-  append $cop$ to $u \triangleq ds[c]$
+  $ins$ is transformed against $del$; $I$ for $Ins$ and $D$ for $Del$.
 }%
 }
- \fl{ @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto} \{ [ from
- \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ] ]}
-\fl{ \.{\land}}\al{9}{1}{%
+ \fl{ {\IF} ins . pos \.{\leq} del . pos \.{\THEN} ins \.{\ELSE} [ ins
+ {\EXCEPT} {\bang} . pos \.{=} @ \.{-} 1 ]}
+\fl{ OT ( lop ,\, rop ) \.{\defeq}%
 \@y{%
-  apply $op$ to $list[c]$; send $cop$ to the $Server$
-}%
-}
- \fl{ Rev ( c ,\, cop ) \.{\defeq}}\al{10}{7}{ \.{\LET}}\al{10}{8}{ xform
- \.{\defeq} xForm ( NextEdge ,\, c ,\, cop ,\, c2ss [ c ] )%
-\@y{%
-  $xform$: $[xcop, xg, lg]$
-}%
-}
- \fl{ \.{\IN}}\al{11}{1}{ \.{\land}}\al{11}{2}{ c2ss \.{'} \.{=} [ c2ss
- {\EXCEPT} {\bang} [ c ] \.{=} @ \.{\oplus} xform . xg ]}
-\fl{ \.{\land}}\al{12}{1}{%
-\@y{%
-  apply $xform.xcop.op$ to $list[c]$
-}%
-}
-\fl{ SRev}\al{13}{1}{ ( cop )}\al{13}{4}{ \.{\defeq}}
-\fl{ \.{\LET} c}\al{14}{2}{ \.{\defeq} ClientOf ( cop )}
- \fl{ xform}\al{15}{1}{ \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop ,\,
- s2ss [ c ] )%
-\@y{%
-  $xform$: $[xcop, xg, lg]$
-}%
-}
- \fl{ \.{\IN}}\al{16}{1}{ \.{\land}}\al{16}{2}{ s2ss \.{'} \.{=} [ cl \.{\in}
- Client \.{\mapsto} {\IF} cl \.{=} c}\al{16}{14}{ \.{\THEN} s2ss [ cl
- ]}\al{16}{19}{ \.{\oplus}}\al{16}{20}{ xform . xg}
-\fl{ \.{\ELSE} s2ss [ cl ]}\al{17}{5}{ \.{\oplus}}\al{17}{6}{ xform . lg ]}
-\fl{ \.{\land}}\al{18}{1}{%
-\@y{%
-  apply $xform.xcop.op$ to $list[Server]$
-}%
-}
-\fl{ \.{\land}}\al{19}{1}{%
-\@y{%
- broadcast the \emph{transformed} operation $xform.xcop$ to clients other
- than $c$
+  Calls $OTII$, $OTID$, $OTDI$, or $OTDD$ to transform $lop$ against $rop$.
 }%
 }
 \fl{}\bottombar\cl{}

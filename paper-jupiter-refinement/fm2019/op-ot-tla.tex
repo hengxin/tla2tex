@@ -1,0 +1,23 @@
+% op-ot-tla.tex
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE OT ----------------------------
+Del == [type: {"Del"}, pos: Nat] \* The positions ($pos$) are indexed from 1.
+Ins == [type: {"Ins"}, pos: Nat, ch: Char, pr: 1 .. Cardinality(Client)]
+Op == Ins \cup Del \* The set of all possible update operations.
+-----------------------------------------------------------------------------
+OTID(ins, del) == \* $ins$ is transformed against $del$; $I$ for $Ins$ and $D$ for $Del$.
+    IF ins.pos <= del.pos THEN ins ELSE [ins EXCEPT !.pos = @ - 1]
+OT(lop, rop) == \* Calls $OTII$, $OTID$, $OTDI$, or $OTDD$ to transform $lop$ against $rop$.
+=============================================================================
+\end{tla}
+\end{document}
+

@@ -10,29 +10,21 @@
 \begin{document}
 \begin{tla}
 ------------------------ MODULE AJupiterImplXJupiter ------------------------
-EXTENDS AJupiterExtended \* $AJupiter$ extended with $JupiterCtx$.
------------------------------------------------------------------------------
+EXTENDS AJupiter
 VARIABLES c2ss, s2ss
 -----------------------------------------------------------------------------
-DoOpImpl(c, op) == 
-    LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]] 
-    IN  c2ss' = [c2ss EXCEPT ![c] = 
-                     @ (+) [node |-> {ds'[c]},
-                            edge |-> {[from |-> ds[c], to |-> ds'[c], cop |-> cop]}]]
-
-ClientPerformImpl(c, m) ==
-    LET xform == xFormCopCopsShift(m.cop, cbuf[c], m.ack) \* $[xcop, xss, lss]$
-    IN  c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xss]
-
-ServerPerformImpl(m) ==
-    LET c == ClientOf(m.cop)
-        xform == xFormCopCopsShift(m.cop, sbuf[c], m.ack) \* $[xcop, xss, lss]$
-    IN  s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xss 
-                                             ELSE s2ss[cl] (+) xform.lss]
+DoImpl(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+                 IN  c2ss' = [c2ss EXCEPT ![c] = 
+                       @ (+) [node |-> {ds'[c]},
+                              edge |-> {[from |-> ds[c], to |-> ds'[c], cop |-> cop]}]]
+RevImpl(c, m) == LET xform == xFormCopCopsShift(m.cop, cbuf[c], m.ack)
+                 IN  c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
+SRevImpl(m) == LET c == ClientOf(m.cop)
+               xform == xFormCopCopsShift(m.cop, sbuf[c], m.ack)
+               IN  s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xg
+                                                        ELSE s2ss[cl] (+) xform.lg]
 -----------------------------------------------------------------------------
-XJ == INSTANCE XJupiter WITH \* substitutions for communication; omitted here
-         c2ss <- c2ss, s2ss <- s2ss
-THEOREM SpecImpl => XJ!Spec
+XJ == INSTANCE XJupiter WITH c2ss <- c2ss, s2ss <- s2ss
 =============================================================================
 \end{tla}
 \end{document}
