@@ -1,0 +1,32 @@
+% cjupiter-impl-absjupiter-tla.tex
+
+% border={}: it is not ``border = {}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+----------------------- MODULE CJupiterImplAbsJupiter -----------------------
+EXTENDS CJupiter
+AbsJ == INSTANCE AbsJupiter
+            WITH copss <- [r \in Replica |-> {e.cop: e \in css[r].edge}]
+=============================================================================
+\end{tla}
+\begin{tlatex}
+ \@x{}\moduleLeftDash\@xx{ {\MODULE}
+ CJupiterImplAbsJupiter}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} CJupiter}%
+\@x{ AbsJ \.{\defeq} {\INSTANCE} AbsJupiter}%
+ \@x{\@s{57.80} {\WITH} copss \.{\leftarrow} [ r \.{\in} Replica \.{\mapsto}
+ \{ e . cop \.{:} e \.{\in} css [ r ] . edge \} ]}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

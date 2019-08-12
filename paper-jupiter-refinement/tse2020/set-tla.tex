@@ -1,0 +1,82 @@
+% set-tla.tex
+
+% border={5pt 1pt}: it is not ``border = {5pt 1pt}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 32pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\newcommand{\cc}{\textsc{CC}}
+
+\begin{document}
+\begin{tla}
+--------------------------- MODULE Set ---------------------------
+xForm(r, cop) == \* Transform $cop$ at replica $r$
+    LET ctxDiff == ds[r] \ cop.ctx \* calculate concurrent operations
+        xFormHelper(coph, ctxDiffh, copssh) == \* Return transformed $xcop$ and
+            IF ctxDiffh = {} THEN [xcop |-> coph, xcopss |-> copssh]  \* new $copss$ 
+            ELSE LET foidh == CHOOSE oid \in ctxDiffh: \* the first $oid$ in $ctxDiffh$ 
+                                \A id \in ctxDiffh \ {oid}: so(oid, id, serial[r]) 
+                     fcoph == CHOOSE fcop \in copss[r]: 
+                                fcop.oid = foidh /\ fcop.ctx = coph.ctx \* \cc
+                     xcoph == COT(coph, fcoph)    xfcoph == COT(fcoph, coph)
+                 IN  xFormHelper(xcoph, ctxDiffh \ {fcoph.oid}, 
+                                        copssh \cup {xcoph, xfcoph})
+    IN  xFormHelper(cop, ctxDiff, copss[r] \cup {cop}) 
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} Set}\moduleRightDash\@xx{}%
+\@x{ xForm ( r ,\, cop ) \.{\defeq}}%
+\@y{%
+  Transform $cop$ at replica $r$
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\LET} ctxDiff \.{\defeq} ds [ r ] \.{\,\backslash\,} cop .
+ ctx}%
+\@y{%
+  calculate concurrent operations
+}%
+\@xx{}%
+\@x{\@s{40.89} xFormHelper ( coph ,\, ctxDiffh ,\, copssh ) \.{\defeq}}%
+\@y{%
+  Return transformed $xcop$ and
+}%
+\@xx{}%
+ \@x{\@s{57.29} {\IF} ctxDiffh \.{=} \{ \} \.{\THEN} [ xcop \.{\mapsto} coph
+ ,\, xcopss \.{\mapsto} copssh ]\@s{4.1}}%
+\@y{%
+  new $copss$ 
+}%
+\@xx{}%
+ \@x{\@s{57.29} \.{\ELSE} \.{\LET} foidh\@s{6.69} \.{\defeq} {\CHOOSE} oid
+ \.{\in} ctxDiffh \.{:}}%
+\@y{%
+  the first $oid$ in $ctxDiffh$ 
+}%
+\@xx{}%
+ \@x{\@s{165.02} \A\, id \.{\in} ctxDiffh \.{\,\backslash\,} \{ oid \} \.{:}
+ so ( oid ,\, id ,\, serial [ r ] )}%
+ \@x{\@s{109.01} fcoph\@s{5.67} \.{\defeq} {\CHOOSE} fcop \.{\in} copss [ r ]
+ \.{:}}%
+\@x{\@s{165.02} fcop . oid \.{=} foidh \.{\land} fcop . ctx \.{=} coph . ctx}%
+\@y{%
+  \cc
+}%
+\@xx{}%
+ \@x{\@s{113.11} xcoph \.{\defeq} COT ( coph ,\, fcoph )\@s{12.29} xfcoph
+ \.{\defeq} COT ( fcoph ,\, coph )}%
+ \@x{\@s{88.61} \.{\IN}\@s{4.09} xFormHelper ( xcoph ,\, ctxDiffh
+ \.{\,\backslash\,} \{ fcoph . oid \} ,\,}%
+\@x{\@s{204.92} copssh \.{\cup} \{ xcoph ,\, xfcoph \} )}%
+ \@x{\@s{16.4} \.{\IN}\@s{4.09} xFormHelper ( cop ,\, ctxDiff ,\, copss [ r ]
+ \.{\cup} \{ cop \} )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

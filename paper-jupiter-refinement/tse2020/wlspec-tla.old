@@ -1,0 +1,27 @@
+% wlspec-tla.tex
+
+% border={}: it is not ``border = {}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE WLSpec ----------------------------
+Compatible(l1, l2) == \* Are $l_1$ and $l_2$ compatible?
+    \/ l1 = l2 \* Obviously true
+    \/ LET commonElements == Range(l1) \cap Range(l2)
+       IN \A e1, e2 \in commonElements:
+            \/ e1 = e2
+            \/ FirstIndexOfElement(l1, e1) < FirstIndexOfElement(l1, e2) 
+               <=> FirstIndexOfElement(l2, e1) < FirstIndexOfElement(l2, e2)
+=============================================================================
+\end{tla}
+\end{document}

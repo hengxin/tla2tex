@@ -1,0 +1,49 @@
+% wlspec-tla.tex
+
+% border={}: it is not ``border = {}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE WLSpec ----------------------------
+Compatible(l1, l2) == \* Are $l1$ and $l2$ compatible?
+    \/ l1 = l2 \* Obviously true
+    \/ LET commonElements == Range(l1) \cap Range(l2)
+       IN \A e1, e2 \in commonElements:
+            \/ e1 = e2
+            \/ FirstIndexOfElement(l1, e1) < FirstIndexOfElement(l1, e2) 
+               <=> FirstIndexOfElement(l2, e1) < FirstIndexOfElement(l2, e2)
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} WLSpec}\moduleRightDash\@xx{}%
+\@x{ Compatible ( l1 ,\, l2 ) \.{\defeq}}%
+\@y{%
+  Are $l1$ and $l2$ compatible?
+}%
+\@xx{}%
+\@x{\@s{16.4} \.{\lor} l1 \.{=} l2}%
+\@y{%
+  Obviously true
+}%
+\@xx{}%
+ \@x{\@s{16.4} \.{\lor} \.{\LET} commonElements \.{\defeq} Range ( l1 )
+ \.{\cap} Range ( l2 )}%
+\@x{\@s{27.51} \.{\IN} \A\, e1 ,\, e2 \.{\in} commonElements \.{:}}%
+\@x{\@s{56.10} \.{\lor} e1 \.{=} e2}%
+ \@x{\@s{56.10} \.{\lor} FirstIndexOfElement ( l1 ,\, e1 ) \.{<}
+ FirstIndexOfElement ( l1 ,\, e2 )}%
+ \@x{\@s{67.21} \.{\equiv} FirstIndexOfElement ( l2 ,\, e1 ) \.{<}
+ FirstIndexOfElement ( l2 ,\, e2 )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

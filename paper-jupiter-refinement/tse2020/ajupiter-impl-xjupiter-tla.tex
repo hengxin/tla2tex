@@ -1,0 +1,64 @@
+% ajupiter-impl-xjupiter-tla.tex
+
+% border={}: it is not ``border = {}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 23pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------ MODULE AJupiterImplXJupiter ------------------------
+EXTENDS AJupiter
+VARIABLES c2ss, s2ss
+-----------------------------------------------------------------------------
+DoImpl(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+                 IN  c2ss' = [c2ss EXCEPT ![c] = 
+                       @ (+) [node |-> {ds'[c]},
+                              edge |-> {[from |-> ds[c], to |-> ds'[c], cop |-> cop]}]]
+RevImpl(c, m) == LET xform == xFormCopCopsShift(m.cop, cbuf[c], m.ack)
+                 IN  c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
+SRevImpl(m) == LET c == ClientOf(m.cop)
+               xform == xFormCopCopsShift(m.cop, sbuf[c], m.ack)
+               IN  s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xg
+                                                        ELSE s2ss[cl] (+) xform.lg]
+-----------------------------------------------------------------------------
+XJ == INSTANCE XJupiter WITH c2ss <- c2ss, s2ss <- s2ss
+=============================================================================
+\end{tla}
+\begin{tlatex}
+ \@x{}\moduleLeftDash\@xx{ {\MODULE}
+ AJupiterImplXJupiter}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} AJupiter}%
+\@x{ {\VARIABLES} c2ss ,\, s2ss}%
+\@x{}\midbar\@xx{}%
+ \@x{ DoImpl ( c ,\, op )\@s{1.41} \.{\defeq} \.{\LET} cop \.{\defeq} [ op
+ \.{\mapsto} op ,\, oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto}
+ cseq [ c ] ] ,\, ctx \.{\mapsto} ds [ c ] ]}%
+\@x{\@s{83.60} \.{\IN} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [ c ] \.{=}}%
+\@x{\@s{112.20} @ \.{\oplus} [ node \.{\mapsto} \{ ds \.{'} [ c ] \} ,\,}%
+ \@x{\@s{134.98} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} ds [ c ] ,\,
+ to \.{\mapsto} ds \.{'} [ c ] ,\, cop \.{\mapsto} cop ] \} ] ]}%
+ \@x{ RevImpl ( c ,\, m ) \.{\defeq} \.{\LET} xform \.{\defeq}
+ xFormCopCopsShift ( m . cop ,\, cbuf [ c ] ,\, m . ack )}%
+ \@x{\@s{83.60} \.{\IN} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [ c ] \.{=}
+ @ \.{\oplus} xform . xg ]}%
+ \@x{ SRevImpl ( m ) \.{\defeq} \.{\LET} c\@s{0.41} \.{\defeq} ClientOf ( m .
+ cop )}%
+ \@x{\@s{77.94} xform \.{\defeq} xFormCopCopsShift ( m . cop ,\, sbuf [ c ]
+ ,\, m . ack )}%
+ \@x{\@s{77.94} \.{\IN}\@s{4.1} s2ss \.{'} \.{=} [ cl \.{\in} Client
+ \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xg}%
+\@x{\@s{243.46} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lg ]}%
+\@x{}\midbar\@xx{}%
+ \@x{ XJ \.{\defeq} {\INSTANCE} XJupiter {\WITH} c2ss \.{\leftarrow} c2ss ,\,
+ s2ss \.{\leftarrow} s2ss}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

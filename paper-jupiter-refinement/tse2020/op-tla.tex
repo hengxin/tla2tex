@@ -1,0 +1,41 @@
+% op-tla.tex
+
+% border={5pt 1pt}: it is not ``border = {5pt 1pt}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+\newcommand{\tlaplus}{TLA$^{+}$}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE Op ----------------------------
+Del == [type: {"Del"}, pos: Nat] \* The positions ($pos$) are indexed from 1.
+Ins == [type: {"Ins"}, pos: Nat, ch: Char, pr: 1 .. Cardinality(Client)]
+Op == Ins \cup Del \* The set of all possible update operations.
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} Op}\moduleRightDash\@xx{}%
+\@x{ Del \.{\defeq} [ type \.{:} \{\@w{Del} \} ,\, pos \.{:} Nat ]}%
+\@y{%
+  The positions ($pos$) are indexed from 1.
+}%
+\@xx{}%
+ \@x{ Ins\@s{1.35} \.{\defeq} [ type \.{:} \{\@w{Ins} \} ,\, pos\@s{2.27}
+ \.{:} Nat ,\, ch \.{:} Char ,\, pr \.{:} 1 \.{\dotdot} Cardinality ( Client
+ ) ]}%
+\@x{ Op \.{\defeq} Ins \.{\cup} Del}%
+\@y{%
+  The set of all possible update operations.
+}%
+\@xx{}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

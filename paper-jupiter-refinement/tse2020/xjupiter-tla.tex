@@ -1,0 +1,110 @@
+% xjupiter-tla.tex
+
+% border={5pt 1pt}: it is not ``border = {5pt 1pt}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 15pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+------------------------------ MODULE XJupiter ------------------------------
+VARIABLES c2ss, \* $c2ss[c]$: the $2D$ digraph maintained at client $c$ 
+          s2ss  \* $s2ss[c]$: the $2D$ digraph maintained by the $Server$ for client $c$
+-----------------------------------------------------------------------------
+NextEdge(_, u, g) == CHOOSE e \in g.edge: e.from = u
+Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+                   u == ds[c]    v == u \cup {cop.oid}
+             IN  /\ c2ss' = [c2ss EXCEPT ![c] = \* append $cop$ to $u$ (i.e., $ds[c]$)
+                    @ (+) [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
+                 /\ \* apply $op$ to $list[c]$; send $cop$ to the $Server$
+Rev(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c]) \* $xform$: $[xcop, xg, lg]$
+               IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
+                   /\ \* apply $xform.xcop.op$ to $list[c]$
+SRev(cop) == 
+    LET c == ClientOf(cop)
+    xform == xForm(NextEdge, Server, cop, s2ss[c]) \* $xform$: $[xcop, xg, lg]$
+    IN  /\ s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xg
+                                                ELSE s2ss[cl] (+) xform.lg]
+        /\ \* apply $xform.xcop.op$ to $list[Server]$
+        /\ \* broadcast the \emph{transformed} operation $xform.xcop$ to clients other than $c$
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} XJupiter}\moduleRightDash\@xx{}%
+\@x{ {\VARIABLES} c2ss ,\,}%
+\@y{%
+  $c2ss[c]$: the $2D$ digraph maintained at client $c$ 
+}%
+\@xx{}%
+\@x{\@s{51.13} s2ss\@s{6.36}}%
+\@y{%
+  $s2ss[c]$: the $2D$ digraph maintained by the $Server$ for client $c$
+}%
+\@xx{}%
+\@x{}\midbar\@xx{}%
+ \@x{ NextEdge ( \_ ,\, u ,\, g ) \.{\defeq} {\CHOOSE} e \.{\in} g . edge
+ \.{:} e . from \.{=} u}%
+ \@x{ Do ( c ,\, op ) \.{\defeq} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op
+ ,\, oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\,
+ ctx \.{\mapsto} ds [ c ] ]}%
+ \@x{\@s{90.67} u\@s{0.60} \.{\defeq} ds [ c ]\@s{12.29} v \.{\defeq} u
+ \.{\cup} \{ cop . oid \}}%
+ \@x{\@s{62.08} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
+ c ] \.{=}}%
+\@y{%
+  append $cop$ to $u$ (i.e., $ds[c]$)
+}%
+\@xx{}%
+ \@x{\@s{93.58} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto}
+ \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ]
+ ]}%
+\@x{\@s{82.47} \.{\land}}%
+\@y{%
+  apply $op$ to $list[c]$; send $cop$ to the $Server$
+}%
+\@xx{}%
+ \@x{ Rev ( c ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm ( NextEdge
+ ,\, c ,\, cop ,\, c2ss [ c ] )}%
+\@y{%
+  $xform$: $[xcop, xg, lg]$
+}%
+\@xx{}%
+ \@x{\@s{69.93} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
+ c ] \.{=} @ \.{\oplus} xform . xg ]}%
+\@x{\@s{90.33} \.{\land}}%
+\@y{%
+  apply $xform.xcop.op$ to $list[c]$
+}%
+\@xx{}%
+\@x{ SRev ( cop )\@s{3.25} \.{\defeq}}%
+\@x{\@s{22.67} \.{\LET} c\@s{0.41} \.{\defeq} ClientOf ( cop )}%
+ \@x{\@s{22.67} xform \.{\defeq} xForm ( NextEdge ,\, Server ,\, cop ,\, s2ss
+ [ c ] )}%
+\@y{%
+  $xform$: $[xcop, xg, lg]$
+}%
+\@xx{}%
+ \@x{\@s{22.67} \.{\IN}\@s{4.1} \.{\land} s2ss \.{'} \.{=} [ cl \.{\in} Client
+ \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xg}%
+\@x{\@s{199.28} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lg ]}%
+\@x{\@s{47.17} \.{\land}}%
+\@y{%
+  apply $xform.xcop.op$ to $list[Server]$
+}%
+\@xx{}%
+\@x{\@s{47.17} \.{\land}}%
+\@y{%
+ broadcast the \emph{transformed} operation $xform.xcop$ to clients other
+ than $c$
+}%
+\@xx{}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}
