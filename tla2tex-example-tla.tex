@@ -1,0 +1,54 @@
+% tla2tex-example-tla.tex
+
+% You can adjust the borders to make all your code visible.
+% border = {left top right bottom} or border = {left&right top&bottom}
+
+% Note that there are no spaces before&after ``=''.
+% border={5pt 1pt}: it is not ``border = {5pt 1pt}''. 
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+-------------------------------- MODULE GCD --------------------------------
+EXTENDS Integers
+----------------------------------------------------------------------------
+Divides(p, n) == \E q \in Int : n = q * p
+DivisorsOf(n) == {p \in Int : Divides(p, n)}
+
+SetMax(S) == CHOOSE i \in S : \A j \in S : i >= j
+
+GCD(m, n) == SetMax(DivisorsOf(m) \cap DivisorsOf(n))  \* gcd of $m$ and $n$
+SetGCD(T) == SetMax({d \in Int : \A t \in T : Divides(d, t)})
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} GCD}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Integers}%
+\@x{}\midbar\@xx{}%
+ \@x{ Divides ( p ,\, n ) \.{\defeq} \E\, q \.{\in} Int \.{:} n \.{=} q \.{*}
+ p}%
+ \@x{ DivisorsOf ( n ) \.{\defeq} \{ p \.{\in} Int \.{:} Divides ( p ,\, n )
+ \}}%
+\@pvspace{8.0pt}%
+ \@x{ SetMax ( S ) \.{\defeq} {\CHOOSE} i \.{\in} S \.{:} \A\, j \.{\in} S
+ \.{:} i \.{\geq} j}%
+\@pvspace{8.0pt}%
+ \@x{ GCD ( m ,\, n ) \.{\defeq} SetMax ( DivisorsOf ( m ) \.{\cap} DivisorsOf
+ ( n ) )\@s{4.1}}%
+\@y{%
+  gcd of $m$ and $n$
+}%
+\@xx{}%
+ \@x{ SetGCD ( T ) \.{\defeq} SetMax ( \{ d \.{\in} Int \.{:} \A\, t \.{\in} T
+ \.{:} Divides ( d ,\, t ) \} )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}

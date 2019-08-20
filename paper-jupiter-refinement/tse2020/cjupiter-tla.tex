@@ -28,7 +28,9 @@ Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> 
              IN  /\ css' = [css EXCEPT ![c] = \* append $cop$ to $u$ (i.e., $ds[c]$)
                     @ (+) [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
                  /\ \* apply $op$ to $list[c]$; send $cop$ to the $Server$
-Rev(c, cop),  SRev(cop) \* the same with those in $AbsJupiter$
+Rev(c, cop) == Perform(c, cop)
+SRev(cop) == /\ Perform(Server, cop)
+             /\ \* broadcast $cop$ to clients other than $ClientOf(cop)$
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -73,9 +75,11 @@ Rev(c, cop),  SRev(cop) \* the same with those in $AbsJupiter$
   apply $op$ to $list[c]$; send $cop$ to the $Server$
 }%
 \@xx{}%
-\@x{ Rev ( c ,\, cop ) ,\,\@s{4.1} SRev ( cop )}%
+\@x{ Rev ( c ,\, cop ) \.{\defeq} Perform ( c ,\, cop )}%
+\@x{ SRev ( cop ) \.{\defeq} \.{\land} Perform ( Server ,\, cop )}%
+\@x{\@s{64.28} \.{\land}}%
 \@y{%
-  the same with those in $AbsJupiter$
+  broadcast $cop$ to clients other than $ClientOf(cop)$
 }%
 \@xx{}%
 \@x{}\bottombar\@xx{}%
