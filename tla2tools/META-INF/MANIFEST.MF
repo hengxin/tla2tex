@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.9.4
+Created-By: 1.8.0_171-b11 (Oracle Corporation)
+Built-By: jenkins
+Build-Tag: jenkins-Release-HEAD-Toolbox.product.standalone-os=master-9
+ 6
+Build-Rev: ${Build-Rev}
+Implementation-Title: TLA+ Tools
+Implementation-Version: 2.0 2018-07-18
+Implementation-Vendor: Microsoft Corp.
+X-Git-Branch: 
+X-Git-Tag: jenkins-os=master-96
+X-Git-Revision: bfdbe00e3d0638b46a29ca408c91c0e17d832661
+X-Git-ShortRevision: bfdbe00
+X-Git-BuildNumber: _jenkins-os=master-96_bfdbe00
+X-Git-Commits-Count: 6225
+Application-Name: TLC
+permissions: all-permissions
+

@@ -19,6 +19,7 @@
 Del == [type: {"Del"}, pos: Nat] \* The positions ($pos$) are indexed from 1.
 Ins == [type: {"Ins"}, pos: Nat, ch: Char, pr: 1 .. Cardinality(Client)]
 Op == Ins \cup Del \* The set of all possible update operations.
+Nop == CHOOSE o : o \notin Op
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -36,6 +37,7 @@ Op == Ins \cup Del \* The set of all possible update operations.
   The set of all possible update operations.
 }%
 \@xx{}%
+\@x{ Nop \.{\defeq} {\CHOOSE} o \.{:} o \.{\notin} Op}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}
