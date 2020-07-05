@@ -1,0 +1,35 @@
+\batchmode
+% absjupiter-h-tla.tex
+
+% border={5pt 1pt}: it is not ``border = {5pt 1pt}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\setlength{\textwidth}{345.0pt}
+\begin{document}
+\makeatletter
+\chardef\%=`\%
+\fl{}\moduleLeftDash\cl{ {\MODULE} AbsJupiterH}\moduleRightDash\cl{}
+\fl{ {\EXTENDS} AbsJupiter}
+\fl{ {\VARIABLE} hlist}
+\fl{}\midbar\cl{}
+\fl{ InitH \.{\defeq} Init \.{\land} hlist \.{=} \{ \}}
+ \fl{ DoH ( c ) \.{\defeq} Do ( c ) \.{\land} hlist \.{'} \.{=} hlist \.{\cup}
+ \{ list \.{'} [ c ] \}}
+ \fl{ RevH ( c ) \.{\defeq} Rev ( c ) \.{\land} hlist \.{'} \.{=} hlist
+ \.{\cup} \{ list \.{'} [ c ] \}}
+ \fl{ SRevH \.{\defeq} SRev \.{\land} hlist \.{'} \.{=} hlist \.{\cup} \{ list
+ \.{'} [ Server ] \}}
+\fl{}\midbar\cl{}
+ \fl{ WLSpec \.{\defeq} \A\, l1 ,\, l2 \.{\in} hlist \.{:} Compatible ( l1 ,\,
+ l2 )}
+\fl{}\bottombar\cl{}
+\end{document}

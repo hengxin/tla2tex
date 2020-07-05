@@ -1,0 +1,46 @@
+% absjupiter-h-tla.tex
+
+% border={5pt 1pt}: it is not ``border = {5pt 1pt}''; 
+% note the space before&after ``=''
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
+
+% for tlaplus
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tlatex}
+\usepackage{color}
+\definecolor{boxshade}{gray}{.85}
+\setboolean{shading}{true}
+
+\begin{document}
+\begin{tla}
+---------------------------- MODULE AbsJupiterH ----------------------------
+EXTENDS AbsJupiter 
+VARIABLE hlist
+-------------------------------------------------------------
+InitH == Init /\ hlist = {}
+DoH(c) == Do(c) /\ hlist' = hlist \cup {list'[c]}
+RevH(c) == Rev(c) /\ hlist' = hlist \cup {list'[c]}
+SRevH == SRev /\ hlist' = hlist \cup {list'[Server]}
+-------------------------------------------------------------
+WLSpec == \A l1, l2 \in hlist: Compatible(l1, l2)
+=============================================================================
+\end{tla}
+\begin{tlatex}
+\@x{}\moduleLeftDash\@xx{ {\MODULE} AbsJupiterH}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} AbsJupiter}%
+\@x{ {\VARIABLE} hlist}%
+\@x{}\midbar\@xx{}%
+\@x{ InitH \.{\defeq} Init \.{\land} hlist \.{=} \{ \}}%
+ \@x{ DoH ( c ) \.{\defeq} Do ( c ) \.{\land} hlist \.{'} \.{=} hlist \.{\cup}
+ \{ list \.{'} [ c ] \}}%
+ \@x{ RevH ( c ) \.{\defeq} Rev ( c ) \.{\land} hlist \.{'} \.{=} hlist
+ \.{\cup} \{ list \.{'} [ c ] \}}%
+ \@x{ SRevH \.{\defeq} SRev \.{\land} hlist \.{'} \.{=} hlist \.{\cup} \{ list
+ \.{'} [ Server ] \}}%
+\@x{}\midbar\@xx{}%
+ \@x{ WLSpec \.{\defeq} \A\, l1 ,\, l2 \.{\in} hlist \.{:} Compatible ( l1 ,\,
+ l2 )}%
+\@x{}\bottombar\@xx{}%
+\end{tlatex}
+\end{document}
