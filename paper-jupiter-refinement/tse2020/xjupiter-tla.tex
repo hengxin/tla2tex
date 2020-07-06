@@ -21,7 +21,7 @@ VARIABLES c2ss, \* $c2ss[c]$: the $2D$ digraph maintained at client $c$
 NextEdge(_, u, g) == CHOOSE e \in g.edge: e.from = u
 Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
                    u == ds[c]    v == u \cup {cop.oid}
-             IN  /\ c2ss' = [c2ss EXCEPT ![c] = \* append $cop$ to $u$ (i.e., $ds[c]$)
+             IN  /\ c2ss' = [c2ss EXCEPT ![c] =
                     @ (+) [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
                  /\ \* apply $op$ to $list[c]$; send $cop$ to the $Server$
 Rev(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c]) \* $xform$: $[xcop, xg, lg]$
@@ -58,10 +58,6 @@ SRev(cop) ==
  \.{\cup} \{ cop . oid \}}%
  \@x{\@s{62.08} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
  c ] \.{=}}%
-\@y{%
-  append $cop$ to $u$ (i.e., $ds[c]$)
-}%
-\@xx{}%
  \@x{\@s{93.58} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto}
  \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ]
  ]}%
