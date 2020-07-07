@@ -19,8 +19,8 @@
 --------------------------- MODULE Set ---------------------------
 xForm(r, cop) == \* Transform $cop$ at replica $r$
     LET ctxDiff == ds[r] \ cop.ctx \* calculate concurrent operations
-        xFormHelper(coph, ctxDiffh, copssh) == \* Return transformed $xcop$ and
-            IF ctxDiffh = {} THEN [xcop |-> coph, xcopss |-> copssh]  \* new $copss$ 
+        xFormHelper(coph, ctxDiffh, copssh) ==
+            IF ctxDiffh = {} THEN [xcop |-> coph, xcopss |-> copssh]
             ELSE LET foidh == CHOOSE oid \in ctxDiffh: \* the first $oid$ in $ctxDiffh$ 
                                 \A id \in ctxDiffh \ {oid}: so(oid, id, serial[r]) 
                      fcoph == CHOOSE fcop \in copss[r]: 
@@ -45,36 +45,28 @@ xForm(r, cop) == \* Transform $cop$ at replica $r$
 }%
 \@xx{}%
 \@x{\@s{40.89} xFormHelper ( coph ,\, ctxDiffh ,\, copssh ) \.{\defeq}}%
-\@y{%
-  Return transformed $xcop$ and
-}%
-\@xx{}%
  \@x{\@s{57.29} {\IF} ctxDiffh \.{=} \{ \} \.{\THEN} [ xcop \.{\mapsto} coph
- ,\, xcopss \.{\mapsto} copssh ]\@s{4.1}}%
-\@y{%
-  new $copss$ 
-}%
-\@xx{}%
+ ,\, xcopss \.{\mapsto} copssh ]}%
  \@x{\@s{57.29} \.{\ELSE} \.{\LET} foidh\@s{6.69} \.{\defeq} {\CHOOSE} oid
  \.{\in} ctxDiffh \.{:}}%
 \@y{%
   the first $oid$ in $ctxDiffh$ 
 }%
 \@xx{}%
- \@x{\@s{165.02} \A\, id \.{\in} ctxDiffh \.{\,\backslash\,} \{ oid \} \.{:}
+ \@x{\@s{165.00} \A\, id \.{\in} ctxDiffh \.{\,\backslash\,} \{ oid \} \.{:}
  so ( oid ,\, id ,\, serial [ r ] )}%
- \@x{\@s{109.01} fcoph\@s{5.67} \.{\defeq} {\CHOOSE} fcop \.{\in} copss [ r ]
+ \@x{\@s{108.99} fcoph\@s{5.67} \.{\defeq} {\CHOOSE} fcop \.{\in} copss [ r ]
  \.{:}}%
-\@x{\@s{165.02} fcop . oid \.{=} foidh \.{\land} fcop . ctx \.{=} coph . ctx}%
+\@x{\@s{165.00} fcop . oid \.{=} foidh \.{\land} fcop . ctx \.{=} coph . ctx}%
 \@y{%
   \cc
 }%
 \@xx{}%
- \@x{\@s{113.11} xcoph \.{\defeq} COT ( coph ,\, fcoph )\@s{12.29} xfcoph
+ \@x{\@s{113.09} xcoph \.{\defeq} COT ( coph ,\, fcoph )\@s{12.29} xfcoph
  \.{\defeq} COT ( fcoph ,\, coph )}%
- \@x{\@s{88.61} \.{\IN}\@s{4.09} xFormHelper ( xcoph ,\, ctxDiffh
+ \@x{\@s{88.59} \.{\IN}\@s{4.09} xFormHelper ( xcoph ,\, ctxDiffh
  \.{\,\backslash\,} \{ fcoph . oid \} ,\,}%
-\@x{\@s{204.92} copssh \.{\cup} \{ xcoph ,\, xfcoph \} )}%
+\@x{\@s{204.88} copssh \.{\cup} \{ xcoph ,\, xfcoph \} )}%
  \@x{\@s{16.4} \.{\IN}\@s{4.09} xFormHelper ( cop ,\, ctxDiff ,\, copss [ r ]
  \.{\cup} \{ cop \} )}%
 \@x{}\bottombar\@xx{}%

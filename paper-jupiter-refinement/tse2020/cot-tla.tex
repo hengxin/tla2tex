@@ -18,7 +18,7 @@
 ----------------------------- MODULE COT -----------------------------
 Oid == [c: Client, seq: Nat]                      \* the client that generates $cop$
 Cop == [op: Op, oid: Oid, ctx: SUBSET Oid]      ClientOf(cop) == cop.oid.c 
-COT(lcop, rcop) == \* Precondition: $lcop.ctx = rcop.ctx$
+COT(lcop, rcop) ==
     [lcop EXCEPT !.op = OT(lcop.op, rcop.op), !.ctx = @ \cup {rcop.oid}]
 =============================================================================
 \end{tla}
@@ -32,10 +32,6 @@ COT(lcop, rcop) == \* Precondition: $lcop.ctx = rcop.ctx$
  \@x{ Cop \.{\defeq} [ op \.{:} Op ,\, oid \.{:} Oid ,\, ctx \.{:} {\SUBSET}
  Oid ]\@s{20.5} ClientOf ( cop ) \.{\defeq} cop . oid . c}%
 \@x{ COT ( lcop ,\, rcop ) \.{\defeq}}%
-\@y{%
-  Precondition: $lcop.ctx = rcop.ctx$
-}%
-\@xx{}%
  \@x{\@s{27.19} [ lcop {\EXCEPT} {\bang} . op \.{=} OT ( lcop . op ,\, rcop .
  op ) ,\, {\bang} . ctx \.{=} @ \.{\cup} \{ rcop . oid \} ]}%
 \@x{}\bottombar\@xx{}%
