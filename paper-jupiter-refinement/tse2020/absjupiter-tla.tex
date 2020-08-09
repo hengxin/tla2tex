@@ -15,7 +15,7 @@
 \begin{document}
 \begin{tla}
 ----------------------------- MODULE AbsJupiter -----------------------------
-VARIABLES copss \* $copss[r]$: the set of context-based operations maintained at replia $r$
+VARIABLES copss \* $copss[r]$: the set of context-based operations maintained at replica $r$
 ----------------------------------------------------------------------------
 Perform(r, cop) == LET xform == xForm(r, cop) \* $xform: [xcop, xcopss]$
                    IN  /\ copss' = [copss EXCEPT ![r] = xform.xcopss]
@@ -32,7 +32,7 @@ SRev(cop) == /\ Perform(Server, cop)
 \@x{}\moduleLeftDash\@xx{ {\MODULE} AbsJupiter}\moduleRightDash\@xx{}%
 \@x{ {\VARIABLES} copss}%
 \@y{%
-  $copss[r]$: the set of context-based operations maintained at replia $r$
+  $copss[r]$: the set of context-based operations maintained at replica $r$
 }%
 \@xx{}%
 \@x{}\midbar\@xx{}%
@@ -42,9 +42,9 @@ SRev(cop) == /\ Perform(Server, cop)
   $xform: [xcop, xcopss]$
 }%
 \@xx{}%
- \@x{\@s{89.95} \.{\IN} \.{\land} copss \.{'} \.{=} [ copss {\EXCEPT} {\bang}
+ \@x{\@s{89.93} \.{\IN} \.{\land} copss \.{'} \.{=} [ copss {\EXCEPT} {\bang}
  [ r ] \.{=} xform . xcopss ]}%
-\@x{\@s{110.35} \.{\land}}%
+\@x{\@s{110.33} \.{\land}}%
 \@y{%
   apply $xform.xcop.op$ to $list[r]$
 }%
@@ -54,14 +54,14 @@ SRev(cop) == /\ Perform(Server, cop)
  ctx \.{\mapsto} ds [ c ] ]}%
  \@x{\@s{62.08} \.{\IN} \.{\land} copss \.{=} [ copss {\EXCEPT} {\bang} [ c ]
  \.{=} @ \.{\cup} \{ cop \} ]}%
-\@x{\@s{82.48} \.{\land}}%
+\@x{\@s{82.47} \.{\land}}%
 \@y{%
   apply $op$ to $list[c]$; send $cop$ to the $Server$
 }%
 \@xx{}%
 \@x{ Rev ( c ,\, cop ) \.{\defeq} Perform ( c ,\, cop )}%
 \@x{ SRev ( cop ) \.{\defeq} \.{\land} Perform ( Server ,\, cop )}%
-\@x{\@s{64.29} \.{\land}}%
+\@x{\@s{64.28} \.{\land}}%
 \@y{%
   broadcast $cop$ to clients other than $ClientOf(cop)$
 }%

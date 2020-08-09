@@ -12,8 +12,6 @@
 \definecolor{boxshade}{gray}{.85}
 \setboolean{shading}{true}
 
-\newcommand{\cc}{\textsc{CC}}
-
 \begin{document}
 \begin{tla}
 --------------------------- MODULE Set ---------------------------
@@ -24,7 +22,7 @@ xForm(r, cop) == \* Transform $cop$ at replica $r$
             ELSE LET foidh == CHOOSE oid \in ctxDiffh: \* the first $oid$ in $ctxDiffh$ 
                                 \A id \in ctxDiffh \ {oid}: so(oid, id, serial[r]) 
                      fcoph == CHOOSE fcop \in copss[r]: 
-                                fcop.oid = foidh /\ fcop.ctx = coph.ctx \* \cc
+                                fcop.oid = foidh /\ fcop.ctx = coph.ctx
                      xcoph == COT(coph, fcoph)    xfcoph == COT(fcoph, coph)
                  IN  xFormHelper(xcoph, ctxDiffh \ {fcoph.oid}, 
                                         copssh \cup {xcoph, xfcoph})
@@ -58,10 +56,6 @@ xForm(r, cop) == \* Transform $cop$ at replica $r$
  \@x{\@s{108.99} fcoph\@s{5.67} \.{\defeq} {\CHOOSE} fcop \.{\in} copss [ r ]
  \.{:}}%
 \@x{\@s{165.00} fcop . oid \.{=} foidh \.{\land} fcop . ctx \.{=} coph . ctx}%
-\@y{%
-  \cc
-}%
-\@xx{}%
  \@x{\@s{113.09} xcoph \.{\defeq} COT ( coph ,\, fcoph )\@s{12.29} xfcoph
  \.{\defeq} COT ( fcoph ,\, coph )}%
  \@x{\@s{88.59} \.{\IN}\@s{4.09} xFormHelper ( xcoph ,\, ctxDiffh

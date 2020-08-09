@@ -19,10 +19,10 @@ so(oid1, oid2, sv) == \* Is $oid1$ totally ordered before $oid2$ according to $s
     LET  pos1== FirstIndexOfElementSafe(sv, oid1) \* 0 if $oid1$ is not in $sv$
         pos2 == FirstIndexOfElementSafe(sv, oid2) \* 0 if $oid2$ is not in $sv$
     IN  IF pos1 # 0 /\ pos2 # 0 \* \textsc{Case} (1): both have been at the server
-        THEN pos1 < pos2        \* using the order they reach the server
+        THEN pos1 < pos2        \* using the order in which they arrived at the server
         ELSE IF pos1 = 0 /\ pos2 = 0  \* \textsc{Case} (2): none has been at the server
-             THEN oid1.seq < oid2.seq \* using the order they are generated
-             ELSE pos1 # 0 \* \textsc{Case} (3): the one has been at the server is ahead
+             THEN oid1.seq < oid2.seq \* using the order they were generated
+             ELSE pos1 # 0 \* \textsc{Case} (3): the one that has been at the server is ahead
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -51,7 +51,7 @@ so(oid1, oid2, sv) == \* Is $oid1$ totally ordered before $oid2$ according to $s
 \@xx{}%
 \@x{\@s{42.31} \.{\THEN} pos1 \.{<} pos2\@s{15.29}}%
 \@y{%
-  using the order they reach the server
+  using the order in which they arrived at the server
 }%
 \@xx{}%
 \@x{\@s{42.31} \.{\ELSE} {\IF} pos1 \.{=} 0 \.{\land} pos2 \.{=} 0\@s{16.98}}%
@@ -61,12 +61,12 @@ so(oid1, oid2, sv) == \* Is $oid1$ totally ordered before $oid2$ according to $s
 \@xx{}%
 \@x{\@s{73.61} \.{\THEN} oid1 . seq \.{<} oid2 . seq}%
 \@y{%
-  using the order they are generated
+  using the order they were generated
 }%
 \@xx{}%
 \@x{\@s{73.61} \.{\ELSE} pos1 \.{\neq} 0}%
 \@y{%
-  \textsc{Case} (3): the one has been at the server is ahead
+  \textsc{Case} (3): the one that has been at the server is ahead
 }%
 \@xx{}%
 \@x{}\bottombar\@xx{}%
