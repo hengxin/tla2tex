@@ -2,7 +2,7 @@
 
 % border={5pt 1pt}: it is not ``border = {5pt 1pt}''; 
 % note the space before&after ``=''
-\documentclass[preview, border={5pt 0pt 15pt 1pt}]{standalone}
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
 
 % for tlaplus
 \usepackage[utf8]{inputenc}
@@ -22,9 +22,11 @@ NextEdge(_, u, g) == CHOOSE e \in g.edge: e.from = u
 Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
                    u == ds[c]    v == u \cup {cop.oid}
              IN  /\ c2ss' = [c2ss EXCEPT ![c] =
-                    @ (+) [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
+                    @ (+) [node |-> {v}, 
+                           edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
                  /\ \* apply $op$ to $list[c]$; send $cop$ to the $Server$
-Rev(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c]) \* $xform$: $[xcop, xg, lg]$
+Rev(c, cop) == LET xform == xForm(NextEdge, c, cop, c2ss[c])
+                   \*$xform$: $[xcop, xg, lg]$
                IN  /\ c2ss' = [c2ss EXCEPT ![c] = @ (+) xform.xg]
                    /\ \* apply $xform.xcop.op$ to $list[c]$
 SRev(cop) == 
@@ -58,9 +60,9 @@ SRev(cop) ==
  \.{\cup} \{ cop . oid \}}%
  \@x{\@s{62.08} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
  c ] \.{=}}%
- \@x{\@s{93.58} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto}
- \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ]
- ]}%
+\@x{\@s{93.58} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\,}%
+ \@x{\@s{116.36} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to
+ \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ] ]}%
 \@x{\@s{82.47} \.{\land}}%
 \@y{%
   apply $op$ to $list[c]$; send $cop$ to the $Server$
@@ -68,13 +70,14 @@ SRev(cop) ==
 \@xx{}%
  \@x{ Rev ( c ,\, cop ) \.{\defeq} \.{\LET} xform \.{\defeq} xForm ( NextEdge
  ,\, c ,\, cop ,\, c2ss [ c ] )}%
+\@x{\@s{94.43}}%
 \@y{%
-  $xform$: $[xcop, xg, lg]$
+ $xform$: $[xcop, xg, lg]$
 }%
 \@xx{}%
- \@x{\@s{69.93} \.{\IN} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [
- c ] \.{=} @ \.{\oplus} xform . xg ]}%
-\@x{\@s{90.33} \.{\land}}%
+ \@x{\@s{69.93} \.{\IN}\@s{4.09} \.{\land} c2ss \.{'} \.{=} [ c2ss {\EXCEPT}
+ {\bang} [ c ] \.{=} @ \.{\oplus} xform . xg ]}%
+\@x{\@s{94.43} \.{\land}}%
 \@y{%
   apply $xform.xcop.op$ to $list[c]$
 }%

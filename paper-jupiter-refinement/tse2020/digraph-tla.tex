@@ -2,7 +2,7 @@
 
 % border={5pt 1pt}: it is not ``border = {5pt 1pt}''; 
 % note the space before&after ``=''
-\documentclass[preview, border={5pt 0pt 46pt 1pt}]{standalone}
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
 
 % for tlaplus
 \usepackage[utf8]{inputenc}
@@ -20,7 +20,7 @@
 ----------------------------- MODULE Digraph -----------------------------
 IsDigraph(G) == \* $G$ is a record with $node$ and $edge$ fields
     /\ G.node \subseteq (SUBSET Oid) \* each node represents a document state
-    /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop] \* label: $cop$
+    /\ G.edge \subseteq [from: G.node, to: G.node, cop: Cop]
 EmptyGraph == [node |-> {{}}, edge |-> {}]
 
 g (+) h == [node |-> g.node \cup h.node, edge |-> g.edge \cup h.edge]
@@ -29,15 +29,18 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$
     LET u == CHOOSE n \in g.node : n = cop.ctx    v == u \cup {cop.oid}
         xFormHelper(uh, vh, coph, gh) ==
             IF uh = ds[r] THEN [xcop |-> coph, xg |-> gh,
-                 lg |-> [node |-> {vh}, edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]] 
+                 lg |-> [node |-> {vh},
+               edge |-> {[from |-> uh, to |-> vh, cop |-> coph]}]] 
             ELSE LET e == NextEdge(r, uh, g) \* specific to \cjupiter{} and \xjupiter{}
                   ecop == e.cop    eu == e.to    ev == vh \cup {ecop.oid}
-             coph2ecop == COT(coph, ecop)    ecop2coph == COT(ecop, coph)
-                 IN  xFormHelper(eu, ev, coph2ecop,
-                       gh (+) [node|-> {ev},
-                               edge|-> {[from |-> vh, to |-> ev, cop |-> ecop2coph],
-                                        [from |-> eu, to |-> ev, cop |-> coph2ecop]}])
-    IN xFormHelper(u, v, cop, [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
+              coph2ecop== COT(coph, ecop)
+              ecop2coph== COT(ecop, coph)
+                    IN xFormHelper(eu, ev, coph2ecop,
+                     gh (+) [node|-> {ev},
+                             edge|-> {[from |-> vh, to |-> ev, cop |-> ecop2coph],
+                                      [from |-> eu, to |-> ev, cop |-> coph2ecop]}])
+    IN xFormHelper(u, v, cop, [node |-> {v},
+                               edge |-> {[from |-> u, to |-> v, cop |-> cop]}])  
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -54,10 +57,6 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$
 \@xx{}%
  \@x{\@s{16.4} \.{\land} G . edge\@s{1.53} \.{\subseteq} [ from \.{:} G . node
  ,\, to \.{:} G . node ,\, cop \.{:} Cop ]}%
-\@y{%
-  label: $cop$
-}%
-\@xx{}%
  \@x{ EmptyGraph \.{\defeq} [ node \.{\mapsto} \{ \{ \} \} ,\, edge
  \.{\mapsto} \{ \} ]}%
 \@pvspace{8.0pt}%
@@ -74,9 +73,9 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$
 \@x{\@s{36.79} xFormHelper ( uh ,\, vh ,\, coph ,\, gh ) \.{\defeq}}%
  \@x{\@s{53.19} {\IF} uh \.{=} ds [ r ] \.{\THEN} [ xcop \.{\mapsto} coph ,\,
  xg \.{\mapsto} gh ,\,}%
- \@x{\@s{73.54} lg \.{\mapsto} [ node \.{\mapsto} \{ vh \} ,\, edge
- \.{\mapsto} \{ [ from \.{\mapsto} uh ,\, to \.{\mapsto} vh ,\, cop
- \.{\mapsto} coph ] \} ] ]}%
+\@x{\@s{73.54} lg\@s{2.90} \.{\mapsto} [ node \.{\mapsto} \{ vh \} ,\,}%
+ \@x{\@s{65.34} edge \.{\mapsto} \{ [ from \.{\mapsto} uh ,\, to \.{\mapsto}
+ vh ,\, cop \.{\mapsto} coph ] \} ] ]}%
 \@x{\@s{53.19} \.{\ELSE} \.{\LET} e \.{\defeq} NextEdge ( r ,\, uh ,\, g )}%
 \@y{%
   specific to \cjupiter{} and \xjupiter{}
@@ -84,17 +83,18 @@ xForm(NextEdge(_, _, _), r, cop, g) == \* Transform $cop$ in $g$ at replica $r$
 \@xx{}%
  \@x{\@s{88.59} ecop\@s{2.61} \.{\defeq} e . cop\@s{12.29} eu \.{\defeq} e .
  to\@s{12.29} ev \.{\defeq} vh \.{\cup} \{ ecop . oid \}}%
- \@x{\@s{57.29} coph2ecop\@s{8.73} \.{\defeq} COT ( coph ,\, ecop )\@s{12.29}
- ecop2coph \.{\defeq} COT ( ecop ,\, coph )}%
-\@x{\@s{73.69} \.{\IN}\@s{4.1} xFormHelper ( eu ,\, ev ,\, coph2ecop ,\,}%
-\@x{\@s{106.39} gh \.{\oplus} [ node \.{\mapsto} \{ ev \} ,\,}%
- \@x{\@s{131.86} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} vh ,\,
+\@x{\@s{61.39} coph2ecop\@s{4.63} \.{\defeq} COT ( coph ,\, ecop )}%
+\@x{\@s{61.39} ecop2coph\@s{4.63} \.{\defeq} COT ( ecop ,\, coph )}%
+\@x{\@s{85.99} \.{\IN}\@s{3.85} xFormHelper ( eu ,\, ev ,\, coph2ecop ,\,}%
+\@x{\@s{90.09} gh \.{\oplus} [ node \.{\mapsto} \{ ev \} ,\,}%
+ \@x{\@s{115.57} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} vh ,\,
  to\@s{0.25} \.{\mapsto} ev ,\, cop \.{\mapsto} ecop2coph ] ,\,}%
- \@x{\@s{173.10} [ from \.{\mapsto} eu ,\, to \.{\mapsto} ev ,\, cop
+ \@x{\@s{156.80} [ from \.{\mapsto} eu ,\, to \.{\mapsto} ev ,\, cop
  \.{\mapsto} coph2ecop ] \} ] )}%
  \@x{\@s{16.4} \.{\IN} xFormHelper ( u ,\, v ,\, cop ,\, [ node \.{\mapsto} \{
- v \} ,\, edge \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\,
- cop \.{\mapsto} cop ] \} ] )}%
+ v \} ,\,}%
+ \@x{\@s{145.51} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to
+ \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ] )}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}

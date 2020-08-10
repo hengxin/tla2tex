@@ -2,7 +2,7 @@
 
 % border={}: it is not ``border = {}''; 
 % note the space before&after ``=''
-\documentclass[preview, border={5pt 0pt 42pt 1pt}]{standalone}
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
 
 % for tlaplus
 \usepackage[utf8]{inputenc}
@@ -32,12 +32,13 @@ RevImpl(c, cop) == /\ Rev(c, cop)
                    /\ c2ssX' = [c2ssX EXCEPT ![c] = @ (+) op2ss[cop.oid]] 
 SRevImpl(cop) == /\ SRev(cop) 
                  /\ \* on history variables for serial views
-                 /\ LET xform == xForm(NextEdge, Server, cop, s2ss[ClientOf(cop)])
+                 /\ LET xform == xForm(NextEdge, Server, cop, 
+                                       s2ss[ClientOf(cop)])
                     IN op2ss' = op2ss @@ (cop.oid :> xform.xg)
 -----------------------------------------------------------------------------
 CJ == INSTANCE CJupiter WITH css <- [r \in Replica |->
-                   IF r = Server THEN SetReduce((+), Range(s2ss), EmptyGraph)
-                                 ELSE c2ss[r] (+) c2ssX[r]]
+              IF r = Server THEN SetReduce((+), Range(s2ss), EmptyGraph)
+                            ELSE c2ss[r] (+) c2ssX[r]]
 =============================================================================
 \end{tla}
 \begin{tlatex}
@@ -99,15 +100,16 @@ CJ == INSTANCE CJupiter WITH css <- [r \in Replica |->
 }%
 \@xx{}%
  \@x{\@s{83.93} \.{\land} \.{\LET} xform \.{\defeq} xForm ( NextEdge ,\,
- Server ,\, cop ,\, s2ss [ ClientOf ( cop ) ] )}%
+ Server ,\, cop ,\,}%
+\@x{\@s{192.85} s2ss [ ClientOf ( cop ) ] )}%
  \@x{\@s{95.04} \.{\IN} op2ss \.{'} \.{=} op2ss \.{\,@@\,} ( cop . oid
  \.{\colongt} xform . xg )}%
 \@x{}\midbar\@xx{}%
  \@x{ CJ \.{\defeq} {\INSTANCE} CJupiter {\WITH} css \.{\leftarrow} [ r
  \.{\in} Replica \.{\mapsto}}%
- \@x{\@s{95.38} {\IF} r \.{=} Server \.{\THEN} SetReduce ( \.{\oplus} ,\,
+ \@x{\@s{65.49} {\IF} r \.{=} Server \.{\THEN} SetReduce ( \.{\oplus} ,\,
  Range ( s2ss ) ,\, EmptyGraph )}%
-\@x{\@s{155.08} \.{\ELSE} c2ss [ r ] \.{\oplus} c2ssX [ r ] ]}%
+\@x{\@s{125.19} \.{\ELSE} c2ss [ r ] \.{\oplus} c2ssX [ r ] ]}%
 \@x{}\bottombar\@xx{}%
 \end{tlatex}
 \end{document}

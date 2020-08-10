@@ -2,7 +2,7 @@
 
 % border={}: it is not ``border = {}''; 
 % note the space before&after ``=''
-\documentclass[preview, border={5pt 0pt 35pt 1pt}]{standalone}
+\documentclass[preview, border={5pt 0pt 5pt 1pt}]{standalone}
 
 % for tlaplus
 \usepackage[utf8]{inputenc}
@@ -25,10 +25,11 @@ InitImpl == /\ Init
             /\ s2ss = [c \in Client |-> EmptyGraph]
 DoImpl(c, op) == /\ Do(c, op)
                  /\ \* on history variables for operation contexts
-                 /\ LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
+                 /\ LET cop == [op |-> op,
+                               oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
                     IN  c2ss' = [c2ss EXCEPT ![c] = 
-                          @ (+) [node |-> {ds'[c]},
-                                 edge |-> {[from |-> ds[c], to |-> ds'[c], cop |-> cop]}]]
+                      @ (+) [node |-> {ds'[c]},
+                             edge |-> {[from |-> ds[c], to |-> ds'[c], cop |-> cop]}]]
 RevImpl(c, m) == /\ Rev(c, m)
                  /\ \* on history variables for operation contexts
                  /\ LET xform == xFormCopCopsShift(m.cop, cbuf[c], m.ack)
@@ -37,8 +38,9 @@ SRevImpl(m) == /\ SRev(m)
                /\ \* on history variables for operation contexts
                /\ LET c == ClientOf(m.cop)
                   xform == xFormCopCopsShift(m.cop, sbuf[c], m.ack)
-                  IN  s2ss' = [cl \in Client |-> IF cl = c THEN s2ss[cl] (+) xform.xg
-                                                           ELSE s2ss[cl] (+) xform.lg]
+                  IN  s2ss' = [cl \in Client |-> 
+                                    IF cl = c THEN s2ss[cl] (+) xform.xg
+                                              ELSE s2ss[cl] (+) xform.lg]
 -----------------------------------------------------------------------------
 XJ == INSTANCE XJupiter WITH c2ss <- c2ss, s2ss <- s2ss
 =============================================================================
@@ -70,12 +72,13 @@ XJ == INSTANCE XJupiter WITH c2ss <- c2ss, s2ss <- s2ss
   on history variables for operation contexts
 }%
 \@xx{}%
- \@x{\@s{83.59} \.{\land} \.{\LET} cop \.{\defeq} [ op \.{\mapsto} op ,\, oid
- \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [ c ] ] ,\, ctx
- \.{\mapsto} ds [ c ] ]}%
+ \@x{\@s{83.59} \.{\land} \.{\LET} cop \.{\defeq} [ op\@s{0.69} \.{\mapsto} op
+ ,\,}%
+ \@x{\@s{148.92} oid \.{\mapsto} [ c \.{\mapsto} c ,\, seq \.{\mapsto} cseq [
+ c ] ] ,\, ctx \.{\mapsto} ds [ c ] ]}%
 \@x{\@s{94.70} \.{\IN} c2ss \.{'} \.{=} [ c2ss {\EXCEPT} {\bang} [ c ] \.{=}}%
-\@x{\@s{123.29} @ \.{\oplus} [ node \.{\mapsto} \{ ds \.{'} [ c ] \} ,\,}%
- \@x{\@s{146.07} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} ds [ c ] ,\,
+\@x{\@s{102.90} @ \.{\oplus} [ node \.{\mapsto} \{ ds \.{'} [ c ] \} ,\,}%
+ \@x{\@s{125.68} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} ds [ c ] ,\,
  to \.{\mapsto} ds \.{'} [ c ] ,\, cop \.{\mapsto} cop ] \} ] ]}%
 \@x{ RevImpl ( c ,\, m ) \.{\defeq} \.{\land} Rev ( c ,\, m )}%
 \@x{\@s{83.59} \.{\land}}%
@@ -97,8 +100,9 @@ XJ == INSTANCE XJupiter WITH c2ss <- c2ss, s2ss <- s2ss
  \@x{\@s{89.04} xform \.{\defeq} xFormCopCopsShift ( m . cop ,\, sbuf [ c ]
  ,\, m . ack )}%
  \@x{\@s{89.04} \.{\IN}\@s{4.1} s2ss \.{'} \.{=} [ cl \.{\in} Client
- \.{\mapsto} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xg}%
-\@x{\@s{254.54} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lg ]}%
+ \.{\mapsto}}%
+\@x{\@s{167.75} {\IF} cl \.{=} c \.{\THEN} s2ss [ cl ] \.{\oplus} xform . xg}%
+\@x{\@s{206.58} \.{\ELSE} s2ss [ cl ] \.{\oplus} xform . lg ]}%
 \@x{}\midbar\@xx{}%
  \@x{ XJ \.{\defeq} {\INSTANCE} XJupiter {\WITH} c2ss \.{\leftarrow} c2ss ,\,
  s2ss \.{\leftarrow} s2ss}%

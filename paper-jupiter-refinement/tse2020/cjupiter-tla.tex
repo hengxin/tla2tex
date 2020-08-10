@@ -26,7 +26,8 @@ Perform(r, cop) == LET xform == xForm(NextEdge, r, cop, css[r])
 Do(c, op) == LET cop == [op |-> op, oid |-> [c |-> c, seq |-> cseq[c]], ctx |-> ds[c]]
                    u == ds[c]    v == u \cup {cop.oid}
              IN  /\ css' = [css EXCEPT ![c] =
-                    @ (+) [node |-> {v}, edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
+                                @ (+) [node |-> {v}, 
+                                       edge |-> {[from |-> u, to |-> v, cop |-> cop]}]]
                  /\ \* apply $op$ to $list[c]$; send $cop$ to the $Server$
 Rev(c, cop) == Perform(c, cop)
 SRev(cop) == /\ Perform(Server, cop)
@@ -63,9 +64,9 @@ SRev(cop) == /\ Perform(Server, cop)
  \.{\cup} \{ cop . oid \}}%
  \@x{\@s{62.08} \.{\IN} \.{\land} css \.{'} \.{=} [ css {\EXCEPT} {\bang} [ c
  ] \.{=}}%
- \@x{\@s{93.58} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\, edge \.{\mapsto}
- \{ [ from \.{\mapsto} u ,\, to \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ]
- ]}%
+\@x{\@s{139.69} @ \.{\oplus} [ node \.{\mapsto} \{ v \} ,\,}%
+ \@x{\@s{162.47} edge\@s{1.53} \.{\mapsto} \{ [ from \.{\mapsto} u ,\, to
+ \.{\mapsto} v ,\, cop \.{\mapsto} cop ] \} ] ]}%
 \@x{\@s{82.47} \.{\land}}%
 \@y{%
   apply $op$ to $list[c]$; send $cop$ to the $Server$
