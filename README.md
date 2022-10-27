@@ -9,7 +9,7 @@ like [`tla2tex-example-tla.tex`](https://github.com/hengxin/tla2tex/blob/master/
 - Run `java -cp tla2tools.jar tla2tex.TeX tla2tex-example-tla.tex`
   - This will automatically generate that code in between `\begin{\tlatex}` and `\end{\tlatex}`.
   - ***Important Note:*** 
-  You'd better run `java -cp` under the directory of `tlatex-example-tla.tex`. 
+  You'd better run `java -cp` under the directory of `tla2tex-example-tla.tex`. 
   Otherwise, you may get a `renaming` error and information indicating that 
   some `.new` file was generated in a different directory.
   - `-cp tla2tools.jar`: 
