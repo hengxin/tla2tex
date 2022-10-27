@@ -6,7 +6,7 @@ TLA+ code to TeX code
 - Put your `tla` code in between `\begin{tla}` and `\end{tla}` in file 
 like [`tla2tex-example-tla.tex`](https://github.com/hengxin/tla2tex/blob/master/tla2tex-example-tla.tex).
   - Ignore the code in between `\begin{\tlatex}` and `\end{\tlatex}` now.
-- Run `java -cp tla2tools.jar tla2tex.TeX tlatex-example-tla.tex`
+- Run `java -cp tla2tools.jar tla2tex.TeX tla2tex-example-tla.tex`
   - This will automatically generate that code in between `\begin{\tlatex}` and `\end{\tlatex}`.
   - ***Important Note:*** 
   You'd better run `java -cp` under the directory of `tlatex-example-tla.tex`. 
